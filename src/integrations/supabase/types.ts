@@ -14,16 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          h1_title: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          seo_score: number | null
+          short_intro: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          url_slug: string | null
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          h1_title?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          seo_score?: number | null
+          short_intro?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          url_slug?: string | null
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          h1_title?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          seo_score?: number | null
+          short_intro?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          url_slug?: string | null
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
+      headings: {
+        Row: {
+          blog_post_id: string
+          created_at: string | null
+          heading_level: string
+          heading_text: string
+          id: string
+          order_index: number
+        }
+        Insert: {
+          blog_post_id: string
+          created_at?: string | null
+          heading_level: string
+          heading_text: string
+          id?: string
+          order_index: number
+        }
+        Update: {
+          blog_post_id?: string
+          created_at?: string | null
+          heading_level?: string
+          heading_text?: string
+          id?: string
+          order_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "headings_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      keywords: {
+        Row: {
+          blog_post_id: string
+          created_at: string | null
+          id: string
+          keyword_text: string
+          keyword_type: string
+        }
+        Insert: {
+          blog_post_id: string
+          created_at?: string | null
+          id?: string
+          keyword_text: string
+          keyword_type: string
+        }
+        Update: {
+          blog_post_id?: string
+          created_at?: string | null
+          id?: string
+          keyword_text?: string
+          keyword_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "keywords_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +318,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
