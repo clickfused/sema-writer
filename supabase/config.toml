@@ -1,1 +1,13 @@
 project_id = "idpeyrrzztrskpqqkqcf"
+
+[functions.generate-meta]
+verify_jwt = true
+
+[functions.generate-headings]
+verify_jwt = true
+
+[functions.generate-intro]
+verify_jwt = true
+
+[functions.generate-content]
+verify_jwt = true
