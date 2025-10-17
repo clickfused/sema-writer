@@ -15,7 +15,7 @@ const Index = () => {
               <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
                 <Sparkles className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold">SEO Blog Generator</span>
+              <span className="text-xl font-bold">Ai Writer by Clik Fused</span>
             </div>
             <div className="flex gap-2">
               <Button variant="ghost" onClick={() => navigate("/auth")}>
@@ -168,7 +168,7 @@ const Index = () => {
 
       <footer className="border-t mt-16">
         <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>&copy; 2025 SEO Blog Generator. All rights reserved.</p>
+          <p>&copy; 2025 Ai Writer by Clik Fused. All rights reserved.</p>
         </div>
       </footer>
     </div>

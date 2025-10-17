@@ -16,7 +16,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
             <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
-            <h1 className="text-xl font-bold">SEO Blog Generator</h1>
+            <h1 className="text-xl font-bold">Ai Writer by Clik Fused</h1>
           </div>
         </div>
         <div className="flex items-center gap-4">
