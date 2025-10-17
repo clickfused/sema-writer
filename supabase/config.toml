@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.generate-content]
 verify_jwt = true
+
+[functions.generate-faq]
+verify_jwt = true

@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords, metaTags, headings, shortIntro } = await req.json();
+    const { keywords, metaTags, headings, shortIntro, faqContent } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -55,6 +55,8 @@ Keywords to integrate naturally:
 Heading Structure:
 ${h2List}
 
+${faqContent && faqContent.length > 0 ? `\nFAQ Section (include at the end):\n${faqContent.map((faq: any, i: number) => `Q${i + 1}: ${faq.question}\nA${i + 1}: ${faq.answer}`).join("\n\n")}` : ""}
+
 Requirements:
 - Minimum 2000 words
 - Use ALL provided H2 and H3 headings in order
@@ -62,6 +64,7 @@ Requirements:
 - Professional, engaging tone
 - Include examples and actionable insights
 - Optimize for both SEO and AEO
+${faqContent && faqContent.length > 0 ? "- Include the FAQ section at the end with proper formatting" : ""}
 - Write in markdown format`
           }
         ],

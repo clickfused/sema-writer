@@ -28,12 +28,25 @@ interface ContentGeneratorProps {
     h2s: string[];
     h3s: Array<{ h2Index: number; text: string }>;
   };
+  faqContent: Array<{ question: string; answer: string }>;
+  shortIntro: string;
+  setShortIntro: (intro: string) => void;
+  fullContent: string;
+  setFullContent: (content: string) => void;
 }
 
-export function ContentGenerator({ userId, keywords, metaTags, headings }: ContentGeneratorProps) {
+export function ContentGenerator({
+  userId,
+  keywords,
+  metaTags,
+  headings,
+  faqContent,
+  shortIntro,
+  setShortIntro,
+  fullContent,
+  setFullContent,
+}: ContentGeneratorProps) {
   const navigate = useNavigate();
-  const [shortIntro, setShortIntro] = useState("");
-  const [fullContent, setFullContent] = useState("");
   const [seoScore, setSeoScore] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -67,7 +80,7 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-content", {
-        body: { keywords, metaTags, headings, shortIntro },
+        body: { keywords, metaTags, headings, shortIntro, faqContent },
       });
 
       if (error) throw error;
@@ -106,6 +119,7 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
           h1_title: headings.h1,
           short_intro: shortIntro,
           content: fullContent,
+          faq_content: JSON.stringify(faqContent),
           word_count: wordCount,
           seo_score: seoScore,
           status: "draft",
@@ -171,7 +185,13 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
   };
 
   const exportContent = () => {
-    const markdown = `# ${metaTags.title}\n\n**Meta Description:** ${metaTags.description}\n\n**URL Slug:** ${metaTags.slug}\n\n## Short Intro\n\n${shortIntro}\n\n## Full Content\n\n${fullContent}`;
+    const faqSection = faqContent.length > 0
+      ? `\n\n## Frequently Asked Questions\n\n${faqContent
+          .map((faq, i) => `### ${i + 1}. ${faq.question}\n\n${faq.answer}`)
+          .join("\n\n")}`
+      : "";
+
+    const markdown = `# ${metaTags.title}\n\n**Meta Description:** ${metaTags.description}\n\n**URL Slug:** ${metaTags.slug}\n\n## Short Intro\n\n${shortIntro}\n\n## Full Content\n\n${fullContent}${faqSection}`;
     
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -249,6 +269,27 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
         children.push(new Paragraph(""));
       }
     });
+
+    // Add FAQ section
+    if (faqContent.length > 0) {
+      children.push(new Paragraph(""));
+      children.push(
+        new Paragraph({
+          text: "Frequently Asked Questions",
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+      faqContent.forEach((faq, index) => {
+        children.push(
+          new Paragraph({
+            text: `${index + 1}. ${faq.question}`,
+            heading: HeadingLevel.HEADING_3,
+          })
+        );
+        children.push(new Paragraph(faq.answer));
+        children.push(new Paragraph(""));
+      });
+    }
 
     const doc = new Document({
       sections: [

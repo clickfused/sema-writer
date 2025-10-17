@@ -14,10 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_drafts: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          faq_content: string | null
+          headings: Json | null
+          id: string
+          keywords: Json | null
+          meta_tags: Json | null
+          short_intro: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          faq_content?: string | null
+          headings?: Json | null
+          id?: string
+          keywords?: Json | null
+          meta_tags?: Json | null
+          short_intro?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          faq_content?: string | null
+          headings?: Json | null
+          id?: string
+          keywords?: Json | null
+          meta_tags?: Json | null
+          short_intro?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           content: string | null
           created_at: string | null
+          faq_content: string | null
           h1_title: string | null
           id: string
           meta_description: string | null
@@ -34,6 +74,7 @@ export type Database = {
         Insert: {
           content?: string | null
           created_at?: string | null
+          faq_content?: string | null
           h1_title?: string | null
           id?: string
           meta_description?: string | null
@@ -50,6 +91,7 @@ export type Database = {
         Update: {
           content?: string | null
           created_at?: string | null
+          faq_content?: string | null
           h1_title?: string | null
           id?: string
           meta_description?: string | null
@@ -134,25 +176,34 @@ export type Database = {
       }
       profiles: {
         Row: {
+          api_key: string | null
+          auto_save_enabled: boolean | null
           created_at: string | null
           email: string
           full_name: string | null
           id: string
           updated_at: string | null
+          webhook_url: string | null
         }
         Insert: {
+          api_key?: string | null
+          auto_save_enabled?: boolean | null
           created_at?: string | null
           email: string
           full_name?: string | null
           id: string
           updated_at?: string | null
+          webhook_url?: string | null
         }
         Update: {
+          api_key?: string | null
+          auto_save_enabled?: boolean | null
           created_at?: string | null
           email?: string
           full_name?: string | null
           id?: string
           updated_at?: string | null
+          webhook_url?: string | null
         }
         Relationships: []
       }

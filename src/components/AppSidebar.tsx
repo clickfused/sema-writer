@@ -1,4 +1,4 @@
-import { FileText, PenTool, LogOut } from "lucide-react";
+import { FileText, PenTool, LogOut, Settings as SettingsIcon } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ import {
 const menuItems = [
   { title: "Generate Blog", url: "/dashboard", icon: PenTool },
   { title: "My Blogs", url: "/my-blogs", icon: FileText },
+  { title: "Settings", url: "/settings", icon: SettingsIcon },
 ];
 
 export function AppSidebar() {

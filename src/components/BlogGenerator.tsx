@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KeywordInput } from "./blog-generator/KeywordInput";
 import { MetaTagsForm } from "./blog-generator/MetaTagsForm";
 import { HeadingBuilder } from "./blog-generator/HeadingBuilder";
+import { FaqGenerator } from "./blog-generator/FaqGenerator";
 import { ContentGenerator } from "./blog-generator/ContentGenerator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BlogGeneratorProps {
   userId: string;
@@ -11,6 +14,7 @@ interface BlogGeneratorProps {
 
 export function BlogGenerator({ userId }: BlogGeneratorProps) {
   const [currentTab, setCurrentTab] = useState("keywords");
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [keywords, setKeywords] = useState({
     primary: [] as string[],
     secondary: [] as string[],
@@ -27,6 +31,40 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
     h2s: [] as string[],
     h3s: [] as Array<{ h2Index: number; text: string }>,
   });
+  const [faqContent, setFaqContent] = useState<Array<{ question: string; answer: string }>>([]);
+  const [shortIntro, setShortIntro] = useState("");
+  const [fullContent, setFullContent] = useState("");
+
+  // Load user preferences
+  useEffect(() => {
+    const loadPreferences = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("auto_save_enabled")
+        .eq("id", userId)
+        .single();
+
+      if (data) {
+        setAutoSaveEnabled(data.auto_save_enabled ?? true);
+      }
+    };
+
+    loadPreferences();
+  }, [userId]);
+
+  // Auto-save hook
+  useAutoSave(
+    {
+      userId,
+      keywords,
+      metaTags,
+      headings,
+      shortIntro,
+      content: fullContent,
+      faqContent,
+    },
+    autoSaveEnabled
+  );
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -38,10 +76,11 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
       </div>
 
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="keywords">Keywords</TabsTrigger>
           <TabsTrigger value="meta">Meta Tags</TabsTrigger>
           <TabsTrigger value="headings">Headings</TabsTrigger>
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
         </TabsList>
 
@@ -67,6 +106,16 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             keywords={keywords}
             headings={headings}
             setHeadings={setHeadings}
+            onNext={() => setCurrentTab("faq")}
+          />
+        </TabsContent>
+
+        <TabsContent value="faq" className="mt-6">
+          <FaqGenerator
+            keywords={keywords}
+            metaTags={metaTags}
+            faqContent={faqContent}
+            setFaqContent={setFaqContent}
             onNext={() => setCurrentTab("content")}
           />
         </TabsContent>
@@ -77,6 +126,11 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             keywords={keywords}
             metaTags={metaTags}
             headings={headings}
+            faqContent={faqContent}
+            shortIntro={shortIntro}
+            setShortIntro={setShortIntro}
+            fullContent={fullContent}
+            setFullContent={setFullContent}
           />
         </TabsContent>
       </Tabs>
