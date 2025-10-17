@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Download, Save } from "lucide-react";
+import { Sparkles, Download, Save, FileText } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 
 interface ContentGeneratorProps {
   userId: string;
@@ -188,6 +189,91 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
     });
   };
 
+  const exportToDocx = async () => {
+    const children: Paragraph[] = [
+      new Paragraph({
+        text: metaTags.title,
+        heading: HeadingLevel.HEADING_1,
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: "Meta Description: ", bold: true }),
+          new TextRun(metaTags.description),
+        ],
+      }),
+      new Paragraph({
+        children: [
+          new TextRun({ text: "URL Slug: ", bold: true }),
+          new TextRun(metaTags.slug),
+        ],
+      }),
+      new Paragraph(""),
+      new Paragraph({
+        text: "Short Introduction",
+        heading: HeadingLevel.HEADING_2,
+      }),
+      new Paragraph(shortIntro),
+      new Paragraph(""),
+      new Paragraph({
+        text: "Full Content",
+        heading: HeadingLevel.HEADING_2,
+      }),
+    ];
+
+    const contentLines = fullContent.split("\n");
+    contentLines.forEach((line) => {
+      if (line.startsWith("# ")) {
+        children.push(
+          new Paragraph({
+            text: line.replace("# ", ""),
+            heading: HeadingLevel.HEADING_1,
+          })
+        );
+      } else if (line.startsWith("## ")) {
+        children.push(
+          new Paragraph({
+            text: line.replace("## ", ""),
+            heading: HeadingLevel.HEADING_2,
+          })
+        );
+      } else if (line.startsWith("### ")) {
+        children.push(
+          new Paragraph({
+            text: line.replace("### ", ""),
+            heading: HeadingLevel.HEADING_3,
+          })
+        );
+      } else if (line.trim()) {
+        children.push(new Paragraph(line));
+      } else {
+        children.push(new Paragraph(""));
+      }
+    });
+
+    const doc = new Document({
+      sections: [
+        {
+          children,
+        },
+      ],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${metaTags.slug || "blog-post"}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: "Content exported to Google Docx successfully",
+    });
+  };
+
   const wordCount = fullContent.split(/\s+/).filter((word) => word.length > 0).length;
 
   return (
@@ -256,6 +342,10 @@ export function ContentGenerator({ userId, keywords, metaTags, headings }: Conte
         <Button variant="outline" onClick={exportContent} disabled={!fullContent}>
           <Download className="h-4 w-4 mr-2" />
           Export Markdown
+        </Button>
+        <Button variant="outline" onClick={exportToDocx} disabled={!fullContent}>
+          <FileText className="h-4 w-4 mr-2" />
+          Export Google Docx
         </Button>
         <Button onClick={saveBlogPost} disabled={!fullContent || saving} size="lg">
           <Save className="h-4 w-4 mr-2" />
