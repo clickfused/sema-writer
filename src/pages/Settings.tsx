@@ -24,6 +24,9 @@ const Settings = () => {
     apiKey: "",
     webhookUrl: "",
     autoSaveEnabled: true,
+    wordpressUrl: "",
+    wordpressUsername: "",
+    wordpressPassword: "",
   });
 
   useEffect(() => {
@@ -65,6 +68,9 @@ const Settings = () => {
           apiKey: data.api_key || "",
           webhookUrl: data.webhook_url || "",
           autoSaveEnabled: data.auto_save_enabled ?? true,
+          wordpressUrl: data.wordpress_url || "",
+          wordpressUsername: data.wordpress_username || "",
+          wordpressPassword: data.wordpress_app_password || "",
         });
       }
     } catch (error: any) {
@@ -88,6 +94,9 @@ const Settings = () => {
           api_key: settings.apiKey,
           webhook_url: settings.webhookUrl,
           auto_save_enabled: settings.autoSaveEnabled,
+          wordpress_url: settings.wordpressUrl,
+          wordpress_username: settings.wordpressUsername,
+          wordpress_app_password: settings.wordpressPassword,
         })
         .eq("id", user.id);
 
@@ -215,6 +224,49 @@ const Settings = () => {
                         setSettings({ ...settings, autoSaveEnabled: checked })
                       }
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>WordPress Integration</CardTitle>
+                  <CardDescription>
+                    Configure WordPress for auto-publishing blog posts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="wordpressUrl">WordPress Site URL</Label>
+                    <Input
+                      id="wordpressUrl"
+                      type="url"
+                      value={settings.wordpressUrl}
+                      onChange={(e) => setSettings({ ...settings, wordpressUrl: e.target.value })}
+                      placeholder="https://yoursite.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wordpressUsername">WordPress Username</Label>
+                    <Input
+                      id="wordpressUsername"
+                      value={settings.wordpressUsername}
+                      onChange={(e) => setSettings({ ...settings, wordpressUsername: e.target.value })}
+                      placeholder="admin"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wordpressPassword">WordPress Application Password</Label>
+                    <Input
+                      id="wordpressPassword"
+                      type="password"
+                      value={settings.wordpressPassword}
+                      onChange={(e) => setSettings({ ...settings, wordpressPassword: e.target.value })}
+                      placeholder="xxxx xxxx xxxx xxxx"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Generate an Application Password in WordPress under Users → Profile
+                    </p>
                   </div>
                 </CardContent>
               </Card>

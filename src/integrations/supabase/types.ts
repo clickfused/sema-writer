@@ -184,6 +184,9 @@ export type Database = {
           id: string
           updated_at: string | null
           webhook_url: string | null
+          wordpress_app_password: string | null
+          wordpress_url: string | null
+          wordpress_username: string | null
         }
         Insert: {
           api_key?: string | null
@@ -194,6 +197,9 @@ export type Database = {
           id: string
           updated_at?: string | null
           webhook_url?: string | null
+          wordpress_app_password?: string | null
+          wordpress_url?: string | null
+          wordpress_username?: string | null
         }
         Update: {
           api_key?: string | null
@@ -204,6 +210,9 @@ export type Database = {
           id?: string
           updated_at?: string | null
           webhook_url?: string | null
+          wordpress_app_password?: string | null
+          wordpress_url?: string | null
+          wordpress_username?: string | null
         }
         Relationships: []
       }

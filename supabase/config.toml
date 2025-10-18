@@ -1,16 +1,25 @@
 project_id = "idpeyrrzztrskpqqkqcf"
 
 [functions.generate-meta]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-headings]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-intro]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-faq]
-verify_jwt = true
+verify_jwt = false
+
+[functions.generate-keywords]
+verify_jwt = false
+
+[functions.generate-links]
+verify_jwt = false
+
+[functions.publish-to-wordpress]
+verify_jwt = false

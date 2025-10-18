@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Plus, Trash2 } from "lucide-react";
+import { Sparkles, Plus, Trash2, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -105,6 +105,76 @@ export function FaqGenerator({
       });
     } finally {
       setGeneratingLinks(false);
+    }
+  };
+
+  const publishToWordPress = async () => {
+    if (!fullContent || faqContent.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please generate blog content and FAQs first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      // Get WordPress credentials
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("wordpress_url, wordpress_username, wordpress_app_password")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile?.wordpress_url || !profile?.wordpress_username || !profile?.wordpress_app_password) {
+        toast({
+          title: "WordPress Not Configured",
+          description: "Please configure WordPress credentials in Settings",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Format content with FAQ
+      const faqSection = `\n\n<h2>Frequently Asked Questions</h2>\n\n${faqContent
+        .map((faq) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`)
+        .join("\n\n")}`;
+
+      const fullPostContent = fullContent + faqSection;
+
+      // Publish to WordPress
+      const { data, error } = await supabase.functions.invoke("publish-to-wordpress", {
+        body: {
+          wordpressUrl: profile.wordpress_url,
+          username: profile.wordpress_username,
+          appPassword: profile.wordpress_app_password,
+          post: {
+            title: metaTags.title,
+            content: fullPostContent,
+            metaDescription: metaTags.description,
+            slug: metaTags.slug,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Blog post published to WordPress as draft`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -222,6 +292,13 @@ export function FaqGenerator({
           )}
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <Button onClick={publishToWordPress} disabled={generating || !fullContent || faqContent.length === 0} size="lg">
+          <Send className="h-4 w-4 mr-2" />
+          {generating ? "Publishing..." : "Publish to WordPress"}
+        </Button>
+      </div>
     </div>
   );
 }
