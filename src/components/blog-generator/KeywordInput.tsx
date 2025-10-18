@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Sparkles } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface KeywordInputProps {
   keywords: {
@@ -22,6 +24,7 @@ export function KeywordInput({ keywords, setKeywords, onNext }: KeywordInputProp
   const [secondaryInput, setSecondaryInput] = useState("");
   const [semanticInput, setSemanticInput] = useState("");
   const [lsiInput, setLsiInput] = useState("");
+  const [generating, setGenerating] = useState<string | null>(null);
 
   const addKeyword = (type: keyof typeof keywords, value: string) => {
     if (value.trim()) {
@@ -41,6 +44,44 @@ export function KeywordInput({ keywords, setKeywords, onNext }: KeywordInputProp
       ...keywords,
       [type]: keywords[type].filter((_, i) => i !== index),
     });
+  };
+
+  const generateKeywords = async (type: 'secondary' | 'semantic' | 'lsi') => {
+    if (keywords.primary.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one primary keyword first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGenerating(type);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-keywords", {
+        body: { primaryKeywords: keywords.primary, type },
+      });
+
+      if (error) throw error;
+
+      setKeywords({
+        ...keywords,
+        [type]: data.keywords,
+      });
+
+      toast({
+        title: "Success",
+        description: `${data.keywords.length} ${type} keywords generated`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(null);
+    }
   };
 
   const canProceed = keywords.primary.length > 0;
@@ -80,8 +121,20 @@ export function KeywordInput({ keywords, setKeywords, onNext }: KeywordInputProp
 
       <Card>
         <CardHeader>
-          <CardTitle>Secondary Keywords</CardTitle>
-          <CardDescription>Supporting keywords to expand the topic</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Secondary Keywords</CardTitle>
+              <CardDescription>Supporting keywords to expand the topic (min 8)</CardDescription>
+            </div>
+            <Button 
+              onClick={() => generateKeywords('secondary')} 
+              disabled={generating === 'secondary' || keywords.primary.length === 0}
+              variant="outline"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {generating === 'secondary' ? "Generating..." : "AI Suggest"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -111,8 +164,20 @@ export function KeywordInput({ keywords, setKeywords, onNext }: KeywordInputProp
 
       <Card>
         <CardHeader>
-          <CardTitle>Semantic Keywords</CardTitle>
-          <CardDescription>Contextually relevant terms</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Semantic Keywords</CardTitle>
+              <CardDescription>Contextually relevant terms (min 8)</CardDescription>
+            </div>
+            <Button 
+              onClick={() => generateKeywords('semantic')} 
+              disabled={generating === 'semantic' || keywords.primary.length === 0}
+              variant="outline"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {generating === 'semantic' ? "Generating..." : "AI Suggest"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -142,8 +207,20 @@ export function KeywordInput({ keywords, setKeywords, onNext }: KeywordInputProp
 
       <Card>
         <CardHeader>
-          <CardTitle>LSI Keywords</CardTitle>
-          <CardDescription>Latent Semantic Indexing - related terms</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>LSI Keywords</CardTitle>
+              <CardDescription>Latent Semantic Indexing - related terms (min 8)</CardDescription>
+            </div>
+            <Button 
+              onClick={() => generateKeywords('lsi')} 
+              disabled={generating === 'lsi' || keywords.primary.length === 0}
+              variant="outline"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {generating === 'lsi' ? "Generating..." : "AI Suggest"}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">

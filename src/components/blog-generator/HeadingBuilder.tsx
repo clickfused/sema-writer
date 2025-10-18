@@ -207,7 +207,7 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
 
       <div className="flex justify-end">
         <Button onClick={onNext} disabled={!canProceed} size="lg">
-          Next: Generate Content
+          Next: Content
         </Button>
       </div>
     </div>

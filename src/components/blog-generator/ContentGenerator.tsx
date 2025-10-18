@@ -33,6 +33,7 @@ interface ContentGeneratorProps {
   setShortIntro: (intro: string) => void;
   fullContent: string;
   setFullContent: (content: string) => void;
+  onNext: () => void;
 }
 
 export function ContentGenerator({
@@ -45,6 +46,7 @@ export function ContentGenerator({
   setShortIntro,
   fullContent,
   setFullContent,
+  onNext,
 }: ContentGeneratorProps) {
   const navigate = useNavigate();
   const [seoScore, setSeoScore] = useState(0);
@@ -80,7 +82,13 @@ export function ContentGenerator({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-content", {
-        body: { keywords, metaTags, headings, shortIntro, faqContent },
+        body: { 
+          keywords, 
+          metaTags, 
+          headings, 
+          shortIntro, 
+          faqContent: [] // Don't include FAQ in content generation
+        },
       });
 
       if (error) throw error;
@@ -388,9 +396,12 @@ export function ContentGenerator({
           <FileText className="h-4 w-4 mr-2" />
           Export Google Docx
         </Button>
-        <Button onClick={saveBlogPost} disabled={!fullContent || saving} size="lg">
+        <Button onClick={saveBlogPost} disabled={!fullContent || saving}>
           <Save className="h-4 w-4 mr-2" />
           {saving ? "Saving..." : "Save Blog Post"}
+        </Button>
+        <Button onClick={onNext} disabled={!fullContent} size="lg">
+          Next: FAQ & Links
         </Button>
       </div>
     </div>

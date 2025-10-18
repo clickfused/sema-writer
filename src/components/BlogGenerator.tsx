@@ -80,8 +80,8 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
           <TabsTrigger value="keywords">Keywords</TabsTrigger>
           <TabsTrigger value="meta">Meta Tags</TabsTrigger>
           <TabsTrigger value="headings">Headings</TabsTrigger>
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="faq">FAQ & Links</TabsTrigger>
         </TabsList>
 
         <TabsContent value="keywords" className="mt-6">
@@ -106,16 +106,6 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             keywords={keywords}
             headings={headings}
             setHeadings={setHeadings}
-            onNext={() => setCurrentTab("faq")}
-          />
-        </TabsContent>
-
-        <TabsContent value="faq" className="mt-6">
-          <FaqGenerator
-            keywords={keywords}
-            metaTags={metaTags}
-            faqContent={faqContent}
-            setFaqContent={setFaqContent}
             onNext={() => setCurrentTab("content")}
           />
         </TabsContent>
@@ -131,6 +121,18 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             setShortIntro={setShortIntro}
             fullContent={fullContent}
             setFullContent={setFullContent}
+            onNext={() => setCurrentTab("faq")}
+          />
+        </TabsContent>
+
+        <TabsContent value="faq" className="mt-6">
+          <FaqGenerator
+            keywords={keywords}
+            metaTags={metaTags}
+            faqContent={faqContent}
+            setFaqContent={setFaqContent}
+            fullContent={fullContent}
+            onNext={() => {}}
           />
         </TabsContent>
       </Tabs>

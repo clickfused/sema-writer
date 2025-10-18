@@ -64,8 +64,11 @@ Requirements:
 - Professional, engaging tone
 - Include examples and actionable insights
 - Optimize for both SEO and AEO
-${faqContent && faqContent.length > 0 ? "- Include the FAQ section at the end with proper formatting" : ""}
-- Write in markdown format`
+- Each paragraph should be approximately 60 words
+- Split paragraphs naturally with bullet points where appropriate
+- Use bullet points for lists, features, benefits, or step-by-step instructions
+- Write in markdown format
+- DO NOT include FAQ section in the content`
           }
         ],
       }),

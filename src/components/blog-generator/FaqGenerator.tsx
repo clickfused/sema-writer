@@ -22,6 +22,7 @@ interface FaqGeneratorProps {
   };
   faqContent: Array<{ question: string; answer: string }>;
   setFaqContent: (faq: Array<{ question: string; answer: string }>) => void;
+  fullContent: string;
   onNext: () => void;
 }
 
@@ -30,15 +31,27 @@ export function FaqGenerator({
   metaTags,
   faqContent,
   setFaqContent,
+  fullContent,
   onNext,
 }: FaqGeneratorProps) {
   const [generating, setGenerating] = useState(false);
+  const [generatingLinks, setGeneratingLinks] = useState(false);
+  const [linkSuggestions, setLinkSuggestions] = useState<Array<{ anchor: string; url: string; type: 'internal' | 'external' }>>([]);
 
   const generateFaqs = async () => {
+    if (!fullContent) {
+      toast({
+        title: "Error",
+        description: "Please generate blog content first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-faq", {
-        body: { keywords, metaTags },
+        body: { keywords, metaTags, content: fullContent },
       });
 
       if (error) throw error;
@@ -57,6 +70,41 @@ export function FaqGenerator({
       });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const generateLinks = async () => {
+    if (!fullContent) {
+      toast({
+        title: "Error",
+        description: "Please generate blog content first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGeneratingLinks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-links", {
+        body: { keywords, metaTags, content: fullContent },
+      });
+
+      if (error) throw error;
+
+      setLinkSuggestions(data.links);
+
+      toast({
+        title: "Success",
+        description: `${data.links.length} link suggestions generated`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingLinks(false);
     }
   };
 
@@ -80,12 +128,12 @@ export function FaqGenerator({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>FAQ Section</CardTitle>
+              <CardTitle>FAQ Section (After Blog Content)</CardTitle>
               <CardDescription>
                 Generate SEO-optimized FAQ schema for better visibility
               </CardDescription>
             </div>
-            <Button onClick={generateFaqs} disabled={generating}>
+            <Button onClick={generateFaqs} disabled={generating || !fullContent}>
               <Sparkles className="h-4 w-4 mr-2" />
               {generating ? "Generating..." : "AI Generate FAQs"}
             </Button>
@@ -135,15 +183,45 @@ export function FaqGenerator({
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={onNext}
-          disabled={faqContent.length === 0}
-          size="lg"
-        >
-          Continue to Content
-        </Button>
-      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Link Suggestions</CardTitle>
+              <CardDescription>
+                AI-generated internal & external link suggestions with anchor text
+              </CardDescription>
+            </div>
+            <Button onClick={generateLinks} disabled={generatingLinks || !fullContent}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              {generatingLinks ? "Generating..." : "AI Suggest Links"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {linkSuggestions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No link suggestions yet. Click the button to generate.</p>
+            </div>
+          ) : (
+            linkSuggestions.map((link, index) => (
+              <Card key={index} className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={link.type === 'internal' ? 'default' : 'secondary'}>
+                        {link.type}
+                      </Badge>
+                      <span className="font-medium">{link.anchor}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground break-all">{link.url}</p>
+                  </div>
+                </div>
+              </Card>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
