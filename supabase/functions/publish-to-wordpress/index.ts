@@ -27,11 +27,12 @@ serve(async (req) => {
       body: JSON.stringify({
         title: post.title,
         content: post.content,
-        status: "draft", // Can be 'draft' or 'publish'
+        status: post.status || "draft",
         meta: {
           description: post.metaDescription,
         },
         slug: post.slug,
+        featured_media: post.featuredImageId || undefined,
       }),
     });
 

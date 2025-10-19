@@ -37,14 +37,36 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are an expert SEO content writer. Create comprehensive, engaging, and well-optimized blog posts."
+            content: `You are an expert SEO content writer specializing in E-E-A-T optimization (Experience, Expertise, Authoritativeness, Trustworthiness).
+
+Create content optimized for:
+1. Search Engines (SEO) - Google, Bing ranking
+2. Answer Engines (AEO) - Perplexity, Bing Copilot citations
+3. Generative Engines (GEO) - ChatGPT, Gemini recommendations
+
+Formatting requirements (CRITICAL):
+- Use HTML tags ONLY - no markdown symbols
+- <strong> for bold (never ** or __)
+- <mark> for highlights
+- <ul><li> for bullet points (NEVER use * or -)
+- <h2>, <h3> for headings (NEVER use # symbols)
+- <a href="#"> for internal links
+- <p> for paragraphs
+
+Content requirements:
+- Write naturally to pass AI detection
+- Include semantic keywords naturally
+- Add credible data points and sources
+- Show first-hand experience signals
+- Build topical authority`
           },
           {
             role: "user",
-            content: `Write a complete blog post with the following structure:
+            content: `Write a comprehensive blog post with proper HTML formatting:
 
-Title: ${metaTags.title}
-Introduction: ${shortIntro}
+<h1>${metaTags.title}</h1>
+
+Introduction (use this): ${shortIntro}
 
 Keywords to integrate naturally:
 - Primary: ${keywords.primary.join(", ")}
@@ -52,23 +74,22 @@ Keywords to integrate naturally:
 - Semantic: ${keywords.semantic.join(", ")}
 - LSI: ${keywords.lsi.join(", ")}
 
-Heading Structure:
+Heading Structure (use <h2> and <h3> tags):
 ${h2List}
 
-${faqContent && faqContent.length > 0 ? `\nFAQ Section (include at the end):\n${faqContent.map((faq: any, i: number) => `Q${i + 1}: ${faq.question}\nA${i + 1}: ${faq.answer}`).join("\n\n")}` : ""}
+${faqContent && faqContent.length > 0 ? `\nFAQ Section (include at the end with <h2> and structured HTML):\n${faqContent.map((faq: any, i: number) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n\n")}` : ""}
 
 Requirements:
 - Minimum 2000 words
-- Use ALL provided H2 and H3 headings in order
-- Integrate all keyword types naturally
-- Professional, engaging tone
+- Use ALL provided H2/H3 headings in order with proper HTML tags
+- Integrate keywords naturally (avoid keyword stuffing)
+- Professional, conversational tone
 - Include examples and actionable insights
-- Optimize for both SEO and AEO
-- Each paragraph should be approximately 60 words
-- Split paragraphs naturally with bullet points where appropriate
-- Use bullet points for lists, features, benefits, or step-by-step instructions
-- Write in markdown format
-- DO NOT include FAQ section in the content`
+- Use <ul><li> for lists (never markdown bullets)
+- Use <strong> for emphasis (never markdown bold)
+- Add internal link suggestions with <a> tags
+- Write to pass AI content detection
+- Optimize for E-E-A-T signals`
           }
         ],
       }),

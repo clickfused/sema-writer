@@ -57,10 +57,19 @@ For external links, suggest authoritative sources related to the topic.`
     }
 
     const data = await response.json();
-    const content_text = data.choices[0].message.content;
+    let content_text = data.choices[0].message.content;
+    
+    // Remove markdown code blocks if present
+    content_text = content_text.trim();
+    if (content_text.startsWith('```json')) {
+      content_text = content_text.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+    } else if (content_text.startsWith('```')) {
+      content_text = content_text.replace(/```\n?/g, '');
+    }
+    content_text = content_text.trim();
     
     // Parse the JSON array from the response
-    const links = JSON.parse(content_text.trim());
+    const links = JSON.parse(content_text);
 
     return new Response(
       JSON.stringify({ links }),

@@ -5,14 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { BlogContentDisplay } from "./BlogContentDisplay";
 
 interface BlogPost {
   id: string;
   title: string;
   meta_title: string | null;
+  content: string | null;
   word_count: number;
   seo_score: number;
   status: string;
+  url_slug: string | null;
   created_at: string;
 }
 

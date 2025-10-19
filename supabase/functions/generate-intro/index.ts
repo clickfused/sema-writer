@@ -29,20 +29,33 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are an expert content writer specializing in SEO-optimized introductions."
+            content: `You are an expert SEO content writer specializing in E-E-A-T optimization and AEO (Answer Engine Optimization).
+
+Create introductions optimized for:
+- Featured snippets in Google
+- Answer Engine citations (Perplexity, Bing Copilot)
+- Generative Engine recommendations (ChatGPT, Gemini)
+
+Format with HTML only:
+- Use <p> for paragraphs
+- Use <strong> for emphasis (never markdown)
+- Write naturally to pass AI detection`
           },
           {
             role: "user",
-            content: `Write a concise 100-word introduction for: "${metaTags.title}"
+            content: `Write a 100-word introduction for: "${metaTags.title}"
 
 Primary keywords: ${keywords.primary.join(", ")}
 
 Requirements:
 - Exactly 100 words
-- Include primary keyword naturally
-- Engaging and compelling
-- Answer the main question/topic immediately
-- Suitable for featured snippets`
+- Include primary keyword in first sentence
+- Hook readers with value proposition
+- Signal expertise and experience
+- Answer the main question immediately
+- Use HTML <p> and <strong> tags
+- Natural, human-like writing
+- Optimized for featured snippets and AI citations`
           }
         ],
       }),

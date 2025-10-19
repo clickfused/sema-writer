@@ -29,11 +29,24 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are an SEO expert creating FAQ content for blog posts."
+            content: `You are an SEO expert specializing in Answer Engine Optimization (AEO) and FAQ schema.
+
+Create FAQ content optimized for:
+- Answer Engine citations (Perplexity, Bing Copilot)
+- Google Featured Snippets
+- Voice search (Alexa, Siri, Google Assistant)
+- E-E-A-T authority signals
+
+Requirements:
+- Direct, concise answers (40-60 words)
+- Natural language matching search intent
+- Include semantic keywords naturally
+- Write to pass AI content detection
+- Add credibility and expertise signals`
           },
           {
             role: "user",
-            content: `Generate 5-7 frequently asked questions with comprehensive answers for a blog post about:
+            content: `Generate 5-7 FAQs optimized for Answer Engines about:
 
 Title: ${metaTags.title}
 Description: ${metaTags.description}
@@ -44,11 +57,12 @@ Keywords:
 - Semantic: ${keywords.semantic.join(", ")}
 
 Requirements:
-- Questions should be natural and commonly searched
-- Answers should be detailed (100-150 words each)
-- Include keywords naturally
-- Optimize for voice search
-- Format as JSON array with "question" and "answer" fields`
+- Questions should match natural search queries
+- Answers: 40-60 words (concise for featured snippets)
+- Include keywords naturally (avoid stuffing)
+- Optimize for voice search patterns
+- Show expertise and authority
+- Write naturally to pass AI detection`
           }
         ],
         tools: [

@@ -53,10 +53,19 @@ Return ONLY a JSON array of 8 keyword strings, nothing else. Example: ["keyword1
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+    
+    // Remove markdown code blocks if present
+    content = content.trim();
+    if (content.startsWith('```json')) {
+      content = content.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
+    } else if (content.startsWith('```')) {
+      content = content.replace(/```\n?/g, '');
+    }
+    content = content.trim();
     
     // Parse the JSON array from the response
-    const keywords = JSON.parse(content.trim());
+    const keywords = JSON.parse(content);
 
     return new Response(
       JSON.stringify({ keywords }),
