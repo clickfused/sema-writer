@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Download, Save, FileText } from "lucide-react";
+import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -52,6 +52,15 @@ export function ContentGenerator({
   const [seoScore, setSeoScore] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [qualityMetrics, setQualityMetrics] = useState<{
+    grammarScore: number;
+    aiDetectionScore: number;
+    overallQuality: number;
+    spellingIssues: string[];
+    humanizationSuggestions: string[];
+  } | null>(null);
+  const [checkingQuality, setCheckingQuality] = useState(false);
+  const [humanizing, setHumanizing] = useState(false);
 
   const generateShortIntro = async () => {
     setGenerating(true);
@@ -96,6 +105,9 @@ export function ContentGenerator({
       setFullContent(data.content);
       setSeoScore(data.seoScore);
 
+      // Automatically check content quality after generation
+      await checkContentQuality(data.content);
+
       toast({
         title: "Success",
         description: "Full blog post generated successfully",
@@ -108,6 +120,80 @@ export function ContentGenerator({
       });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const checkContentQuality = async (contentToCheck?: string) => {
+    const content = contentToCheck || fullContent;
+    if (!content) {
+      toast({
+        title: "Error",
+        description: "No content to check",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCheckingQuality(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("check-content-quality", {
+        body: { content },
+      });
+
+      if (error) throw error;
+
+      setQualityMetrics(data);
+
+      toast({
+        title: "Quality Check Complete",
+        description: `Grammar: ${data.grammarScore}/100, AI Detection: ${data.aiDetectionScore}/100`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCheckingQuality(false);
+    }
+  };
+
+  const humanizeContent = async () => {
+    if (!fullContent) {
+      toast({
+        title: "Error",
+        description: "No content to humanize",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setHumanizing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("humanize-content", {
+        body: { content: fullContent },
+      });
+
+      if (error) throw error;
+
+      setFullContent(data.humanizedContent);
+
+      // Re-check quality after humanization
+      await checkContentQuality(data.humanizedContent);
+
+      toast({
+        title: "Success",
+        description: "Content humanized successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setHumanizing(false);
     }
   };
 
@@ -374,16 +460,73 @@ export function ContentGenerator({
             rows={20}
             className="font-mono text-sm"
           />
-          <div className="flex items-center justify-between">
-            <div className="flex gap-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex gap-2 flex-wrap">
               <Badge variant={wordCount >= 2000 ? "default" : "secondary"}>
                 {wordCount} words
               </Badge>
               <Badge variant={seoScore >= 80 ? "default" : seoScore >= 60 ? "secondary" : "destructive"}>
                 SEO Score: {seoScore}/100
               </Badge>
+              {qualityMetrics && (
+                <>
+                  <Badge variant={qualityMetrics.grammarScore >= 90 ? "default" : "secondary"}>
+                    Grammar: {qualityMetrics.grammarScore}/100
+                  </Badge>
+                  <Badge 
+                    variant={qualityMetrics.aiDetectionScore <= 30 ? "default" : qualityMetrics.aiDetectionScore <= 60 ? "secondary" : "destructive"}
+                  >
+                    AI Detection: {qualityMetrics.aiDetectionScore}/100
+                  </Badge>
+                  <Badge variant={qualityMetrics.overallQuality >= 80 ? "default" : "secondary"}>
+                    Quality: {qualityMetrics.overallQuality}/100
+                  </Badge>
+                </>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => checkContentQuality()}
+                disabled={!fullContent || checkingQuality}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                {checkingQuality ? "Checking..." : "Check Quality"}
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={humanizeContent}
+                disabled={!fullContent || humanizing}
+              >
+                <Wand2 className="h-4 w-4 mr-2" />
+                {humanizing ? "Humanizing..." : "Humanize Content"}
+              </Button>
             </div>
           </div>
+
+          {qualityMetrics && qualityMetrics.spellingIssues.length > 0 && (
+            <div className="p-4 border rounded-lg bg-muted/50">
+              <Label className="text-sm font-semibold mb-2 block">Spelling/Grammar Issues:</Label>
+              <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                {qualityMetrics.spellingIssues.slice(0, 5).map((issue, i) => (
+                  <li key={i}>{issue}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {qualityMetrics && qualityMetrics.humanizationSuggestions.length > 0 && (
+            <div className="p-4 border rounded-lg bg-muted/50">
+              <Label className="text-sm font-semibold mb-2 block">Humanization Suggestions:</Label>
+              <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
+                {qualityMetrics.humanizationSuggestions.slice(0, 5).map((suggestion, i) => (
+                  <li key={i}>{suggestion}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </CardContent>
       </Card>
 

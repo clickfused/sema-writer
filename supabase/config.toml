@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.upload-wordpress-image]
 verify_jwt = false
+
+[functions.check-content-quality]
+verify_jwt = false
+
+[functions.humanize-content]
+verify_jwt = false
