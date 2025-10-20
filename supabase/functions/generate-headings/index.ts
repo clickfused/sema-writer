@@ -36,23 +36,72 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: "You are an expert content strategist. Create SEO-optimized heading structures for blog posts."
+            content: `You are a senior SEO, AEO & GEO strategist with 10+ years of experience.
+Use the SAGE Framework to create heading structures that rank across:
+- Search Engines (Google, Bing) 
+- Answer Engines (Perplexity, Gemini)
+- Generative Engines (ChatGPT, Claude)
+
+SAGE Framework:
+S = Search Optimization (SEO)
+A = Answer Optimization (AEO) 
+G = Generative Optimization (GEO)
+E = Experience Optimization (UX)`
           },
           {
             role: "user",
-            content: `Create a heading structure for a blog post about these keywords: ${allKeywords}
+            content: `Create a SAGE-optimized heading structure (H1–H3) for a blog post about: ${allKeywords}
 
-Return ONLY a JSON object with:
+Return ONLY a JSON object with this structure:
 {
-  "h1": "Main article title",
-  "h2s": ["10+ H2 section headings"],
-  "h3s": [{"h2Index": 0, "text": "H3 subheading"}]
+  "h1": "Search-optimized main title (≤60 chars, include primary keyword)",
+  "h2s": [
+    "TL;DR Summary",
+    "Introduction", 
+    "What is [Topic/Keyword]?",
+    "How Does [Topic] Work?",
+    "Why is [Topic] Important in 2025?",
+    "[Topic] Strategies or Best Practices",
+    "Real-World Examples or Case Studies",
+    "Future Trends & Predictions",
+    "Recap Summary",
+    "FAQ Section",
+    "Conclusion"
+  ],
+  "h3s": [
+    {"h2Index": 2, "text": "Simple Definition"},
+    {"h2Index": 2, "text": "Key Features or Elements"},
+    {"h2Index": 2, "text": "Example in Real Use Case"},
+    {"h2Index": 3, "text": "Step 1 – [Process Explanation]"},
+    {"h2Index": 3, "text": "Step 2 – [Process Explanation]"},
+    {"h2Index": 3, "text": "Step 3 – [Output/Result]"},
+    {"h2Index": 4, "text": "Key Data & Trends"},
+    {"h2Index": 4, "text": "Benefits & Opportunities"},
+    {"h2Index": 4, "text": "Challenges & Limitations"},
+    {"h2Index": 5, "text": "Strategy 1 – [Specific Tip/Method]"},
+    {"h2Index": 5, "text": "Strategy 2 – [Specific Tip/Method]"},
+    {"h2Index": 5, "text": "Strategy 3 – [Specific Tip/Method]"},
+    {"h2Index": 6, "text": "Example 1 – [Entity/Brand]"},
+    {"h2Index": 6, "text": "Example 2 – [Entity/Brand]"},
+    {"h2Index": 6, "text": "Example 3 – [Entity/Brand]"},
+    {"h2Index": 7, "text": "Emerging Tech / Tools"},
+    {"h2Index": 7, "text": "AI Impact / Market Forecasts"},
+    {"h2Index": 7, "text": "What to Watch Next"},
+    {"h2Index": 9, "text": "What are the top [topic] in 2025?"},
+    {"h2Index": 9, "text": "How does [topic] affect ranking factors?"},
+    {"h2Index": 9, "text": "Is [topic] detectable by search engines?"},
+    {"h2Index": 9, "text": "How to optimize for ChatGPT or Perplexity answers?"}
+  ]
 }
 
-Requirements:
-- Minimum 10 H2 headings
-- At least 5 H3 subheadings total, distributed across different H2s
-- Integrate keywords naturally`
+SAGE Requirements:
+✅ H1: Include primary keyword, ≤60 characters, clickable for humans + search engines
+✅ H2s: Follow SAGE structure (TL;DR, What/How/Why, Examples, FAQ, Conclusion)
+✅ H3s: Question-based for AEO where relevant, distributed across H2s
+✅ Integrate keywords naturally throughout
+✅ Structure for Featured Snippets, HowTo schema, FAQ schema
+✅ Optimize for LLM retrieval (ChatGPT, Gemini, Perplexity)
+✅ Maintain entity consistency in phrasing`
           }
         ],
       }),
