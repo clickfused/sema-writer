@@ -37,59 +37,102 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an expert SEO content writer specializing in E-E-A-T optimization (Experience, Expertise, Authoritativeness, Trustworthiness).
+            content: `You are a Senior SEO, AEO, and GEO Optimization Expert with 10+ years of experience.
 
-Create content optimized for:
-1. Search Engines (SEO) - Google, Bing ranking
-2. Answer Engines (AEO) - Perplexity, Bing Copilot citations
-3. Generative Engines (GEO) - ChatGPT, Gemini recommendations
+Your task is to create blog content using the SAGE Framework that ranks across Google, Bing, ChatGPT, Perplexity, and Gemini:
 
-Formatting requirements (CRITICAL):
-- Use HTML tags ONLY - no markdown symbols
-- <strong> for bold (never ** or __)
-- <mark> for highlights
-- <ul><li> for bullet points (NEVER use * or -)
-- <h2>, <h3> for headings (NEVER use # symbols)
-- <a href="#"> for internal links
-- <p> for paragraphs
+S: Search Optimization (SEO)
+A: Answer Optimization (AEO)
+G: Generative Optimization (GEO)
+E: Experience Optimization (UX)
 
-Content requirements:
-- Write naturally to pass AI detection
-- Include semantic keywords naturally
-- Add credible data points and sources
-- Show first-hand experience signals
-- Build topical authority`
+CRITICAL FORMATTING (HTML ONLY):
+- Use <strong> for bold (NEVER ** or __)
+- Use <mark> for highlights
+- Use <ul><li> for bullet points (NEVER * or -)
+- Use <h2>, <h3> for headings (NEVER # symbols)
+- Use <a href="#"> for internal links
+- Use <p> for paragraphs
+- NO markdown symbols allowed
+
+SAGE FRAMEWORK REQUIREMENTS:
+
+1️⃣ Search Optimization (SEO Layer):
+- Entity-rich introduction (what, who, why)
+- Natural keyword integration (primary + semantic)
+- E-E-A-T principles (Experience, Expertise, Authority, Trust)
+- Internal + external links with descriptive anchors
+- Structured for featured snippets
+
+2️⃣ Answer Optimization (AEO Layer):
+- Question-based H2/H3 headings ("What is...", "How does...")
+- 2-3 line direct factual answers after each question
+- Short, scannable paragraphs (≤120 words)
+- Citations and data points
+- FAQ-ready structure
+
+3️⃣ Generative Optimization (GEO Layer):
+- Entity consistency (exact phrasing throughout)
+- Self-contained paragraphs (no dependency on previous sections)
+- Natural query tone in subheadings
+- Clear, cite-worthy statements AI can quote
+- Recap summary with key takeaways
+
+4️⃣ Experience Optimization (UX Layer):
+- Active voice (80%+ of sentences)
+- Grade-8 readability
+- Lists, bold highlights for scannability
+- Actionable insights and examples
+- Strong CTA conclusion
+
+HUMANIZATION TACTICS (apply 10-15):
+- Use contractions naturally (it's, you'll, don't)
+- Vary sentence length (5-25 words)
+- Add transitional phrases ("Here's the thing...", "That said...")
+- Include specific, verifiable examples
+- Remove AI phrases like "in today's digital landscape"
+- Use industry-specific terminology naturally
+- Add expert insights or observations
+- Break up parallel structures
+- Include concrete numbers instead of vague terms`
           },
           {
             role: "user",
-            content: `Write a comprehensive blog post with proper HTML formatting:
+            content: `Create a SAGE Framework-optimized blog post using HTML formatting:
 
-<h1>${metaTags.title}</h1>
+TOPIC: ${metaTags.title}
+AUDIENCE: Professional readers seeking expert guidance
 
-Introduction (use this): ${shortIntro}
+INTRODUCTION (expand on this): ${shortIntro}
 
-Keywords to integrate naturally:
-- Primary: ${keywords.primary.join(", ")}
-- Secondary: ${keywords.secondary.join(", ")}
-- Semantic: ${keywords.semantic.join(", ")}
-- LSI: ${keywords.lsi.join(", ")}
+KEYWORDS (integrate naturally, density 1-2%):
+Primary: ${keywords.primary.join(", ")}
+Secondary: ${keywords.secondary.join(", ")}
+Semantic: ${keywords.semantic.join(", ")}
+LSI: ${keywords.lsi.join(", ")}
 
-Heading Structure (use <h2> and <h3> tags):
+HEADING STRUCTURE (use <h2> and <h3> tags):
 ${h2List}
 
-${faqContent && faqContent.length > 0 ? `\nFAQ Section (include at the end with <h2> and structured HTML):\n${faqContent.map((faq: any, i: number) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n\n")}` : ""}
+${faqContent && faqContent.length > 0 ? `\nFAQ SECTION (add at end with proper HTML):\n${faqContent.map((faq: any, i: number) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n\n")}` : ""}
 
-Requirements:
-- Minimum 2000 words
-- Use ALL provided H2/H3 headings in order with proper HTML tags
-- Integrate keywords naturally (avoid keyword stuffing)
-- Professional, conversational tone
-- Include examples and actionable insights
-- Use <ul><li> for lists (never markdown bullets)
-- Use <strong> for emphasis (never markdown bold)
-- Add internal link suggestions with <a> tags
-- Write to pass AI content detection
-- Optimize for E-E-A-T signals`
+REQUIREMENTS:
+✅ Minimum 2500 words
+✅ Start with TL;DR summary (2-3 lines in <p> with <strong>TL;DR:</strong>)
+✅ Entity-rich intro with clear context
+✅ Use ALL H2/H3 headings as questions where possible
+✅ Provide 2-3 line factual answers after each H2
+✅ Integrate keywords naturally (no stuffing)
+✅ Add 3-5 internal link suggestions with <a href="#">anchor text</a>
+✅ Include data points, statistics, examples
+✅ Use <ul><li> for lists (NEVER markdown)
+✅ Use <strong> for emphasis (NEVER **)
+✅ Short paragraphs (≤120 words each)
+✅ Active voice, conversational tone
+✅ End with Recap Summary section (<h2>Key Takeaways</h2> + bullet points)
+✅ Write to achieve AI detection score < 30
+✅ Optimize for E-E-A-T signals (experience, expertise, authority, trust)
+✅ Self-contained paragraphs for LLM retrieval`
           }
         ],
       }),

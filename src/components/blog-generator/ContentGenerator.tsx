@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 interface ContentGeneratorProps {
   userId: string;
@@ -453,12 +454,10 @@ export function ContentGenerator({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
-            value={fullContent}
-            onChange={(e) => setFullContent(e.target.value)}
+          <RichTextEditor
+            content={fullContent}
+            onChange={setFullContent}
             placeholder="Your full blog post content will appear here..."
-            rows={20}
-            className="font-mono text-sm"
           />
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex gap-2 flex-wrap">
