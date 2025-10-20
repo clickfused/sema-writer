@@ -30,26 +30,41 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a content quality analyzer. Analyze content for:
-1. Grammar and spelling errors
-2. AI content detection (how AI-like the content sounds)
-3. Provide humanization suggestions
+            content: `You are an expert content quality analyzer specializing in SEO, AEO (Answer Engine Optimization), and GEO (Generative Engine Optimization).
 
-Return structured analysis.`
+Analyze content for:
+1. **Grammar & Spelling**: Identify errors that hurt credibility and search rankings
+2. **AI Detection Score**: How AI-generated the content appears (0-100, where 100 = obviously AI-written, 0 = naturally human)
+3. **SEO/AEO/GEO Readiness**: E-E-A-T signals, answer clarity, entity consistency
+4. **Humanization Needs**: Specific suggestions to make content sound more authentic and trustworthy
+
+Focus on detecting:
+- Repetitive phrasing patterns typical of AI
+- Overly formal or robotic sentence structures
+- Lack of personal voice, anecdotes, or specific examples
+- Missing transitional phrases and natural flow
+- Generic statements without depth or nuance
+
+Return structured, actionable analysis.`
           },
           {
             role: "user",
-            content: `Analyze this content and provide quality scores:
+            content: `Analyze this content for quality, grammar, spelling, AI detection, and SEO/AEO/GEO optimization:
 
 ${content}
 
-Provide analysis in this JSON format:
+Provide comprehensive analysis in this JSON format:
 {
-  "grammarScore": 0-100,
-  "spellingIssues": ["issue1", "issue2"],
-  "aiDetectionScore": 0-100 (100 = very AI-like, 0 = very human),
-  "humanizationSuggestions": ["suggestion1", "suggestion2"],
-  "overallQuality": 0-100
+  "grammarScore": 0-100 (quality of grammar),
+  "spellingIssues": ["specific issue 1", "specific issue 2"] (max 10 most critical),
+  "aiDetectionScore": 0-100 (0 = very human, 100 = obviously AI-generated),
+  "humanizationSuggestions": [
+    "Add personal anecdotes or real-world examples",
+    "Vary sentence structure more naturally",
+    "Include conversational transitions",
+    "Specific suggestion 4"
+  ] (max 10 actionable suggestions),
+  "overallQuality": 0-100 (combined score considering grammar, originality, E-E-A-T signals, and optimization)
 }`
           }
         ],
