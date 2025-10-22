@@ -31,7 +31,15 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
     h2s: [] as string[],
     h3s: [] as Array<{ h2Index: number; text: string }>,
   });
-  const [faqContent, setFaqContent] = useState<Array<{ question: string; answer: string }>>([]);
+  const [faqContent, setFaqContent] = useState<Array<{
+    intent?: string;
+    question: string;
+    conversationalVariation?: string;
+    longtailVariation?: string;
+    answer: string;
+    namedEntities?: string[];
+    conceptualEntities?: string[];
+  }>>([]);
   const [shortIntro, setShortIntro] = useState("");
   const [fullContent, setFullContent] = useState("");
 

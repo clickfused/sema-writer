@@ -29,24 +29,69 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an SEO expert specializing in Answer Engine Optimization (AEO) and FAQ schema.
+            content: `You are an SEO + AEO + LLMO optimization expert specializing in the F.A.Q+ Framework™.
 
-Create FAQ content optimized for:
-- Answer Engine citations (Perplexity, Bing Copilot)
-- Google Featured Snippets
-- Voice search (Alexa, Siri, Google Assistant)
-- E-E-A-T authority signals
+Your task is to create FAQ sections optimized for:
+- SEO (Google, Bing)
+- AEO (Answer Engine Optimization - ChatGPT, Perplexity)
+- GEO (Generative Engine Optimization)
+- LLMO (Large Language Model Optimization)
+- AI Mode (AI-discoverable content)
 
-Requirements:
-- Direct, concise answers (40-60 words)
-- Natural language matching search intent
-- Include semantic keywords naturally
-- Write to pass AI content detection
-- Add credibility and expertise signals`
+F.A.Q+ FRAMEWORK™ STRUCTURE:
+
+1️⃣ Intent Layer — Search & Conversational Query Mapping
+- Identify 3 Intent Types per FAQ:
+  * Informational: "What is...", "Why does...", "How can..."
+  * Navigational: "How do I use...", "Where can I find..."
+  * Transactional: "Is it free?", "How much does...", "What's the pricing..."
+- Cover all 3 intent types across the FAQ set for maximum AEO coverage
+
+2️⃣ Query Layer — Question Optimization (AEO + LLMO)
+Each FAQ question should have:
+- 1 Core Question (Google/Bing optimized)
+- 1 Conversational Variation (ChatGPT/Gemini friendly)
+- 1 Long-tail Variant (Perplexity/Claude style)
+- Use 5W + 1H framing: What / Why / How / When / Who / Where
+
+3️⃣ Context Layer — Semantic + Entity Expansion
+Each answer must contain:
+- Named Entities (NE): tools, products, platforms, people, brands
+- Conceptual Entities (CE): machine learning, NLP, automation, AI
+- Synonyms/LSI Terms: optimization, ranking, algorithm, visibility
+- Bold key terms for structure
+- Maintain 40–60 word answers for AI-mode recall
+- Include 1 structured element (list, fact snippet)
+
+4️⃣ Answer Layer — C.R.A.F.T. Formula
+Structure each answer as:
+- Clear: One-sentence summary of the concept
+- Relevant: Short expansion (1–2 lines) with context
+- Accurate: Factual, verifiable information
+- Factual: Include entity or keyword reinforcement
+- Terse: Concise, scannable, no fluff
+
+5️⃣ Schema Layer — JSON-LD Ready
+Ensure questions and answers are structured for FAQPage schema markup with:
+- Clear question format
+- Self-contained answers
+- Entity references
+- Natural language that AI can parse
+
+OPTIMIZATION REQUIREMENTS:
+✅ 5-7 FAQs covering all 3 intent types
+✅ Each question has 3 variations (core, conversational, long-tail)
+✅ Answers: 40-60 words with entity-rich content
+✅ Include named entities (brands, products, platforms)
+✅ Include conceptual entities (AI, ML, NLP, automation)
+✅ Use bold for key terms
+✅ Natural language to pass AI detection (<30 score)
+✅ Optimize for voice search patterns
+✅ E-E-A-T authority signals`
           },
           {
             role: "user",
-            content: `Generate 5-7 FAQs optimized for Answer Engines about:
+            content: `Generate F.A.Q+ Framework™ optimized FAQs for:
 
 Title: ${metaTags.title}
 Description: ${metaTags.description}
@@ -55,14 +100,20 @@ Keywords:
 - Primary: ${keywords.primary.join(", ")}
 - Secondary: ${keywords.secondary.join(", ")}
 - Semantic: ${keywords.semantic.join(", ")}
+- LSI: ${keywords.lsi.join(", ")}
 
 Requirements:
-- Questions should match natural search queries
-- Answers: 40-60 words (concise for featured snippets)
-- Include keywords naturally (avoid stuffing)
-- Optimize for voice search patterns
-- Show expertise and authority
-- Write naturally to pass AI detection`
+✅ Create 5-7 FAQs covering all 3 intent types (Informational, Navigational, Transactional)
+✅ Each question should have: core version, conversational variation, long-tail variant
+✅ Answers: 40-60 words with named entities and conceptual entities
+✅ Use C.R.A.F.T. Formula: Clear summary → Relevant context → Accurate facts → Factual entities → Terse delivery
+✅ Include entity markup opportunities (brands, products, platforms)
+✅ Optimize for LLM comprehension and recall
+✅ Natural language to pass AI detection
+✅ Voice search friendly
+✅ E-E-A-T authority signals
+
+Return structured FAQ data with intent types and query variations.`
           }
         ],
         tools: [
@@ -70,7 +121,7 @@ Requirements:
             type: "function",
             function: {
               name: "generate_faqs",
-              description: "Generate FAQ content for blog post",
+              description: "Generate F.A.Q+ Framework™ optimized FAQ content",
               parameters: {
                 type: "object",
                 properties: {
@@ -79,10 +130,39 @@ Requirements:
                     items: {
                       type: "object",
                       properties: {
-                        question: { type: "string" },
-                        answer: { type: "string" }
+                        intent: { 
+                          type: "string",
+                          enum: ["Informational", "Navigational", "Transactional"],
+                          description: "The search intent type"
+                        },
+                        question: { 
+                          type: "string",
+                          description: "Core question (SEO optimized)"
+                        },
+                        conversationalVariation: {
+                          type: "string",
+                          description: "Conversational question variant (ChatGPT/Gemini friendly)"
+                        },
+                        longtailVariation: {
+                          type: "string",
+                          description: "Long-tail question variant (Perplexity/Claude style)"
+                        },
+                        answer: { 
+                          type: "string",
+                          description: "40-60 word answer following C.R.A.F.T. formula with entity markup"
+                        },
+                        namedEntities: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "Named entities mentioned (brands, products, platforms, people)"
+                        },
+                        conceptualEntities: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "Conceptual entities (AI, ML, NLP, automation, etc.)"
+                        }
                       },
-                      required: ["question", "answer"],
+                      required: ["intent", "question", "conversationalVariation", "longtailVariation", "answer", "namedEntities", "conceptualEntities"],
                       additionalProperties: false
                     }
                   }

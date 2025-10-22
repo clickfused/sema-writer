@@ -8,6 +8,16 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 
+interface FaqItem {
+  intent?: string;
+  question: string;
+  conversationalVariation?: string;
+  longtailVariation?: string;
+  answer: string;
+  namedEntities?: string[];
+  conceptualEntities?: string[];
+}
+
 interface FaqGeneratorProps {
   keywords: {
     primary: string[];
@@ -20,8 +30,8 @@ interface FaqGeneratorProps {
     description: string;
     slug: string;
   };
-  faqContent: Array<{ question: string; answer: string }>;
-  setFaqContent: (faq: Array<{ question: string; answer: string }>) => void;
+  faqContent: Array<FaqItem>;
+  setFaqContent: (faq: Array<FaqItem>) => void;
   fullContent: string;
   onNext: () => void;
 }
@@ -179,17 +189,38 @@ export function FaqGenerator({
   };
 
   const addFaq = () => {
-    setFaqContent([...faqContent, { question: "", answer: "" }]);
+    setFaqContent([...faqContent, { 
+      intent: "Informational",
+      question: "", 
+      conversationalVariation: "",
+      longtailVariation: "",
+      answer: "",
+      namedEntities: [],
+      conceptualEntities: []
+    }]);
   };
 
   const removeFaq = (index: number) => {
     setFaqContent(faqContent.filter((_, i) => i !== index));
   };
 
-  const updateFaq = (index: number, field: "question" | "answer", value: string) => {
+  const updateFaq = (index: number, field: keyof FaqItem, value: string) => {
     const updated = [...faqContent];
-    updated[index][field] = value;
+    if (field === "namedEntities" || field === "conceptualEntities") {
+      updated[index][field] = value.split(",").map(s => s.trim()).filter(Boolean);
+    } else {
+      updated[index][field] = value as any;
+    }
     setFaqContent(updated);
+  };
+
+  const getIntentColor = (intent?: string) => {
+    switch (intent) {
+      case "Informational": return "default";
+      case "Navigational": return "secondary";
+      case "Transactional": return "outline";
+      default: return "default";
+    }
   };
 
   return (
@@ -198,9 +229,9 @@ export function FaqGenerator({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>FAQ Section (After Blog Content)</CardTitle>
+              <CardTitle>F.A.Q+ Framework™ Section</CardTitle>
               <CardDescription>
-                Generate SEO-optimized FAQ schema for better visibility
+                Generate SEO + AEO + GEO + LLMO optimized FAQs with intent mapping & query variations
               </CardDescription>
             </div>
             <Button onClick={generateFaqs} disabled={generating || !fullContent}>
@@ -218,8 +249,15 @@ export function FaqGenerator({
             faqContent.map((faq, index) => (
               <Card key={index}>
                 <CardContent className="pt-6 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <Badge variant="secondary">FAQ {index + 1}</Badge>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge variant="secondary">FAQ {index + 1}</Badge>
+                      {faq.intent && (
+                        <Badge variant={getIntentColor(faq.intent)}>
+                          {faq.intent}
+                        </Badge>
+                      )}
+                    </div>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -229,17 +267,61 @@ export function FaqGenerator({
                     </Button>
                   </div>
                   <div className="space-y-2">
-                    <Input
-                      placeholder="Question"
-                      value={faq.question}
-                      onChange={(e) => updateFaq(index, "question", e.target.value)}
-                    />
-                    <Textarea
-                      placeholder="Answer"
-                      value={faq.answer}
-                      onChange={(e) => updateFaq(index, "answer", e.target.value)}
-                      rows={3}
-                    />
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Core Question (SEO)</label>
+                      <Input
+                        placeholder="What is...?"
+                        value={faq.question}
+                        onChange={(e) => updateFaq(index, "question", e.target.value)}
+                      />
+                    </div>
+                    {faq.conversationalVariation !== undefined && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Conversational Variant (ChatGPT)</label>
+                        <Input
+                          placeholder="How does...?"
+                          value={faq.conversationalVariation}
+                          onChange={(e) => updateFaq(index, "conversationalVariation", e.target.value)}
+                        />
+                      </div>
+                    )}
+                    {faq.longtailVariation !== undefined && (
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Long-tail Variant (Perplexity)</label>
+                        <Input
+                          placeholder="Can AI systems...?"
+                          value={faq.longtailVariation}
+                          onChange={(e) => updateFaq(index, "longtailVariation", e.target.value)}
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Answer (40-60 words)</label>
+                      <Textarea
+                        placeholder="Clear, relevant, accurate, factual, terse..."
+                        value={faq.answer}
+                        onChange={(e) => updateFaq(index, "answer", e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                    {faq.namedEntities !== undefined && faq.namedEntities.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {faq.namedEntities.map((entity, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {entity}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {faq.conceptualEntities !== undefined && faq.conceptualEntities.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {faq.conceptualEntities.map((entity, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {entity}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
