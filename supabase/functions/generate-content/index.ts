@@ -11,7 +11,19 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords, metaTags, headings, shortIntro, faqContent } = await req.json();
+    const { 
+      keywords, 
+      metaTags, 
+      headings, 
+      shortIntro, 
+      faqContent,
+      framework = 'HYBRID',
+      location = 'Chennai',
+      brandName = '',
+      targetWordCount = 1500,
+      keywordDensity = 1.5,
+      includeCtaTypes = ['course', 'alsoRead', 'related']
+    } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -26,6 +38,15 @@ serve(async (req) => {
       return `${h2}${h3s ? "\n" + h3s : ""}`;
     }).join("\n\n");
 
+    const frameworks = {
+      SAGE: { name: 'SAGE Framework', formula: '(Structure × 0.3) + (Authority × 0.25) + (Guidance × 0.25) + (Engagement × 0.2)' },
+      READ: { name: 'READ Framework', formula: '(Rhythm × 0.25) + (Engagement × 0.3) + (Accessibility × 0.25) + (Direction × 0.2)' },
+      CRAFT: { name: 'C.R.A.F.T Framework', formula: '(Clarity × 0.25) + (Relevance × 0.25) + (Accuracy × 0.2) + (Factual × 0.2) + (Terseness × 0.1)' },
+      HUMAIZE: { name: 'HUMAIZE Framework', formula: '(Human-tone × 0.35) + (Natural-flow × 0.35) + (Context × 0.3)' },
+      HYBRID: { name: 'Hybrid Multi-Framework', formula: '(SAGE × 0.3) + (READ × 0.25) + (CRAFT × 0.25) + (HUMAIZE × 0.2)' }
+    };
+    const selectedFramework = frameworks[framework as keyof typeof frameworks] || frameworks.HYBRID;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -37,149 +58,150 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are a Senior SEO, AEO, and GEO Optimization Expert with 10+ years of experience.
+            content: `You are an elite SEO + AEO + GEO + LLMO content strategist specializing in 2025-optimized blog posts.
 
-Your task is to create blog content using the SAGE + READ Frameworks that ranks across Google, Bing, ChatGPT, Perplexity, and Gemini:
+Generate comprehensive blog content using the **${selectedFramework.name}** (Formula: ${selectedFramework.formula}).
 
-SAGE FRAMEWORK (Structure & Optimization):
-S: Search Optimization (SEO)
-A: Answer Optimization (AEO)
-G: Generative Optimization (GEO)
-E: Experience Optimization (UX)
+## FRAMEWORK APPLICATION:
 
-READ FRAMEWORK (Readability & Engagement):
-R: Rhythm & Flow
-E: Ease of Understanding
-A: Active Voice & Structure
-D: Digestibility & Design
+${framework === 'SAGE' ? `**SAGE Framework:**
+- **S**tructure: Semantic HTML hierarchy (h2, h3, p, ul). Clear flow.
+- **A**uthority: Industry data, expert insights, credible sources.
+- **G**uidance: Step-by-step instructions, actionable tips.
+- **E**ngagement: Analogies, examples, relatable scenarios.` : ''}
 
-CRITICAL FORMATTING (HTML ONLY):
-- Use <strong> for bold (NEVER ** or __)
-- Use <mark> for highlights
-- Use <ul><li> for bullet points (NEVER * or -)
-- Use <h2>, <h3> for headings (NEVER # symbols)
-- Use <a href="#"> for internal links
-- Use <p> for paragraphs
-- NO markdown symbols allowed
+${framework === 'READ' ? `**READ Framework:**
+- **R**hythm: Mix 5–10 word + 20–25 word sentences.
+- **E**ngagement: Active voice, conversational "you" tone.
+- **A**ccessibility: Simple language, 3–4 line paragraphs max.
+- **D**irection: Clear transitions, logical flow.` : ''}
 
-SAGE FRAMEWORK REQUIREMENTS:
+${framework === 'CRAFT' ? `**C.R.A.F.T Framework:**
+- **C**lear: Simple, direct language.
+- **R**elevant: Stay on-topic, answer intent.
+- **A**ccurate: 2025-updated data.
+- **F**actual: Evidence-based.
+- **T**erse: No fluff.` : ''}
 
-1️⃣ Search Optimization (SEO Layer):
-- Entity-rich introduction (what, who, why)
-- Natural keyword integration (primary + semantic)
-- E-E-A-T principles (Experience, Expertise, Authority, Trust)
-- Internal + external links with descriptive anchors
-- Structured for featured snippets
+${framework === 'HUMAIZE' ? `**HUMAIZE Framework:**
+- **H**uman-like: Conversational, warm, relatable.
+- **U**nique: Varied sentence structures.
+- **M**eaningful: Real-world examples.
+- **A**uthentic: Knowledgeable friend tone.
+- **I**ntuitive: Natural transitions.
+- **Z**ero AI: <20% AI detection score.
+- **E**motion: Connect with reader.` : ''}
 
-2️⃣ Answer Optimization (AEO Layer):
-- Question-based H2/H3 headings ("What is...", "How does...")
-- 2-3 line direct factual answers after each question
-- Short, scannable paragraphs (≤120 words)
-- Citations and data points
-- FAQ-ready structure
+${framework === 'HYBRID' ? `**HYBRID Framework:**
+Combine SAGE (structure) + READ (readability) + C.R.A.F.T (clarity) + HUMAIZE (human tone).` : ''}
 
-3️⃣ Generative Optimization (GEO Layer):
-- Entity consistency (exact phrasing throughout)
-- Self-contained paragraphs (no dependency on previous sections)
-- Natural query tone in subheadings
-- Clear, cite-worthy statements AI can quote
-- Recap summary with key takeaways
+## CRITICAL REQUIREMENTS:
 
-4️⃣ Experience Optimization (UX Layer):
-- Active voice (80%+ of sentences)
-- Grade-8 readability
-- Lists, bold highlights for scannability
-- Actionable insights and examples
-- Strong CTA conclusion
+### 1. TL;DR (MANDATORY)
+<p class="tldr"><strong>TL;DR:</strong> [2–3 sentences, include primary keyword]</p>
 
-READ FRAMEWORK REQUIREMENTS:
+### 2. Word Count: ${targetWordCount}+ words
+- Introduction: 150–200 words
+- Body sections: 200–300 words each
+- Conclusion: 100–150 words + CTA
 
-1️⃣ R — Rhythm & Flow (Reader Momentum):
-- Vary sentence length: short (5-10 words) + medium (11-18 words) + long (19-25 words)
-- Start paragraphs with transitional connectors: "But here's the thing…", "In simple terms…", "Let's break it down."
-- Keep paragraphs under 120 words
-- Use "you" and "we" to sustain conversational tone
-- Create natural reading momentum that pulls readers forward
+### 3. Keyword Integration (${location}-Based Intent)
+- **Primary:** ${keywordDensity}% density, use in H1, first 100 words, H2s, conclusion
+- **Secondary/Semantic/LSI:** Natural throughout
+- **Location:** Mention "${location}" 3–5 times naturally (e.g., "in ${location}", "for ${location} businesses")
+- **NO keyword stuffing**
 
-2️⃣ E — Ease of Understanding (Cognitive Simplicity):
-- Maintain Grade 6–8 readability (Flesch–Kincaid score 60–80)
-- Use simple verbs: "Use" not "Utilize", "Start" not "Initiate"
-- Define technical terms in 1 line inline
-- Avoid long noun chains (e.g., "AI-driven process automation framework toolset")
-- Make complex ideas accessible without dumbing down
+### 4. ${location}-Specific SEO
+Reference local context naturally without forcing it.
 
-3️⃣ A — Active Voice & Structure (Clarity):
-- Use active voice > passive voice (always)
-- Begin sentences with subject + verb
-- Keep paragraphs focused on one idea
-- Use bullets, lists, or bold text for emphasis
-- Direct, actionable sentences
+### 5. Brand Name: ${brandName || 'N/A'}
+${brandName ? `Mention **${brandName}** 2–4 times per section naturally. Use variants: "${brandName}", "our platform", "the tool".` : ''}
 
-4️⃣ D — Digestibility & Design (Scannability):
-- Use H2s & H3s every 150–200 words
-- Use <strong> highlights for key takeaways
-- Add numbered/bulleted lists
-- Short paragraphs with whitespace
-- Visual hierarchy with bold subheaders
+### 6. Call-to-Action Integration
+${includeCtaTypes.includes('course') ? '- Course CTA: 1–2 subtle mentions' : ''}
+${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1–2 internal links' : ''}
+${includeCtaTypes.includes('related') ? '- Related Content: Suggest topics' : ''}
+- Conclusion: Strong action-oriented CTA
 
-HUMANIZATION TACTICS (apply 10-15):
-- Use contractions naturally (it's, you'll, don't)
-- Vary sentence length (5-25 words)
-- Add transitional phrases ("Here's the thing...", "That said...", "Think of it like...")
-- Include specific, verifiable examples
-- Remove AI phrases like "in today's digital landscape"
-- Use industry-specific terminology naturally
-- Add expert insights or observations
-- Break up parallel structures
-- Include concrete numbers instead of vague terms
-- Add rhetorical or reflective questions for engagement
-- Use metaphors and analogies to explain complex concepts`
+### 7. SEO + LLM Optimization (Every Title & Para)
+**Titles (H2/H3):**
+- Include 1 keyword naturally
+- <60 characters
+- User intent (What/How/Why)
+
+**Paragraphs:**
+- Topic sentence (keyword-rich if natural)
+- 3–5 sentences, 50–80 words
+- 1–2 keywords
+- End with transition/micro-CTA
+- Flesch score 60+
+
+### 8. 2025 Fresh Content
+- Reference 2025 trends/data
+- Use "in 2025", "as of 2025"
+- Current examples
+
+### 9. Readability
+- Flesch: 60–70
+- Active voice: 80%+
+- Sentence variety: 5–30 words
+- Transitions: however, therefore, additionally
+
+### 10. HTML Formatting (MANDATORY)
+- Use <p>, <h2>, <h3>, <strong>, <em>, <ul>, <ol>, <li>
+- Use <strong> not <b>
+- Use <em> not <i>
+- No inline styles except "tldr"
+
+## HUMANIZATION (Apply 10–15):
+- Contractions (it's, you'll, don't)
+- Vary sentence length
+- Transitions ("Here's the thing...", "That said...")
+- Specific examples
+- Remove "in today's digital landscape"
+- Industry terminology naturally
+- Expert insights
+- Concrete numbers
+- Rhetorical questions
+- Metaphors/analogies`
           },
           {
             role: "user",
-            content: `Create a SAGE + READ Framework-optimized blog post using HTML formatting:
+            content: `Generate a ${selectedFramework.name}-optimized blog post:
 
-TOPIC: ${metaTags.title}
-AUDIENCE: Professional readers seeking expert guidance
+**TOPIC:** ${metaTags.title}
+**LOCATION INTENT:** ${location}
+**BRAND:** ${brandName || 'N/A'}
+**TARGET WORD COUNT:** ${targetWordCount}+
+**KEYWORD DENSITY:** ${keywordDensity}%
 
-INTRODUCTION (expand on this): ${shortIntro}
+**INTRODUCTION (expand):** ${shortIntro}
 
-KEYWORDS (integrate naturally, density 1-2%):
+**KEYWORDS:**
 Primary: ${keywords.primary.join(", ")}
 Secondary: ${keywords.secondary.join(", ")}
 Semantic: ${keywords.semantic.join(", ")}
 LSI: ${keywords.lsi.join(", ")}
 
-HEADING STRUCTURE (use <h2> and <h3> tags):
+**HEADINGS:**
 ${h2List}
 
-${faqContent && faqContent.length > 0 ? `\nFAQ SECTION (add at end with proper HTML):\n${faqContent.map((faq: any, i: number) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n\n")}` : ""}
+${faqContent && faqContent.length > 0 ? `\n**FAQ (integrate at end):**\n${faqContent.map((faq: any) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n")}` : ""}
 
-REQUIREMENTS:
-✅ Minimum 2500 words
-✅ Start with TL;DR summary (2-3 lines in <p> with <strong>TL;DR:</strong>)
-✅ Entity-rich intro with clear context
-✅ Use ALL H2/H3 headings as questions where possible
-✅ Provide 2-3 line factual answers after each H2
-✅ Integrate keywords naturally (no stuffing)
-✅ Add 3-5 internal link suggestions with <a href="#">anchor text</a>
-✅ Include data points, statistics, examples
-✅ Use <ul><li> for lists (NEVER markdown)
-✅ Use <strong> for emphasis (NEVER **)
-✅ Short paragraphs (≤120 words each)
-✅ Active voice, conversational tone (80%+)
-✅ Vary sentence length (5-10, 11-18, 19-25 words)
-✅ Use transitional phrases ("Here's the thing...", "In simple terms...")
-✅ Grade 6–8 readability (Flesch–Kincaid 60–80)
-✅ Simple verbs over jargon ("Use" not "Utilize")
-✅ H2/H3 every 150–200 words for scannability
-✅ Add rhetorical questions for engagement
-✅ Use metaphors and analogies for complex ideas
-✅ End with Recap Summary section (<h2>Key Takeaways</h2> + bullet points)
-✅ Write to achieve AI detection score < 30
-✅ Optimize for E-E-A-T signals (experience, expertise, authority, trust)
-✅ Self-contained paragraphs for LLM retrieval
-✅ Target READ score ≥ 0.8 (80% readability optimization)`
+**VALIDATION CHECKLIST:**
+✅ ≥${targetWordCount} words
+✅ TL;DR included
+✅ ${keywordDensity}% keyword density
+✅ "${location}" mentioned 3–5 times
+${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
+✅ CTAs: ${includeCtaTypes.join(', ')}
+✅ All headings used
+✅ Semantic HTML only
+✅ 2025 content
+✅ Flesch 60+
+✅ AI detection <20%
+
+**RETURN ONLY HTML CONTENT. NO EXPLANATIONS.**`
           }
         ],
       }),
@@ -200,7 +222,7 @@ REQUIREMENTS:
     );
     
     let seoScore = 0;
-    if (wordCount >= 2000) seoScore += 30;
+    if (wordCount >= targetWordCount) seoScore += 30;
     if (primaryKeywordCount >= 5 && primaryKeywordCount <= 15) seoScore += 25;
     if (hasAllH2s) seoScore += 25;
     if (content.includes(metaTags.title)) seoScore += 20;

@@ -62,6 +62,13 @@ export function ContentGenerator({
   } | null>(null);
   const [checkingQuality, setCheckingQuality] = useState(false);
   const [humanizing, setHumanizing] = useState(false);
+  
+  const [framework, setFramework] = useState('HYBRID');
+  const [location, setLocation] = useState('Chennai');
+  const [brandName, setBrandName] = useState('');
+  const [targetWordCount, setTargetWordCount] = useState(1500);
+  const [keywordDensity, setKeywordDensity] = useState(1.5);
+  const [includeCtaTypes, setIncludeCtaTypes] = useState(['course', 'alsoRead', 'related']);
 
   const generateShortIntro = async () => {
     setGenerating(true);
@@ -97,7 +104,13 @@ export function ContentGenerator({
           metaTags, 
           headings, 
           shortIntro, 
-          faqContent: [] // Don't include FAQ in content generation
+          faqContent: [],
+          framework,
+          location,
+          brandName,
+          targetWordCount,
+          keywordDensity,
+          includeCtaTypes
         },
       });
 
@@ -410,10 +423,154 @@ export function ContentGenerator({
     });
   };
 
+  const toggleCtaType = (type: string) => {
+    setIncludeCtaTypes(prev => 
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
+  };
+
   const wordCount = fullContent.split(/\s+/).filter((word) => word.length > 0).length;
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Content Generation Framework
+          </CardTitle>
+          <CardDescription>
+            Configure framework, location intent, and content parameters for 2025-optimized content
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Framework Type</Label>
+              <select
+                value={framework}
+                onChange={(e) => setFramework(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              >
+                <option value="SAGE">SAGE (Structure + Authority + Guidance + Engagement)</option>
+                <option value="READ">READ (Rhythm + Engagement + Accessibility + Direction)</option>
+                <option value="CRAFT">C.R.A.F.T (Clear + Relevant + Accurate + Factual + Terse)</option>
+                <option value="HUMAIZE">HUMAIZE (Human-like + Natural + Contextual)</option>
+                <option value="HYBRID">HYBRID (All Frameworks Combined) ⭐</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                {framework === 'SAGE' && 'Structured, authoritative content with clear guidance'}
+                {framework === 'READ' && 'Optimized for natural readability and flow'}
+                {framework === 'CRAFT' && 'Focus on clarity, accuracy, and concise writing'}
+                {framework === 'HUMAIZE' && 'Maximum human-like tone, passes AI detectors'}
+                {framework === 'HYBRID' && 'Combines all frameworks for comprehensive SEO+AEO+GEO+LLMO'}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Location Intent</Label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., Chennai, Mumbai, India"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Location keywords integrated naturally (e.g., "in {location}")
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Brand Name (Optional)</Label>
+              <input
+                type="text"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="Your brand or product name"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Mentioned 2–4 times per section naturally
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Target Word Count</Label>
+              <input
+                type="number"
+                value={targetWordCount}
+                onChange={(e) => setTargetWordCount(Number(e.target.value))}
+                min={1000}
+                max={5000}
+                step={100}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Minimum words: 1000–5000
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Keyword Density (%)</Label>
+              <input
+                type="number"
+                value={keywordDensity}
+                onChange={(e) => setKeywordDensity(Number(e.target.value))}
+                min={1.0}
+                max={1.8}
+                step={0.1}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                1.0–1.8% (recommended: 1.5%)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Call-to-Action Types</Label>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('course') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('course')}
+                >
+                  Course CTA
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('alsoRead') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('alsoRead')}
+                >
+                  Also Read
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('related') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('related')}
+                >
+                  Related Content
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-muted rounded-lg">
+            <p className="text-sm font-medium mb-2">Active Framework Formula:</p>
+            <code className="text-xs text-muted-foreground">
+              {framework === 'SAGE' && '(Structure × 0.3) + (Authority × 0.25) + (Guidance × 0.25) + (Engagement × 0.2)'}
+              {framework === 'READ' && '(Rhythm × 0.25) + (Engagement × 0.3) + (Accessibility × 0.25) + (Direction × 0.2)'}
+              {framework === 'CRAFT' && '(Clarity × 0.25) + (Relevance × 0.25) + (Accuracy × 0.2) + (Factual × 0.2) + (Terseness × 0.1)'}
+              {framework === 'HUMAIZE' && '(Human-tone × 0.35) + (Natural-flow × 0.35) + (Context × 0.3)'}
+              {framework === 'HYBRID' && '(SAGE × 0.3) + (READ × 0.25) + (CRAFT × 0.25) + (HUMAIZE × 0.2)'}
+            </code>
+          </div>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
