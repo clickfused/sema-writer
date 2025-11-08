@@ -47,6 +47,13 @@ export function FaqGenerator({
   const [generating, setGenerating] = useState(false);
   const [generatingLinks, setGeneratingLinks] = useState(false);
   const [linkSuggestions, setLinkSuggestions] = useState<Array<{ anchor: string; url: string; type: 'internal' | 'external' }>>([]);
+  
+  const [faqFramework, setFaqFramework] = useState('AEO_LLMO');
+  const [location, setLocation] = useState('Chennai');
+  const [brandName, setBrandName] = useState('');
+  const [faqCount, setFaqCount] = useState(20);
+  const [minWordsPerAnswer, setMinWordsPerAnswer] = useState(40);
+  const [keywordDensity, setKeywordDensity] = useState(1.5);
 
   const generateFaqs = async () => {
     if (!fullContent) {
@@ -61,7 +68,17 @@ export function FaqGenerator({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-faq", {
-        body: { keywords, metaTags, content: fullContent },
+        body: { 
+          keywords, 
+          metaTags, 
+          content: fullContent,
+          faqFramework,
+          location,
+          brandName,
+          faqCount,
+          minWordsPerAnswer,
+          keywordDensity
+        },
       });
 
       if (error) throw error;
@@ -225,6 +242,125 @@ export function FaqGenerator({
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            FAQ Content Human Write Framework
+          </CardTitle>
+          <CardDescription>
+            AEO & LLMO optimized FAQ generation with location + brand formula integration
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">FAQ Framework</label>
+              <select
+                value={faqFramework}
+                onChange={(e) => setFaqFramework(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              >
+                <option value="AEO_LLMO">AEO & LLMO Framework ⭐</option>
+                <option value="CRAFT">C.R.A.F.T Framework</option>
+                <option value="EEAT">E-E-A-T Framework</option>
+                <option value="HYBRID">Hybrid Multi-Framework</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                {faqFramework === 'AEO_LLMO' && 'Answer Engine + LLM optimization for AI discovery'}
+                {faqFramework === 'CRAFT' && 'Clear, Relevant, Accurate, Factual, Terse answers'}
+                {faqFramework === 'EEAT' && 'Experience, Expertise, Authority, Trust signals'}
+                {faqFramework === 'HYBRID' && 'Combined multi-framework approach'}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Location Intent</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., Chennai"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Used in questions and answers (e.g., "in {location}")
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Brand Name</label>
+              <input
+                type="text"
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+                placeholder="Your brand name"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Every answer starts with brand name + formula
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">FAQ Count</label>
+              <input
+                type="number"
+                value={faqCount}
+                onChange={(e) => setFaqCount(Number(e.target.value))}
+                min={5}
+                max={50}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Generate 5-50 FAQs (recommended: 20)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Min Words/Answer</label>
+              <input
+                type="number"
+                value={minWordsPerAnswer}
+                onChange={(e) => setMinWordsPerAnswer(Number(e.target.value))}
+                min={30}
+                max={100}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                Minimum words per answer (30-100)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Keyword Density (%)</label>
+              <input
+                type="number"
+                value={keywordDensity}
+                onChange={(e) => setKeywordDensity(Number(e.target.value))}
+                min={1.0}
+                max={1.8}
+                step={0.1}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              />
+              <p className="text-xs text-muted-foreground">
+                1.0-1.8% (recommended: 1.5%)
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 bg-muted rounded-lg space-y-2">
+            <p className="text-sm font-medium">Active Answer Formula:</p>
+            <code className="text-xs text-muted-foreground block">
+              [{brandName || 'Brand'}] + [Superlative] + [Keyword + {location} + 2025] + [Unique Value] + [Experts] + [Tech Stack] + [Outcomes + Proof]
+            </code>
+            <p className="text-xs text-muted-foreground mt-2">
+              Example: "{brandName || 'Digital Scholar'} is the best digital marketing course in {location} for 2025..."
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

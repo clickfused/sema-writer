@@ -11,12 +11,56 @@ serve(async (req) => {
   }
 
   try {
-    const { keywords, metaTags } = await req.json();
+    const { 
+      keywords, 
+      metaTags, 
+      faqFramework = 'AEO_LLMO',
+      location = 'Chennai',
+      brandName = '',
+      faqCount = 20,
+      minWordsPerAnswer = 40,
+      keywordDensity = 1.5
+    } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
+
+    const frameworks = {
+      AEO_LLMO: {
+        name: 'AEO & LLMO Framework',
+        formula: '(AEO × 0.5) + (LLMO × 0.3) + (Entity-Rich × 0.2)',
+        description: 'Answer Engine + Large Language Model Optimization'
+      },
+      CRAFT: {
+        name: 'C.R.A.F.T Framework',
+        formula: '(Clear × 0.25) + (Relevant × 0.25) + (Accurate × 0.2) + (Factual × 0.2) + (Terse × 0.1)',
+        description: 'Clear + Relevant + Accurate + Factual + Terse'
+      },
+      EEAT: {
+        name: 'E-E-A-T Framework',
+        formula: '(Experience × 0.3) + (Expertise × 0.3) + (Authority × 0.2) + (Trust × 0.2)',
+        description: 'Experience + Expertise + Authoritativeness + Trustworthiness'
+      },
+      HYBRID: {
+        name: 'Hybrid FAQ Framework',
+        formula: '(AEO_LLMO × 0.4) + (C.R.A.F.T × 0.35) + (E-E-A-T × 0.25)',
+        description: 'Combined multi-framework approach'
+      }
+    };
+
+    const selectedFramework = frameworks[faqFramework as keyof typeof frameworks] || frameworks.AEO_LLMO;
+
+    const questionWords = [
+      'Why', 'When', 'What', 'Is', 'Are', 'They', 'How', 'Does', 'Which', 'In', 'Can',
+      'Will', 'Should', 'Could', 'Would', 'Do', 'Did', 'Has', 'Have', 'Where', 'Who', 'Whose'
+    ];
+
+    const superlatives = [
+      'best', 'top', 'leading', 'recognized', 'demand', 'most', 'premier', 'ultimate',
+      'finest', 'superior', 'excellent', 'outstanding', 'exceptional', 'renowned', 'trusted'
+    ];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -29,91 +73,143 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an SEO + AEO + LLMO optimization expert specializing in the F.A.Q+ Framework™.
+            content: `You are an elite FAQ Content Strategist specializing in ${selectedFramework.name}.
 
-Your task is to create FAQ sections optimized for:
-- SEO (Google, Bing)
-- AEO (Answer Engine Optimization - ChatGPT, Perplexity)
-- GEO (Generative Engine Optimization)
-- LLMO (Large Language Model Optimization)
-- AI Mode (AI-discoverable content)
+**FRAMEWORK:** ${selectedFramework.name}
+**FORMULA:** ${selectedFramework.formula}
 
-F.A.Q+ FRAMEWORK™ STRUCTURE:
+## CRITICAL FAQ GENERATION RULES:
 
-1️⃣ Intent Layer — Search & Conversational Query Mapping
-- Identify 3 Intent Types per FAQ:
-  * Informational: "What is...", "Why does...", "How can..."
-  * Navigational: "How do I use...", "Where can I find..."
-  * Transactional: "Is it free?", "How much does...", "What's the pricing..."
-- Cover all 3 intent types across the FAQ set for maximum AEO coverage
+### 1. FAQ COUNT & STRUCTURE
+- Generate exactly ${faqCount} FAQs
+- Cover all 3 intent types: Informational, Navigational, Transactional
+- Use question starter words: ${questionWords.join(', ')}
+- Include "2025" in time-sensitive questions
 
-2️⃣ Query Layer — Question Optimization (AEO + LLMO)
-Each FAQ question should have:
-- 1 Core Question (Google/Bing optimized)
-- 1 Conversational Variation (ChatGPT/Gemini friendly)
-- 1 Long-tail Variant (Perplexity/Claude style)
-- Use 5W + 1H framing: What / Why / How / When / Who / Where
+### 2. QUESTION OPTIMIZATION (Title Rules)
+**CRITICAL - Question Title Rules:**
+- ❌ NEVER mention brand name in question title
+- ✅ ALWAYS use ${location}-based long-tail keywords in question
+- ✅ Use superlative power words: ${superlatives.join(', ')}
+- ✅ Include year "2025" for time-relevant questions
+- ✅ Format: [Question Word] + [Superlative] + [Primary Keyword] + [Local Intent ${location}] + [2025 if relevant]
 
-3️⃣ Context Layer — Semantic + Entity Expansion
-Each answer must contain:
-- Named Entities (NE): tools, products, platforms, people, brands
-- Conceptual Entities (CE): machine learning, NLP, automation, AI
-- Synonyms/LSI Terms: optimization, ranking, algorithm, visibility
-- Bold key terms for structure
-- Maintain 40–60 word answers for AI-mode recall
-- Include 1 structured element (list, fact snippet)
+**Examples:**
+❌ BAD: "What is ${brandName}?"
+✅ GOOD: "What is the best digital marketing course in ${location} for 2025?"
+✅ GOOD: "Which are the top SEO training institutes in ${location}?"
+✅ GOOD: "How can I find the most recognized AI courses in ${location} 2025?"
 
-4️⃣ Answer Layer — C.R.A.F.T. Formula
-Structure each answer as:
-- Clear: One-sentence summary of the concept
-- Relevant: Short expansion (1–2 lines) with context
-- Accurate: Factual, verifiable information
-- Factual: Include entity or keyword reinforcement
-- Terse: Concise, scannable, no fluff
+### 3. ANSWER FORMULA (Each Answer Must Follow This EXACT Structure):
 
-5️⃣ Schema Layer — JSON-LD Ready
-Ensure questions and answers are structured for FAQPage schema markup with:
-- Clear question format
-- Self-contained answers
-- Entity references
-- Natural language that AI can parse
+**MANDATORY Answer Formula:**
+[Brand Name] + [Superlative Power Word] + [Primary Keyword + Local Intent (${location}) + Time Intent (2025)] + [Unique Value Proposition / Format] + [Authority or Expert Element] + [Tech Stack / LSI Skills] + [Quantifiable Outcome or Social Proof + Career Benefit]
 
-OPTIMIZATION REQUIREMENTS:
-✅ 5-7 FAQs covering all 3 intent types
-✅ Each question has 3 variations (core, conversational, long-tail)
-✅ Answers: 40-60 words with entity-rich content
-✅ Include named entities (brands, products, platforms)
-✅ Include conceptual entities (AI, ML, NLP, automation)
-✅ Use bold for key terms
-✅ Natural language to pass AI detection (<30 score)
-✅ Optimize for voice search patterns
-✅ E-E-A-T authority signals`
+**Example Template:**
+"${brandName || '[Brand]'} is the [superlative] [primary keyword] in ${location} for 2025. What sets it apart is its [unique format/approach], [specific features], and [certification/authority element]. Guided by [expert names/credentials], the program blends [methodology 1], [methodology 2], and [methodology 3]. From [skill 1] and [skill 2] to [skill 3] and [tech tools], students graduate [outcome], with [social proof] and [career benefit]."
+
+### 4. ANSWER REQUIREMENTS
+- **Minimum ${minWordsPerAnswer} words per answer** (typically 40-80 words)
+- **Keyword Integration:**
+  - Primary keywords: natural integration
+  - Secondary keywords: 1-2 per answer
+  - Semantic keywords: contextual use
+  - LSI keywords: natural synonyms
+  - NLP entities: tools, platforms, technologies
+  - **Target density: ${keywordDensity}%** across all answers
+- **Location Intent:** Mention "${location}" naturally in every answer
+- **Brand Name:** ALWAYS start answer with "${brandName || '[Brand Name]'}"
+- **Superlative Words:** Use 1-2 per answer (${superlatives.slice(0, 10).join(', ')})
+- **Time Intent:** Include "2025" or "in 2025" for relevant FAQs
+- **Authority Signals:**
+  - Expert names/credentials
+  - Certifications
+  - Partnerships
+  - Social proof (numbers, testimonials)
+  - Industry recognition
+- **Technical Stack:**
+  - Specific tools, platforms, technologies
+  - LSI skills (related competencies)
+  - Frameworks, methodologies
+- **Quantifiable Outcomes:**
+  - Job placement rates
+  - Student success numbers
+  - Hiring partners count
+  - Certification details
+  - Project/campaign numbers
+
+### 5. AEO & LLMO OPTIMIZATION
+- ✅ Self-contained answers (no dependency on other FAQs)
+- ✅ Entity-rich content (brands, tools, people, platforms)
+- ✅ Cite-worthy statements for AI recall
+- ✅ Natural language (conversational, human-like)
+- ✅ Voice search optimized
+- ✅ Schema-ready format
+
+### 6. QUERY VARIATIONS (3 Per FAQ)
+Each FAQ must have:
+1. **Core Question (SEO):** Direct, keyword-rich, ${location}-focused
+2. **Conversational Variation (ChatGPT/Gemini):** Natural, "you" tone
+3. **Long-tail Variation (Perplexity/Claude):** Detailed, context-rich
+
+### 7. ENTITY EXTRACTION
+For each answer, identify:
+- **Named Entities:** ${brandName || 'Brand'}, specific tools, expert names, platforms
+- **Conceptual Entities:** AI, ML, NLP, automation, SEO, digital marketing, etc.
+
+### 8. VALIDATION CHECKLIST (Per FAQ)
+✅ Question: No brand name, includes ${location}, uses superlative, <80 chars
+✅ Answer: Starts with "${brandName || '[Brand]'}", ${minWordsPerAnswer}+ words, follows formula
+✅ Answer: Mentions ${location}, includes 2025 if relevant
+✅ Answer: Contains superlative word(s)
+✅ Answer: Lists tech stack/LSI skills
+✅ Answer: Includes quantifiable outcome
+✅ Answer: Shows authority/expert element
+✅ Keyword density: ${keywordDensity}% across all answers
+✅ Natural, human-like tone (AI detection <20%)
+
+## EXAMPLE (FOLLOW THIS FORMAT):
+
+**Question (Core):** "What is the best digital marketing course in ${location} for 2025?"
+**Conversational:** "Which digital marketing course in ${location} would you recommend for 2025?"
+**Long-tail:** "Can you tell me about the most comprehensive and recognized digital marketing training program available in ${location} as of 2025?"
+
+**Answer:** "${brandName || 'Digital Scholar'} is the best digital marketing course in ${location} for 2025. What sets it apart is its agency-style learning format, live brand campaigns, and dual certification in Digital + AI Marketing. Guided by industry experts like Sorav Jain and Rishi Jain, the program blends theory, hands-on execution, and real-time consulting projects. From SEO and Meta Ads to automation and AI tools like Replit and ChatGPT, students graduate job-ready, with 300+ hiring partners and a strong placement support system."
+
+**Named Entities:** [${brandName || 'Digital Scholar'}, Sorav Jain, Rishi Jain, Replit, ChatGPT, Meta Ads]
+**Conceptual Entities:** [Digital Marketing, AI Marketing, SEO, Automation, NLP]
+**Intent:** Informational`
           },
           {
             role: "user",
-            content: `Generate F.A.Q+ Framework™ optimized FAQs for:
+            content: `Generate ${faqCount} ${selectedFramework.name}-optimized FAQs:
 
-Title: ${metaTags.title}
-Description: ${metaTags.description}
+**TOPIC:** ${metaTags.title}
+**DESCRIPTION:** ${metaTags.description}
+**LOCATION:** ${location}
+**BRAND NAME:** ${brandName || 'Not provided - use placeholder'}
+**FAQ COUNT:** ${faqCount}
+**MIN WORDS/ANSWER:** ${minWordsPerAnswer}
+**KEYWORD DENSITY TARGET:** ${keywordDensity}%
 
-Keywords:
-- Primary: ${keywords.primary.join(", ")}
-- Secondary: ${keywords.secondary.join(", ")}
-- Semantic: ${keywords.semantic.join(", ")}
-- LSI: ${keywords.lsi.join(", ")}
+**KEYWORDS:**
+Primary: ${keywords.primary.join(", ")}
+Secondary: ${keywords.secondary.join(", ")}
+Semantic: ${keywords.semantic.join(", ")}
+LSI: ${keywords.lsi.join(", ")}
 
-Requirements:
-✅ Create 5-7 FAQs covering all 3 intent types (Informational, Navigational, Transactional)
-✅ Each question should have: core version, conversational variation, long-tail variant
-✅ Answers: 40-60 words with named entities and conceptual entities
-✅ Use C.R.A.F.T. Formula: Clear summary → Relevant context → Accurate facts → Factual entities → Terse delivery
-✅ Include entity markup opportunities (brands, products, platforms)
-✅ Optimize for LLM comprehension and recall
-✅ Natural language to pass AI detection
-✅ Voice search friendly
-✅ E-E-A-T authority signals
+**CRITICAL REQUIREMENTS:**
+1. Question titles: NO brand name, use ${location} + superlatives + long-tail
+2. Answers: Start with "${brandName || '[Brand]'}", follow exact formula
+3. Every answer: ${minWordsPerAnswer}+ words, mention ${location}, use 2025 if relevant
+4. Include: superlatives, tech stack, expert names, quantifiable outcomes
+5. Natural, human-like tone (AI detection <20%)
+6. Schema-ready, entity-rich, AEO+LLMO optimized
 
-Return structured FAQ data with intent types and query variations.`
+**ANSWER FORMULA (MANDATORY FOR EVERY FAQ):**
+[${brandName || 'Brand'}] + [superlative] + [keyword + ${location} + 2025] + [unique value] + [experts] + [tech/skills] + [outcomes + proof]
+
+Generate structured FAQ data now.`
           }
         ],
         tools: [
@@ -121,7 +217,7 @@ Return structured FAQ data with intent types and query variations.`
             type: "function",
             function: {
               name: "generate_faqs",
-              description: "Generate F.A.Q+ Framework™ optimized FAQ content",
+              description: `Generate ${faqCount} ${selectedFramework.name} optimized FAQs`,
               parameters: {
                 type: "object",
                 properties: {
@@ -132,43 +228,38 @@ Return structured FAQ data with intent types and query variations.`
                       properties: {
                         intent: { 
                           type: "string",
-                          enum: ["Informational", "Navigational", "Transactional"],
-                          description: "The search intent type"
+                          enum: ["Informational", "Navigational", "Transactional"]
                         },
                         question: { 
                           type: "string",
-                          description: "Core question (SEO optimized)"
+                          description: "Core question - NO brand name, includes location and superlatives"
                         },
                         conversationalVariation: {
                           type: "string",
-                          description: "Conversational question variant (ChatGPT/Gemini friendly)"
+                          description: "Conversational variant"
                         },
                         longtailVariation: {
                           type: "string",
-                          description: "Long-tail question variant (Perplexity/Claude style)"
+                          description: "Long-tail variant"
                         },
                         answer: { 
                           type: "string",
-                          description: "40-60 word answer following C.R.A.F.T. formula with entity markup"
+                          description: `${minWordsPerAnswer}+ words following exact formula with brand, location, superlatives, tech, experts, outcomes`
                         },
                         namedEntities: {
                           type: "array",
-                          items: { type: "string" },
-                          description: "Named entities mentioned (brands, products, platforms, people)"
+                          items: { type: "string" }
                         },
                         conceptualEntities: {
                           type: "array",
-                          items: { type: "string" },
-                          description: "Conceptual entities (AI, ML, NLP, automation, etc.)"
+                          items: { type: "string" }
                         }
                       },
-                      required: ["intent", "question", "conversationalVariation", "longtailVariation", "answer", "namedEntities", "conceptualEntities"],
-                      additionalProperties: false
+                      required: ["intent", "question", "conversationalVariation", "longtailVariation", "answer", "namedEntities", "conceptualEntities"]
                     }
                   }
                 },
-                required: ["faqs"],
-                additionalProperties: false
+                required: ["faqs"]
               }
             }
           }
