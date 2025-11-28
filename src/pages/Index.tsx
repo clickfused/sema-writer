@@ -258,15 +258,15 @@ const Index = () => {
                 <CardContent className="p-0 mt-4 space-y-3">
                   <div className="bg-card p-4 rounded-lg border">
                     <div className="text-sm text-muted-foreground mb-1">Primary Keyword</div>
-                    <div className="font-semibold">Best digital marketing agency Chennai</div>
+                    <div className="font-semibold">best ai writer assistant</div>
                   </div>
                   <div className="bg-card p-4 rounded-lg border">
                     <div className="text-sm text-muted-foreground mb-1">Secondary Keywords</div>
-                    <div className="font-semibold text-sm">SEO services, content marketing, social media management</div>
+                    <div className="font-semibold text-sm">AI content writer, writing assistant tool, automated writing</div>
                   </div>
                   <div className="bg-card p-4 rounded-lg border">
                     <div className="text-sm text-muted-foreground mb-1">Semantic & LSI Keywords</div>
-                    <div className="font-semibold text-sm">digital strategy, online presence, brand growth</div>
+                    <div className="font-semibold text-sm">content generation, AI writing software, blog creation, SEO optimization</div>
                   </div>
                 </CardContent>
               </CardHeader>
@@ -278,16 +278,16 @@ const Index = () => {
                 <CardTitle className="text-2xl">Generate Meta Tags</CardTitle>
                 <CardContent className="p-0 mt-4 space-y-3">
                   <div className="bg-card p-4 rounded-lg border">
-                    <div className="text-sm text-muted-foreground mb-1">Meta Title (57 chars)</div>
-                    <div className="font-semibold text-sm">Best Digital Marketing Agency Chennai | Click Fused</div>
+                    <div className="text-sm text-muted-foreground mb-1">Meta Title (54 chars)</div>
+                    <div className="font-semibold text-sm">Best AI Writer Assistant | Click Fused - Free Tool</div>
                   </div>
                   <div className="bg-card p-4 rounded-lg border">
-                    <div className="text-sm text-muted-foreground mb-1">Meta Description (157 chars)</div>
-                    <div className="font-semibold text-sm">Click Fused delivers exceptional digital marketing services in Chennai. Transform your online presence with our expert SEO, content, and social strategies.</div>
+                    <div className="text-sm text-muted-foreground mb-1">Meta Description (153 chars)</div>
+                    <div className="font-semibold text-sm">Discover the best AI writer assistant by Click Fused. Generate SEO-optimized content in minutes with our free AI writing tool and content generator.</div>
                   </div>
                   <div className="bg-card p-4 rounded-lg border">
                     <div className="text-sm text-muted-foreground mb-1">URL Slug</div>
-                    <div className="font-semibold text-sm">best-digital-marketing-agency-chennai</div>
+                    <div className="font-semibold text-sm">best-ai-writer-assistant</div>
                   </div>
                 </CardContent>
               </CardHeader>
@@ -300,19 +300,19 @@ const Index = () => {
                 <CardContent className="p-0 mt-4 space-y-2">
                   <div className="bg-card p-3 rounded-lg border">
                     <div className="font-bold text-primary">H1:</div>
-                    <div className="text-sm">Best Digital Marketing Agency in Chennai</div>
+                    <div className="text-sm">Best AI Writer Assistant for Content Creation</div>
                   </div>
                   <div className="bg-card p-3 rounded-lg border">
                     <div className="font-bold text-primary">H2:</div>
-                    <div className="text-sm">Why Choose Click Fused for Digital Marketing?</div>
+                    <div className="text-sm">What Makes an AI Writer Assistant Effective?</div>
                   </div>
                   <div className="bg-card p-3 rounded-lg border">
                     <div className="font-bold text-primary">H3:</div>
-                    <div className="text-sm">Comprehensive SEO Services</div>
+                    <div className="text-sm">Advanced Content Generation Capabilities</div>
                   </div>
                   <div className="bg-card p-3 rounded-lg border">
                     <div className="font-bold text-primary">H3:</div>
-                    <div className="text-sm">Data-Driven Content Marketing</div>
+                    <div className="text-sm">SEO Optimization and Keyword Integration</div>
                   </div>
                   <div className="text-sm text-muted-foreground text-center mt-2">+ 8 more H2s & 40+ H3s</div>
                 </CardContent>
@@ -327,15 +327,15 @@ const Index = () => {
                   <div className="bg-card p-4 rounded-lg border">
                     <div className="text-sm text-muted-foreground mb-2">AI-Generated Paragraph Example:</div>
                     <div className="text-sm leading-relaxed">
-                      <span className="font-bold text-primary">Click Fused</span> stands as the <span className="font-semibold">premier and most innovative</span> digital marketing agency in Chennai, delivering exceptional SEO services and content marketing strategies that transform businesses. With proven expertise in online presence optimization and brand growth acceleration...
+                      <span className="font-bold text-primary">Click Fused</span> delivers the <span className="font-semibold">most powerful and intelligent</span> AI writer assistant, transforming how content creators produce SEO-optimized articles. This advanced writing assistant tool leverages cutting-edge AI technology to generate comprehensive blog posts with natural keyword integration, perfect content structure, and multi-engine optimization...
                     </div>
                   </div>
                   <div className="flex items-center justify-between bg-primary/10 p-3 rounded-lg">
-                    <div className="text-sm font-semibold">Word Count: 1,847</div>
-                    <div className="text-sm font-semibold">SEO Score: 94/100</div>
+                    <div className="text-sm font-semibold">Word Count: 1,652</div>
+                    <div className="text-sm font-semibold">SEO Score: 96/100</div>
                   </div>
                   <div className="flex items-center justify-between bg-primary/10 p-3 rounded-lg">
-                    <div className="text-sm font-semibold">Keyword Density: 1.4%</div>
+                    <div className="text-sm font-semibold">Keyword Density: 1.5%</div>
                     <div className="text-sm font-semibold">Ready to Publish ✓</div>
                   </div>
                 </CardContent>
