@@ -131,47 +131,50 @@ export function BlogList({ userId }: BlogListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold">My Blog Posts</h2>
-        <p className="text-muted-foreground">Manage your generated content</p>
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold">My Blog Posts</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage your generated content</p>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {blogs.map((blog) => (
           <Card key={blog.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle>{blog.title}</CardTitle>
-                  <CardDescription>{blog.meta_title}</CardDescription>
+            <CardHeader className="pb-3 sm:pb-4">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-lg sm:text-xl truncate">{blog.title}</CardTitle>
+                  <CardDescription className="text-sm line-clamp-2">{blog.meta_title}</CardDescription>
                 </div>
-                <Badge variant={blog.status === "published" ? "default" : "secondary"}>
+                <Badge variant={blog.status === "published" ? "default" : "secondary"} className="self-start flex-shrink-0">
                   {blog.status}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                   <span>{blog.word_count} words</span>
-                  <span>SEO Score: {blog.seo_score}/100</span>
-                  <span>{new Date(blog.created_at).toLocaleDateString()}</span>
+                  <span>SEO: {blog.seo_score}/100</span>
+                  <span className="hidden sm:inline">{new Date(blog.created_at).toLocaleDateString()}</span>
+                  <span className="sm:hidden">{new Date(blog.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                 </div>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleExport(blog.id)}
+                    className="text-xs sm:text-sm"
                   >
-                    <Download className="h-4 w-4 mr-1" />
-                    Export
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Export</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="destructive"
                     onClick={() => handleDelete(blog.id)}
+                    className="text-xs sm:text-sm"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
