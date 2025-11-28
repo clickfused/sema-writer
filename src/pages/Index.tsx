@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Target, FileText, TrendingUp, CheckCircle, Zap, Clock, Shield, Award, Users, BarChart3, Brain, Lightbulb, Rocket, Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Target, FileText, TrendingUp, CheckCircle, Zap, Clock, Shield, Award, Users, BarChart3, Brain, Lightbulb, Rocket, Star, Quote, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
@@ -59,7 +60,27 @@ const Index = () => {
               Watch Demo
             </Button>
           </div>
-          <div className="flex items-center justify-center gap-8 mt-12 text-sm text-muted-foreground">
+          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+            <Card className="border-2 text-center">
+              <CardHeader>
+                <div className="text-4xl font-black text-primary">5M+</div>
+                <div className="text-sm text-muted-foreground">Words Generated Monthly</div>
+              </CardHeader>
+            </Card>
+            <Card className="border-2 text-center">
+              <CardHeader>
+                <div className="text-4xl font-black text-primary">4.9/5</div>
+                <div className="text-sm text-muted-foreground">User Satisfaction Rating</div>
+              </CardHeader>
+            </Card>
+            <Card className="border-2 text-center">
+              <CardHeader>
+                <div className="text-4xl font-black text-primary">50K+</div>
+                <div className="text-sm text-muted-foreground">Hours Saved in Content Creation</div>
+              </CardHeader>
+            </Card>
+          </div>
+          <div className="flex items-center justify-center gap-8 mt-8 text-sm text-muted-foreground flex-wrap">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-primary" />
               No Credit Card Required
@@ -432,39 +453,223 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Testimonials */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Trusted By Content Creators Worldwide</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Loved by Content Creators Worldwide</h2>
           <p className="text-xl text-muted-foreground">
-            Join thousands of bloggers, marketers, and businesses using Click Fused to create content that ranks
+            Join thousands of bloggers, marketers, and businesses who trust Click Fused
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <Card className="text-center border-2 hover:shadow-xl transition-all">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+          <Card className="border-2 hover:shadow-xl transition-all">
             <CardHeader>
-              <div className="text-5xl font-black text-primary mb-2">10K+</div>
-              <CardTitle>Articles Generated</CardTitle>
-              <CardDescription>High-quality, SEO-optimized content created by our users</CardDescription>
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                ))}
+              </div>
+              <Quote className="h-8 w-8 text-primary/30 mb-4" />
+              <CardDescription className="text-base leading-relaxed text-foreground">
+                "I almost couldn't believe it was real! The content quality is exceptional. I shared the results with colleagues who couldn't believe it was AI-generated. Ai Writer Click Fused is worth every penny!"
+              </CardDescription>
+              <div className="mt-4 pt-4 border-t">
+                <div className="font-semibold">Sarah Mitchell</div>
+                <div className="text-sm text-muted-foreground">Content Marketing Manager</div>
+              </div>
             </CardHeader>
           </Card>
 
-          <Card className="text-center border-2 hover:shadow-xl transition-all">
+          <Card className="border-2 hover:shadow-xl transition-all">
             <CardHeader>
-              <div className="text-5xl font-black text-primary mb-2">95%</div>
-              <CardTitle>Average SEO Score</CardTitle>
-              <CardDescription>Outstanding optimization across all generated content</CardDescription>
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                ))}
+              </div>
+              <Quote className="h-8 w-8 text-primary/30 mb-4" />
+              <CardDescription className="text-base leading-relaxed text-foreground">
+                "Ai Writer Click Fused has been an absolute game-changer for our agency. It helps us generate professional, accurate, and SEO-optimized content at scale. The multi-engine optimization is brilliant!"
+              </CardDescription>
+              <div className="mt-4 pt-4 border-t">
+                <div className="font-semibold">Peter Kumar</div>
+                <div className="text-sm text-muted-foreground">Digital Marketing Agency Owner</div>
+              </div>
             </CardHeader>
           </Card>
 
-          <Card className="text-center border-2 hover:shadow-xl transition-all">
+          <Card className="border-2 hover:shadow-xl transition-all">
             <CardHeader>
-              <div className="text-5xl font-black text-primary mb-2">5 min</div>
-              <CardTitle>Average Generation Time</CardTitle>
-              <CardDescription>From keywords to publish-ready content in minutes</CardDescription>
+              <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                ))}
+              </div>
+              <Quote className="h-8 w-8 text-primary/30 mb-4" />
+              <CardDescription className="text-base leading-relaxed text-foreground">
+                "I've tried other AI writing tools, but none compare to Click Fused's speed, accuracy, and depth. The keyword density tracking and framework options make it the best AI writing tool available!"
+              </CardDescription>
+              <div className="mt-4 pt-4 border-t">
+                <div className="font-semibold">Abdi Ahmed</div>
+                <div className="text-sm text-muted-foreground">Freelance Content Writer</div>
+              </div>
             </CardHeader>
           </Card>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="container mx-auto px-4 py-20 bg-muted/30 rounded-3xl">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Strikingly Powerful, Yet Free Forever</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Start creating professional content today—no credit card required, no hidden fees, no commitments
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <Card className="border-2 hover:shadow-2xl transition-all relative">
+            <CardHeader>
+              <Badge className="w-fit mb-4">FREE FOREVER</Badge>
+              <CardTitle className="text-3xl mb-2">Starter</CardTitle>
+              <div className="mb-4">
+                <span className="text-5xl font-black">$0</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <CardDescription className="text-base mb-6">Perfect for trying out our AI writer</CardDescription>
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="w-full">
+                Get Started Free
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Generate 5 blog posts per month</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">1500+ words per article</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Access to all frameworks (SAGE, READ, CRAFT)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Multi-engine optimization (SEO/AEO/GEO)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Keyword density tracking</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <X className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-muted-foreground">WordPress publishing</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <X className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-muted-foreground">Priority support</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-4 border-primary hover:shadow-2xl transition-all relative">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground px-6 py-1 text-sm font-bold">MOST POPULAR</Badge>
+            </div>
+            <CardHeader>
+              <Badge className="w-fit mb-4 bg-primary/10 text-primary hover:bg-primary/20">BEST VALUE</Badge>
+              <CardTitle className="text-3xl mb-2">Pro</CardTitle>
+              <div className="mb-4">
+                <span className="text-5xl font-black">$19</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <CardDescription className="text-base mb-6">For serious content creators & marketers</CardDescription>
+              <Button size="lg" onClick={() => navigate("/auth")} className="w-full shadow-lg">
+                Start Pro Trial
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm font-semibold">Unlimited blog posts per month</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">1500+ words per article</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">All frameworks + custom options</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Multi-engine optimization (SEO/AEO/GEO/LLMO)</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Real-time keyword density tracking</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">WordPress direct publishing</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Priority email support</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 hover:shadow-2xl transition-all relative">
+            <CardHeader>
+              <Badge className="w-fit mb-4 bg-foreground text-background">ENTERPRISE</Badge>
+              <CardTitle className="text-3xl mb-2">Agency</CardTitle>
+              <div className="mb-4">
+                <span className="text-5xl font-black">$49</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <CardDescription className="text-base mb-6">For agencies & teams scaling content</CardDescription>
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="w-full">
+                Contact Sales
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm font-semibold">Everything in Pro, plus:</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">5 team member accounts</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">API access for integrations</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">White-label content generation</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Custom brand voice training</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">Dedicated account manager</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">24/7 priority support</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-12">
+          <p className="text-sm text-muted-foreground">All plans include free updates and new features as we launch them</p>
         </div>
       </section>
 
