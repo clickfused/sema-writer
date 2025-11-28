@@ -10,15 +10,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--gradient-subtle)" }}>
+      <head>
+        <title>Best Free AI Writer, Content Generator & Writing Assistant | Click Fused</title>
+        <meta name="description" content="Discover the best free AI writer and content generator. Create SEO-optimized blog posts with our AI writing assistant. Free AI copywriter for content creation and blog generation." />
+        <meta name="keywords" content="best free AI writer, content generator, writing assistant, AI writing tool, blog generator, SEO content writer, free AI copywriter, content creation software, automated writing assistant" />
+      </head>
+
       {/* Navigation */}
       <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={clickFusedLogo} alt="Click Fused Logo" className="h-12 w-auto object-contain" />
+              <img src={clickFusedLogo} alt="Best Free AI Writer - Click Fused Logo" className="h-12 w-auto object-contain" />
               <div>
-                <div className="text-xl font-bold">Ai Writer Click Fused</div>
-                <div className="text-xs text-muted-foreground">by Click Fused</div>
+                <div className="text-xl font-bold">Best Free AI Writer by Click Fused</div>
+                <div className="text-xs text-muted-foreground">Content Generator & Writing Assistant</div>
               </div>
             </div>
             <div className="flex gap-2">
@@ -26,7 +32,7 @@ const Index = () => {
                 Sign In
               </Button>
               <Button onClick={() => navigate("/auth")} className="shadow-lg">
-                Get Started Free
+                Start Free AI Writer
               </Button>
             </div>
           </div>
@@ -38,25 +44,25 @@ const Index = () => {
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6 animate-fade-in">
-            ✨ Free AI Writer, Content Generator & Writing Assistant
+            ✨ Best Free AI Writer, Content Generator & Writing Assistant
           </div>
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-tight">
-            Create Powerful Content
+            Best Free AI Writer for
             <br />
             <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
-              That Ranks & Converts
+              Content That Ranks & Converts
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Ai Writer Click Fused revolutionizes content creation with AI-powered precision. Generate 1500+ word SEO-optimized blog posts designed for Google, ChatGPT, Perplexity, and Gemini—all in minutes. Perfect for bloggers, marketers, agencies, and businesses who need high-quality content that drives results without the hassle.
+            Discover the best free AI writer and content generator for creating SEO-optimized blog posts. Our AI writing assistant helps you generate 1500+ word articles designed for Google, ChatGPT, Perplexity, and Gemini—all in minutes. This free AI copywriter is perfect for bloggers, content marketers, agencies, and businesses who need automated content creation with proven results.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-2xl hover:scale-105 transition-transform">
               <Rocket className="mr-2 h-6 w-6" />
-              Start Creating Now - It's Free
+              Start Free AI Writer Now
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg px-8 py-6">
-              Watch Demo
+              Watch AI Content Generator Demo
             </Button>
           </div>
           <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
@@ -99,9 +105,9 @@ const Index = () => {
       {/* Features & Benefits */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Why Choose Ai Writer Click Fused?</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Why This is the Best Free AI Writer & Content Generator</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Ai Writer Click Fused combines cutting-edge AI technology with proven SEO strategies to deliver content that not only ranks on search engines but also resonates with AI assistants like ChatGPT and Perplexity. Our platform is built for modern content creators who demand excellence, speed, and measurable results.
+            Our AI writing assistant combines cutting-edge technology with proven SEO strategies to deliver content that ranks on search engines and resonates with AI assistants. This free AI writer is built for content creators, marketers, and businesses who need a reliable content generation tool with automated writing capabilities and measurable results.
           </p>
         </div>
 
@@ -183,9 +189,9 @@ const Index = () => {
       {/* Comparison Section */}
       <section className="container mx-auto px-4 py-20 bg-muted/30 rounded-3xl">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">How Ai Writer Click Fused Compares</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Why This AI Writing Tool Outperforms Others</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Ai Writer Click Fused outperforms traditional content tools with multi-engine optimization, framework flexibility, and intelligent keyword integration. See why content creators, agencies, and businesses choose Click Fused for their content needs.
+            Our free content generator outperforms traditional AI writing tools with multi-engine optimization, framework flexibility, and smart keyword integration. Discover why content creators, digital agencies, and businesses choose this AI writing assistant for their content creation and blog generation needs.
           </p>
         </div>
 
@@ -254,7 +260,7 @@ const Index = () => {
           <div className="text-center mt-12">
             <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
               <Star className="mr-2 h-5 w-5" />
-              Experience The Difference - Start Free
+              Try Best Free AI Writer - Start Now
             </Button>
           </div>
         </div>
@@ -446,18 +452,18 @@ const Index = () => {
         <div className="text-center mt-16">
           <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
             <Rocket className="mr-2 h-6 w-6" />
-            Start Your Content Journey - Free Forever
+            Start Free AI Content Generator Now
           </Button>
-          <p className="text-sm text-muted-foreground mt-4">No credit card required • No hidden fees • Cancel anytime</p>
+          <p className="text-sm text-muted-foreground mt-4">No credit card required • Best free AI writer • Cancel anytime</p>
         </div>
       </section>
 
       {/* Testimonials */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Loved by Content Creators Worldwide</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">Trusted by Content Creators Using Our AI Writer</h2>
           <p className="text-xl text-muted-foreground">
-            Join thousands of bloggers, marketers, and businesses who trust Click Fused
+            Join thousands of bloggers, marketers, and businesses using the best free AI writing assistant for content creation
           </p>
         </div>
 
@@ -679,20 +685,20 @@ const Index = () => {
           </p>
           <Button size="lg" onClick={() => navigate("/auth")} className="text-xl px-12 py-8 shadow-2xl hover:scale-105 transition-transform">
             <Sparkles className="mr-3 h-7 w-7" />
-            Get Started Free - Create Your First Article Now
+            Start Using Best Free AI Writer Now
           </Button>
           <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted-foreground flex-wrap">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
-              100% Secure & Private
+              Best Free Content Generator
             </div>
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Join 5,000+ Content Creators
+              Join 5,000+ AI Writing Users
             </div>
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-primary" />
-              Proven Results & Rankings
+              Proven SEO Content Results
             </div>
           </div>
         </div>
@@ -703,15 +709,15 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <img src={clickFusedLogo} alt="Click Fused Logo" className="h-10 w-auto object-contain" />
+              <img src={clickFusedLogo} alt="Best Free AI Writer & Content Generator Logo" className="h-10 w-auto object-contain" />
               <div>
-                <div className="font-bold">Ai Writer Click Fused</div>
-                <div className="text-xs text-muted-foreground">by Click Fused</div>
+                <div className="font-bold">Best Free AI Writer by Click Fused</div>
+                <div className="text-xs text-muted-foreground">AI Content Generator & Writing Assistant</div>
               </div>
             </div>
             <div className="text-center text-muted-foreground">
               <p>&copy; 2025 Click Fused. All rights reserved.</p>
-              <p className="text-sm mt-1">Empowering content creators with AI-powered precision</p>
+              <p className="text-sm mt-1">Best free AI writer for SEO content creation and automated blog generation</p>
             </div>
           </div>
         </div>
