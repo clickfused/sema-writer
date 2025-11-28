@@ -129,12 +129,22 @@ ${includeCtaTypes.includes('related') ? '- Related Content: Suggest topics' : ''
 - <60 characters
 - User intent (What/How/Why)
 
-**Paragraphs:**
-- Topic sentence (keyword-rich if natural)
-- 3–5 sentences, 50–80 words
-- 1–2 keywords
+**Paragraphs FORMULA (MANDATORY):**
+Every paragraph must follow this exact structure:
+1. **Brand Name**: Start with "${brandName || 'the solution'}"
+2. **Power Words (2-3)**: Use superlatives like "best", "top", "proven", "leading", "advanced", "effective", "powerful", "innovative"
+3. **Keywords**: Naturally integrate 1-2 keywords (Secondary/Semantic/LSI from provided list)
+4. **Answer**: Provide the actual informative content (40-60 words)
+
+**Example Structure:**
+"${brandName || 'This platform'} offers the best proven solutions for [KEYWORD]. [Answer content explaining the point with details and examples]. [Transition or micro-CTA]."
+
+**Requirements:**
+- 3–5 sentences, 60–90 words total
+- Natural keyword integration (NO stuffing)
 - End with transition/micro-CTA
 - Flesch score 60+
+- Use varied power words (don't repeat same adjectives)
 
 ### 8. 2025 Fresh Content
 - Reference 2025 trends/data
