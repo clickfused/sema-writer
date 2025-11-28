@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Target, FileText, TrendingUp, CheckCircle, Zap, Clock, Shield, Award, Users, BarChart3, Brain, Lightbulb, Rocket, Star, Quote, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import clickFusedLogo from "@/assets/click-fused-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -14,9 +15,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ background: "var(--gradient-primary)" }}>
-                <Sparkles className="h-6 w-6 text-primary-foreground" />
-              </div>
+              <img src={clickFusedLogo} alt="Click Fused Logo" className="h-12 w-auto object-contain" />
               <div>
                 <div className="text-xl font-bold">Ai Writer Click Fused</div>
                 <div className="text-xs text-muted-foreground">by Click Fused</div>
@@ -704,9 +703,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
-                <Sparkles className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={clickFusedLogo} alt="Click Fused Logo" className="h-10 w-auto object-contain" />
               <div>
                 <div className="font-bold">Ai Writer Click Fused</div>
                 <div className="text-xs text-muted-foreground">by Click Fused</div>
