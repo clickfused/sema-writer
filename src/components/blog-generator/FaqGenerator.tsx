@@ -243,23 +243,23 @@ export function FaqGenerator({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
             FAQ Content Human Write Framework
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             AEO & LLMO optimized FAQ generation with location + brand formula integration
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">FAQ Framework</label>
+              <label className="text-xs sm:text-sm font-medium">FAQ Framework</label>
               <select
                 value={faqFramework}
                 onChange={(e) => setFaqFramework(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                className="w-full px-2 sm:px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground"
               >
                 <option value="AEO_LLMO">AEO & LLMO Framework ⭐</option>
                 <option value="CRAFT">C.R.A.F.T Framework</option>
@@ -362,34 +362,34 @@ export function FaqGenerator({
       </Card>
 
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="pb-3 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <CardTitle>F.A.Q+ Framework™ Section</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg sm:text-xl">F.A.Q+ Framework™ Section</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 Generate SEO + AEO + GEO + LLMO optimized FAQs with intent mapping & query variations
               </CardDescription>
             </div>
-            <Button onClick={generateFaqs} disabled={generating || !fullContent}>
+            <Button onClick={generateFaqs} disabled={generating || !fullContent} size="sm" className="w-full sm:w-auto">
               <Sparkles className="h-4 w-4 mr-2" />
               {generating ? "Generating..." : "AI Generate FAQs"}
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           {faqContent.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 sm:py-8 text-muted-foreground text-sm">
               <p>No FAQs yet. Generate or add manually.</p>
             </div>
           ) : (
             faqContent.map((faq, index) => (
               <Card key={index}>
-                <CardContent className="pt-6 space-y-3">
-                  <div className="flex items-start justify-between gap-2">
+                <CardContent className="pt-4 sm:pt-6 space-y-2 sm:space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                     <div className="flex gap-2 flex-wrap">
-                      <Badge variant="secondary">FAQ {index + 1}</Badge>
+                      <Badge variant="secondary" className="text-xs">FAQ {index + 1}</Badge>
                       {faq.intent && (
-                        <Badge variant={getIntentColor(faq.intent)}>
+                        <Badge variant={getIntentColor(faq.intent)} className="text-xs">
                           {faq.intent}
                         </Badge>
                       )}
@@ -399,7 +399,7 @@ export function FaqGenerator({
                       size="sm"
                       onClick={() => removeFaq(index)}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                   <div className="space-y-2">

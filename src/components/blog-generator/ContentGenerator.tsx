@@ -433,25 +433,25 @@ export function ContentGenerator({
   const wordCount = fullContent.split(/\s+/).filter((word) => word.length > 0).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
             Content Generation Framework
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             Configure framework, location intent, and content parameters for 2025-optimized content
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label>Framework Type</Label>
+              <Label className="text-sm sm:text-base">Framework Type</Label>
               <select
                 value={framework}
                 onChange={(e) => setFramework(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                className="w-full px-2 sm:px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground"
               >
                 <option value="SAGE">SAGE (Structure + Authority + Guidance + Engagement)</option>
                 <option value="READ">READ (Rhythm + Engagement + Accessibility + Direction)</option>
