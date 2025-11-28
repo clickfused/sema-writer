@@ -524,152 +524,150 @@ const Index = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Strikingly Powerful, Yet Free Forever</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Start creating professional content today—no credit card required, no hidden fees, no commitments
+            All features completely free—pay only when you need extra capacity. No credit card required to start.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <Card className="border-2 hover:shadow-2xl transition-all relative">
-            <CardHeader>
-              <Badge className="w-fit mb-4">FREE FOREVER</Badge>
-              <CardTitle className="text-3xl mb-2">Starter</CardTitle>
-              <div className="mb-4">
-                <span className="text-5xl font-black">$0</span>
-                <span className="text-muted-foreground">/month</span>
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-4 border-primary shadow-2xl">
+            <CardHeader className="text-center pb-8">
+              <div className="inline-block px-6 py-2 rounded-full bg-primary text-primary-foreground text-sm font-bold mb-4">
+                FREE FOREVER
               </div>
-              <CardDescription className="text-base mb-6">Perfect for trying out our AI writer</CardDescription>
-              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="w-full">
-                Get Started Free
+              <CardTitle className="text-4xl mb-4">Full Access Plan</CardTitle>
+              <div className="mb-6">
+                <span className="text-6xl font-black text-primary">$0</span>
+                <span className="text-2xl text-muted-foreground">/forever</span>
+              </div>
+              <CardDescription className="text-lg max-w-2xl mx-auto leading-relaxed">
+                Get unlimited access to all features, frameworks, and optimization tools. Optionally upgrade capacity with pay-as-you-go pricing when you need it.
+              </CardDescription>
+              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-12 py-6 mt-6 shadow-xl">
+                <Rocket className="mr-2 h-6 w-6" />
+                Start Creating Free - No Card Required
               </Button>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Generate 5 blog posts per month</span>
+            <CardContent className="pb-8">
+              <div className="grid md:grid-cols-2 gap-x-12 gap-y-4 max-w-3xl mx-auto">
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Unlimited Blog Generation</div>
+                    <div className="text-sm text-muted-foreground">Create as many articles as you need</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">1500+ Words Per Article</div>
+                    <div className="text-sm text-muted-foreground">Comprehensive long-form content</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">All Content Frameworks</div>
+                    <div className="text-sm text-muted-foreground">SAGE, READ, CRAFT, HUMAIZE, HYBRID</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Multi-Engine Optimization</div>
+                    <div className="text-sm text-muted-foreground">SEO, AEO, GEO, LLMO optimization</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Keyword Density Tracking</div>
+                    <div className="text-sm text-muted-foreground">Real-time optimization monitoring</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">WordPress Publishing</div>
+                    <div className="text-sm text-muted-foreground">Direct publishing integration</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Perfect Content Structure</div>
+                    <div className="text-sm text-muted-foreground">H1/H2/H3 hierarchy with query variations</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">SEO Meta Tags Generation</div>
+                    <div className="text-sm text-muted-foreground">Optimized titles, descriptions, slugs</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">FAQ Content Generation</div>
+                    <div className="text-sm text-muted-foreground">Engaging Q&A sections</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Brand Voice Integration</div>
+                    <div className="text-sm text-muted-foreground">Natural brand name placement</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Rich Text Editor</div>
+                    <div className="text-sm text-muted-foreground">WYSIWYG content editing</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <div className="font-semibold text-base">Auto-Save Functionality</div>
+                    <div className="text-sm text-muted-foreground">Never lose your work</div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">1500+ words per article</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Access to all frameworks (SAGE, READ, CRAFT)</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Multi-engine optimization (SEO/AEO/GEO)</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Keyword density tracking</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <X className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">WordPress publishing</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <X className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-muted-foreground">Priority support</span>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="border-4 border-primary hover:shadow-2xl transition-all relative">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-              <Badge className="bg-primary text-primary-foreground px-6 py-1 text-sm font-bold">MOST POPULAR</Badge>
-            </div>
-            <CardHeader>
-              <Badge className="w-fit mb-4 bg-primary/10 text-primary hover:bg-primary/20">BEST VALUE</Badge>
-              <CardTitle className="text-3xl mb-2">Pro</CardTitle>
-              <div className="mb-4">
-                <span className="text-5xl font-black">$19</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <CardDescription className="text-base mb-6">For serious content creators & marketers</CardDescription>
-              <Button size="lg" onClick={() => navigate("/auth")} className="w-full shadow-lg">
-                Start Pro Trial
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold">Unlimited blog posts per month</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">1500+ words per article</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">All frameworks + custom options</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Multi-engine optimization (SEO/AEO/GEO/LLMO)</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Real-time keyword density tracking</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">WordPress direct publishing</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Priority email support</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-2 hover:shadow-2xl transition-all relative">
-            <CardHeader>
-              <Badge className="w-fit mb-4 bg-foreground text-background">ENTERPRISE</Badge>
-              <CardTitle className="text-3xl mb-2">Agency</CardTitle>
-              <div className="mb-4">
-                <span className="text-5xl font-black">$49</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <CardDescription className="text-base mb-6">For agencies & teams scaling content</CardDescription>
-              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="w-full">
-                Contact Sales
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold">Everything in Pro, plus:</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">5 team member accounts</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">API access for integrations</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">White-label content generation</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Custom brand voice training</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">Dedicated account manager</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-sm">24/7 priority support</span>
+              <div className="mt-12 pt-8 border-t">
+                <div className="text-center mb-6">
+                  <h4 className="text-xl font-bold mb-2">Optional: Pay-As-You-Go Upgrades</h4>
+                  <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Need extra capacity or advanced features? Pay only for what you use, when you need it.
+                  </p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                  <div className="text-center p-4 bg-card rounded-lg border-2">
+                    <div className="text-2xl font-bold text-primary mb-1">$0.01</div>
+                    <div className="text-sm text-muted-foreground">per 1,000 words generated</div>
+                  </div>
+                  <div className="text-center p-4 bg-card rounded-lg border-2">
+                    <div className="text-2xl font-bold text-primary mb-1">$0.05</div>
+                    <div className="text-sm text-muted-foreground">per API request (advanced)</div>
+                  </div>
+                  <div className="text-center p-4 bg-card rounded-lg border-2">
+                    <div className="text-2xl font-bold text-primary mb-1">$5</div>
+                    <div className="text-sm text-muted-foreground">per team member/month (optional)</div>
+                  </div>
+                </div>
+                <div className="text-center mt-6">
+                  <p className="text-sm text-muted-foreground">
+                    💡 Most users stay on the free plan forever. Upgrade pricing only applies if you choose to scale beyond free limits.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-sm text-muted-foreground">All plans include free updates and new features as we launch them</p>
+          <p className="text-sm text-muted-foreground">Free updates, new features, and unlimited content generation—forever</p>
         </div>
       </section>
 
