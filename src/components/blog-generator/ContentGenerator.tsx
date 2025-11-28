@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { RichTextEditor } from "@/components/RichTextEditor";
+import { KeywordDensityTracker } from "./KeywordDensityTracker";
 
 interface ContentGeneratorProps {
   userId: string;
@@ -685,6 +686,13 @@ export function ContentGenerator({
           )}
         </CardContent>
       </Card>
+
+      {/* Keyword Density Tracker */}
+      <KeywordDensityTracker 
+        content={fullContent}
+        keywords={keywords}
+        targetDensity={keywordDensity}
+      />
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={exportContent} disabled={!fullContent}>
