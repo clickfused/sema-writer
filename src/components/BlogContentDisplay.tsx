@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 
 interface BlogContentDisplayProps {
   content: string;
@@ -17,7 +18,19 @@ export const BlogContentDisplay: React.FC<BlogContentDisplayProps> = ({ content,
     processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // **bold**
     processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>'); // *italic*
     
-    return processed;
+    // Sanitize HTML to prevent XSS attacks
+    const clean = DOMPurify.sanitize(processed, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 
+        'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'blockquote',
+        'code', 'pre', 'mark', 'span', 'div'
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'id'],
+      ALLOWED_URI_REGEXP: /^(?:(?:f|ht)tps?|mailto|tel|#):/i,
+      KEEP_CONTENT: true
+    });
+    
+    return clean;
   };
 
   return (
