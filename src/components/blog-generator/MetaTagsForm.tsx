@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Target } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,6 +27,12 @@ interface MetaTagsFormProps {
 
 export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTagsFormProps) {
   const [generating, setGenerating] = useState(false);
+  const [intentAnalysis, setIntentAnalysis] = useState<{
+    searchIntent?: string;
+    topicIntent?: string;
+    llmIntent?: string;
+    aiIntent?: string;
+  }>({});
 
   const generateMetaTags = async () => {
     setGenerating(true);
@@ -42,9 +49,16 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
         slug: data.slug,
       });
 
+      setIntentAnalysis({
+        searchIntent: data.searchIntent,
+        topicIntent: data.topicIntent,
+        llmIntent: data.llmIntent,
+        aiIntent: data.aiIntent,
+      });
+
       toast({
         title: "Success",
-        description: "Meta tags generated successfully",
+        description: "Intent-optimized meta tags generated successfully",
       });
     } catch (error: any) {
       toast({
@@ -66,7 +80,9 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <CardTitle className="text-lg sm:text-xl">Meta Tags</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">SEO-optimized meta information for your blog post</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
+                SEO-optimized meta information with multi-intent targeting
+              </CardDescription>
             </div>
             <Button onClick={generateMetaTags} disabled={generating || keywords.primary.length === 0} size="sm" className="w-full sm:w-auto">
               <Sparkles className="h-4 w-4 mr-2" />
@@ -75,12 +91,36 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
           </div>
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
+          {/* Intent Analysis Display */}
+          {intentAnalysis.searchIntent && (
+            <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Intent Analysis</Label>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="font-medium text-muted-foreground">Search Intent:</span>
+                  <Badge variant="outline" className="ml-2">{intentAnalysis.searchIntent}</Badge>
+                </div>
+                <div>
+                  <span className="font-medium text-muted-foreground">Topic Intent:</span>
+                  <Badge variant="outline" className="ml-2">{intentAnalysis.topicIntent}</Badge>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs"><span className="font-medium">LLM:</span> {intentAnalysis.llmIntent}</p>
+                <p className="text-xs"><span className="font-medium">AI Engine:</span> {intentAnalysis.aiIntent}</p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="title" className="text-sm sm:text-base">Meta Title (Max 57 characters)</Label>
             <Input
               id="title"
               value={metaTags.title}
-              onChange={(e) => setMetaTags({ ...metaTags, title: e.target.value })}
+              onChange={(e) => setMetaTags({ ...metaTags, title: e.target.value.slice(0, 57) })}
               maxLength={57}
               placeholder="Your SEO-optimized title"
               className="text-sm sm:text-base"
@@ -93,7 +133,7 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
             <Textarea
               id="description"
               value={metaTags.description}
-              onChange={(e) => setMetaTags({ ...metaTags, description: e.target.value })}
+              onChange={(e) => setMetaTags({ ...metaTags, description: e.target.value.slice(0, 157) })}
               maxLength={157}
               placeholder="Brief, engaging description of your content"
               rows={3}
@@ -107,10 +147,20 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
             <Input
               id="slug"
               value={metaTags.slug}
-              onChange={(e) => setMetaTags({ ...metaTags, slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-              placeholder="url-friendly-slug"
+              onChange={(e) => {
+                const slug = e.target.value
+                  .toLowerCase()
+                  .replace(/[^a-z0-9-]/g, '-')
+                  .replace(/--+/g, '-')
+                  .replace(/^-|-$/g, '');
+                setMetaTags({ ...metaTags, slug });
+              }}
+              placeholder="url-friendly-slug-2025"
               className="text-sm sm:text-base"
             />
+            <p className="text-xs text-muted-foreground">
+              Intent-optimized URL structure: [question-word]-[keyword]-[2025]
+            </p>
           </div>
         </CardContent>
       </Card>
