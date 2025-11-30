@@ -32,7 +32,7 @@ const Index = () => {
   const heroScale = useTransform(smoothProgress, [0, 0.3], [1, 0.8]);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background overflow-hidden">
+    <div ref={containerRef} className="custom-cursor-page min-h-screen bg-background overflow-hidden">
       <CustomCursor />
       <head>
         <title>Best Free AI Writer, Content Generator & Writing Assistant | Click Fused</title>

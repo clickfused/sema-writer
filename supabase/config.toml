@@ -2,3 +2,6 @@ project_id = "idpeyrrzztrskpqqkqcf"
 
 [functions.publish-to-wordpress]
 verify_jwt = false
+
+[functions.test-wordpress-connection]
+verify_jwt = false
