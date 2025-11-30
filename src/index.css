@@ -121,6 +121,11 @@ All colors MUST be HSL.
       background-position: 100% 50%;
     }
   }
+  
+  /* Hide default cursor for custom cursor effect */
+  * {
+    cursor: none !important;
+  }
 }
 
 @layer components {

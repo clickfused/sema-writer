@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import clickFusedLogo from "@/assets/click-fused-logo.png";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { MagneticButton } from "@/components/MagneticButton";
+import { CustomCursor } from "@/components/CustomCursor";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const Index = () => {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-background overflow-hidden">
+      <CustomCursor />
       <head>
         <title>Best Free AI Writer, Content Generator & Writing Assistant | Click Fused</title>
         <meta name="description" content="Discover the best free AI writer and content generator. Create SEO-optimized blog posts with our AI writing assistant. Free AI copywriter for content creation and blog generation." />
@@ -76,12 +79,16 @@ const Index = () => {
               </div>
             </motion.div>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => navigate("/auth")} className="text-sm sm:text-base">
-                Sign In
-              </Button>
-              <Button onClick={() => navigate("/auth")} className="shadow-lg text-sm sm:text-base">
-                Start Free
-              </Button>
+              <MagneticButton strength={0.2}>
+                <Button variant="ghost" onClick={() => navigate("/auth")} className="text-sm sm:text-base">
+                  Sign In
+                </Button>
+              </MagneticButton>
+              <MagneticButton strength={0.3}>
+                <Button onClick={() => navigate("/auth")} className="shadow-lg text-sm sm:text-base">
+                  Start Free
+                </Button>
+              </MagneticButton>
             </div>
           </div>
         </div>
@@ -207,22 +214,26 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.7 }}
             >
-              <Button 
-                size="lg" 
-                onClick={() => navigate("/auth")} 
-                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 shadow-2xl hover:scale-105 transition-all bg-gradient-to-r from-primary to-accent hover:shadow-primary/50"
-              >
-                <Rocket className="mr-2 h-5 w-5" />
-                Create Now
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={() => navigate("/auth")} 
-                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 backdrop-blur-sm"
-              >
-                Watch Demo
-              </Button>
+              <MagneticButton strength={0.4}>
+                <Button 
+                  size="lg" 
+                  onClick={() => navigate("/auth")} 
+                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 shadow-2xl hover:scale-105 transition-all bg-gradient-to-r from-primary to-accent hover:shadow-primary/50"
+                >
+                  <Rocket className="mr-2 h-5 w-5" />
+                  Create Now
+                </Button>
+              </MagneticButton>
+              <MagneticButton strength={0.3}>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={() => navigate("/auth")} 
+                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 backdrop-blur-sm"
+                >
+                  Watch Demo
+                </Button>
+              </MagneticButton>
             </motion.div>
             
             {/* Stats Cards with Stagger Animation */}
@@ -403,10 +414,12 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
-              <Star className="mr-2 h-5 w-5" />
-              Try Best Free AI Writer - Start Now
-            </Button>
+            <MagneticButton strength={0.35}>
+              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
+                <Star className="mr-2 h-5 w-5" />
+                Try Best Free AI Writer - Start Now
+              </Button>
+            </MagneticButton>
           </div>
         </div>
       </section>
@@ -515,10 +528,12 @@ const Index = () => {
           </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
-              <Lightbulb className="mr-2 h-5 w-5" />
-              Try The Full Demo - Free Access
-            </Button>
+            <MagneticButton strength={0.35}>
+              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
+                <Lightbulb className="mr-2 h-5 w-5" />
+                Try The Full Demo - Free Access
+              </Button>
+            </MagneticButton>
           </div>
         </div>
       </section>
@@ -595,10 +610,12 @@ const Index = () => {
         </div>
 
         <div className="text-center mt-16">
-          <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
-            <Rocket className="mr-2 h-6 w-6" />
-            Start Free AI Content Generator Now
-          </Button>
+          <MagneticButton strength={0.4}>
+            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-xl">
+              <Rocket className="mr-2 h-6 w-6" />
+              Start Free AI Content Generator Now
+            </Button>
+          </MagneticButton>
           <p className="text-sm text-muted-foreground mt-4">No credit card required • Best free AI writer • Cancel anytime</p>
         </div>
       </section>
@@ -692,10 +709,12 @@ const Index = () => {
               <CardDescription className="text-lg max-w-2xl mx-auto leading-relaxed">
                 Get unlimited access to all features, frameworks, and optimization tools. Optionally upgrade capacity with pay-as-you-go pricing when you need it.
               </CardDescription>
-              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-12 py-6 mt-6 shadow-xl">
-                <Rocket className="mr-2 h-6 w-6" />
-                Start Creating Free - No Card Required
-              </Button>
+              <MagneticButton strength={0.4}>
+                <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-12 py-6 mt-6 shadow-xl">
+                  <Rocket className="mr-2 h-6 w-6" />
+                  Start Creating Free - No Card Required
+                </Button>
+              </MagneticButton>
             </CardHeader>
             <CardContent className="pb-8">
               <div className="grid md:grid-cols-2 gap-x-12 gap-y-4 max-w-3xl mx-auto">
@@ -828,10 +847,12 @@ const Index = () => {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
             Ai Writer Click Fused empowers you to create professional, SEO-optimized blog posts that rank on Google, get cited by ChatGPT, appear in Perplexity answers, and drive real business results. Start free today—no credit card required, no hidden fees, no commitments.
           </p>
-          <Button size="lg" onClick={() => navigate("/auth")} className="text-xl px-12 py-8 shadow-2xl hover:scale-105 transition-transform">
-            <Sparkles className="mr-3 h-7 w-7" />
-            Start Using Best Free AI Writer Now
-          </Button>
+          <MagneticButton strength={0.5}>
+            <Button size="lg" onClick={() => navigate("/auth")} className="text-xl px-12 py-8 shadow-2xl hover:scale-105 transition-transform">
+              <Sparkles className="mr-3 h-7 w-7" />
+              Start Using Best Free AI Writer Now
+            </Button>
+          </MagneticButton>
           <div className="flex items-center justify-center gap-6 mt-8 text-sm text-muted-foreground flex-wrap">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
