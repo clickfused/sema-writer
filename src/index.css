@@ -117,13 +117,10 @@ All colors MUST be HSL.
     0%, 100% {
       background-position: 0% 50%;
     }
-    50% {
-      background-position: 100% 50%;
-    }
   }
   
-  /* Hide default cursor for custom cursor effect */
-  * {
+  /* Hide default cursor only on landing page with custom cursor */
+  .custom-cursor-page * {
     cursor: none !important;
   }
 }

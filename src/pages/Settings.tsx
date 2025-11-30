@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Save, Moon, Sun } from "lucide-react";
+import { Save, Moon, Sun, Globe } from "lucide-react";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ const Settings = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
   const [settings, setSettings] = useState({
     fullName: "",
     email: "",
@@ -81,6 +82,47 @@ const Settings = () => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const testWordPressConnection = async () => {
+    if (!settings.wordpressUrl || !settings.wordpressUsername || !settings.wordpressPassword) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all WordPress credentials before testing",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("test-wordpress-connection", {
+        body: {
+          wordpressUrl: settings.wordpressUrl,
+          username: settings.wordpressUsername,
+          appPassword: settings.wordpressPassword,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Connection Successful! ✓",
+          description: `Connected as ${data.user.name} (${data.user.email})`,
+        });
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Connection Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -296,6 +338,15 @@ const Settings = () => {
                       Generate an Application Password in WordPress under Users → Profile
                     </p>
                   </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={testWordPressConnection}
+                    disabled={testing || !settings.wordpressUrl || !settings.wordpressUsername || !settings.wordpressPassword}
+                    className="w-full"
+                  >
+                    <Globe className="h-4 w-4 mr-2" />
+                    {testing ? "Testing Connection..." : "Test WordPress Connection"}
+                  </Button>
                 </CardContent>
               </Card>
 
