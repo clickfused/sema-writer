@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Target } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { SerpPreview } from "./SerpPreview";
 
 interface MetaTagsFormProps {
   keywords: {
@@ -164,6 +165,15 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
           </div>
         </CardContent>
       </Card>
+
+      {/* SERP Preview */}
+      {metaTags.title && metaTags.description && (
+        <SerpPreview 
+          title={metaTags.title}
+          description={metaTags.description}
+          slug={metaTags.slug}
+        />
+      )}
 
       <div className="flex justify-end">
         <Button onClick={onNext} disabled={!canProceed} size="lg" className="w-full sm:w-auto">

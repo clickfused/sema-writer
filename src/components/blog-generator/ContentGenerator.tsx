@@ -66,11 +66,20 @@ export function ContentGenerator({
   const [publishing, setPublishing] = useState(false);
   
   const [framework, setFramework] = useState('HYBRID');
-  const [location, setLocation] = useState('Chennai');
+  const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
   const [targetWordCount, setTargetWordCount] = useState(1500);
   const [keywordDensity, setKeywordDensity] = useState(1.5);
-  const [includeCtaTypes, setIncludeCtaTypes] = useState(['course', 'alsoRead', 'related']);
+  const [includeCtaTypes, setIncludeCtaTypes] = useState([
+    'course',
+    'alsoRead', 
+    'related',
+    'industry',
+    'usp',
+    'humanIntent',
+    'seoIntent',
+    'llmoIntent'
+  ]);
 
   const generateShortIntro = async () => {
     setGenerating(true);
@@ -537,11 +546,11 @@ export function ContentGenerator({
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g., Chennai, Mumbai, India"
+                placeholder="e.g., New York, California, United States"
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
               />
               <p className="text-xs text-muted-foreground">
-                Location keywords integrated naturally (e.g., "in {location}")
+                US location keywords integrated naturally (e.g., "in {location}")
               </p>
             </div>
 
@@ -591,8 +600,11 @@ export function ContentGenerator({
               </p>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-full">
               <Label>Call-to-Action Types</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select multiple CTA types to naturally integrate throughout content
+              </p>
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
@@ -600,7 +612,7 @@ export function ContentGenerator({
                   variant={includeCtaTypes.includes('course') ? 'default' : 'outline'}
                   onClick={() => toggleCtaType('course')}
                 >
-                  Course CTA
+                  📚 Course CTA
                 </Button>
                 <Button
                   type="button"
@@ -608,7 +620,7 @@ export function ContentGenerator({
                   variant={includeCtaTypes.includes('alsoRead') ? 'default' : 'outline'}
                   onClick={() => toggleCtaType('alsoRead')}
                 >
-                  Also Read
+                  📖 Also Read
                 </Button>
                 <Button
                   type="button"
@@ -616,7 +628,47 @@ export function ContentGenerator({
                   variant={includeCtaTypes.includes('related') ? 'default' : 'outline'}
                   onClick={() => toggleCtaType('related')}
                 >
-                  Related Content
+                  🔗 Related Content
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('industry') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('industry')}
+                >
+                  🏢 Industry Solutions
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('usp') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('usp')}
+                >
+                  ⭐ USP/Benefits
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('humanIntent') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('humanIntent')}
+                >
+                  💬 Human Intent
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('seoIntent') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('seoIntent')}
+                >
+                  🔍 SEO Intent
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={includeCtaTypes.includes('llmoIntent') ? 'default' : 'outline'}
+                  onClick={() => toggleCtaType('llmoIntent')}
+                >
+                  🤖 LLMO Intent
                 </Button>
               </div>
             </div>

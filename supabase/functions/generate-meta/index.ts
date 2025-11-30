@@ -54,10 +54,11 @@ CRITICAL: Generate UNIQUE meta tags every time. Use timestamp ${Date.now()} for 
 **Formula:**
 [Question Word/Power Word] + [Primary Keyword] + [Intent Modifier] + [2025/Time] (≤57 chars)
 
-**Examples:**
-✅ "Best AI Writing Tools for Content Marketing in 2025"
-✅ "How to Master SEO: Complete Guide for Beginners 2025"
-✅ "Top Digital Marketing Strategies That Work in 2025"
+**Examples (US Context):**
+✅ "Best AI Writing Tools for Content Marketing in US 2025"
+✅ "How to Master SEO: Complete Guide for Americans 2025"
+✅ "Top Digital Marketing Strategies for US Businesses 2025"
+✅ "Ultimate Social Media Marketing Guide: USA Edition 2025"
 
 **Avoid:**
 ❌ Generic titles without intent signals
@@ -79,10 +80,10 @@ CRITICAL: Generate UNIQUE meta tags every time. Use timestamp ${Date.now()} for 
 - Sentence 2: Benefit/outcome with numbers or specifics (60-80 chars)
 - Sentence 3 (optional): CTA or authority (20-30 chars)
 
-**Examples:**
-✅ "Discover the 10 best AI writing tools for 2025. Boost content creation speed by 300% with proven strategies. Free guide inside."
-✅ "Learn SEO fundamentals in 30 days. Master keyword research, on-page optimization & link building. Start ranking today."
-✅ "Complete digital marketing course covering SEO, PPC, social media & analytics. Get certified in 60 days. 500+ students enrolled."
+**Examples (US Context):**
+✅ "Discover the 10 best AI writing tools for US businesses in 2025. Boost content creation speed by 300% with proven strategies used by Fortune 500 companies. Free guide inside."
+✅ "Learn SEO fundamentals from US experts in 30 days. Master keyword research, on-page optimization & link building for American markets. Start ranking today."
+✅ "Complete digital marketing certification for US professionals covering SEO, PPC, social media & analytics. Get certified in 60 days. 500+ American students enrolled."
 
 **Avoid:**
 ❌ Vague descriptions without specifics
@@ -100,10 +101,11 @@ CRITICAL: Generate UNIQUE meta tags every time. Use timestamp ${Date.now()} for 
 **Formula:**
 [intent-word]-[primary-keyword]-[secondary-keyword]-[2025/year]
 
-**Examples:**
-✅ best-ai-writing-tools-content-marketing-2025
-✅ how-to-learn-seo-complete-guide-beginners-2025
-✅ top-digital-marketing-strategies-2025
+**Examples (US Context):**
+✅ best-ai-writing-tools-for-us-businesses-2025
+✅ how-to-learn-seo-complete-guide-americans-2025
+✅ top-digital-marketing-strategies-usa-2025
+✅ ultimate-social-media-marketing-guide-united-states
 
 **Rules:**
 - All lowercase
@@ -130,7 +132,17 @@ CRITICAL: Generate UNIQUE meta tags every time. Use timestamp ${Date.now()} for 
 ✅ Unique phrasing (not repetitive)
 ✅ Numbers/specifics included
 ✅ Year/time indicator present
-✅ No keyword stuffing`
+✅ No keyword stuffing
+
+### US-FOCUSED CONTENT REQUIREMENTS:
+- Use US English spelling (color, optimize, analyze)
+- Reference US companies, brands, locations
+- Cite US market data and statistics
+- Include US context in examples
+- Use USD pricing if mentioning costs
+- Reference US regulations/standards when relevant
+- Mention US cities, states, or "United States" naturally
+- Use US business terminology and cultural context`
           },
           {
             role: "user",
