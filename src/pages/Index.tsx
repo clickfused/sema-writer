@@ -87,14 +87,79 @@ const Index = () => {
         </div>
       </motion.nav>
 
-      {/* Hero Section with Parallax */}
+      {/* Hero Section with Video Background & Parallax */}
       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Animated Background Gradient */}
+        {/* Video Background with Parallax */}
         <motion.div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 w-full h-full"
           style={{
-            background: "radial-gradient(ellipse at center, hsl(160, 60%, 40%) 0%, transparent 60%)",
-            scale: useTransform(smoothProgress, [0, 0.5], [1, 1.2]),
+            scale: useTransform(smoothProgress, [0, 0.5], [1, 1.15]),
+          }}
+        >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ filter: 'brightness(0.4) saturate(1.2)' }}
+          >
+            <source src="https://cdn.pixabay.com/video/2023/01/28/147924-794417171_large.mp4" type="video/mp4" />
+          </video>
+          
+          {/* Video Overlay with Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/90" />
+          
+          {/* Animated Mesh Gradient Overlay */}
+          <motion.div
+            className="absolute inset-0 opacity-40"
+            style={{
+              background: "radial-gradient(ellipse at 30% 50%, hsl(160, 80%, 40%) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, hsl(263, 70%, 50%) 0%, transparent 50%)",
+              scale: useTransform(smoothProgress, [0, 0.5], [1, 1.2]),
+            }}
+          />
+          
+          {/* Grid Pattern Overlay */}
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `linear-gradient(hsl(160, 80%, 50%) 1px, transparent 1px), linear-gradient(90deg, hsl(160, 80%, 50%) 1px, transparent 1px)`,
+              backgroundSize: '50px 50px'
+            }}
+          />
+        </motion.div>
+        
+        {/* Floating Orbs for Depth */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full opacity-20 blur-3xl pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, hsl(160, 80%, 50%) 0%, transparent 70%)",
+            y: useTransform(smoothProgress, [0, 1], [0, -100]),
+          }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full opacity-15 blur-3xl pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, hsl(263, 70%, 60%) 0%, transparent 70%)",
+            y: useTransform(smoothProgress, [0, 1], [0, 150]),
+          }}
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
           }}
         />
         
