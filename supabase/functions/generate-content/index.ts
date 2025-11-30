@@ -247,11 +247,22 @@ ${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
-      throw new Error("Failed to generate content");
+      const errorText = await response.text();
+      console.error("AI gateway error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`AI gateway failed with status ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      console.error("Invalid AI response structure:", data);
+      throw new Error("AI returned invalid response structure");
+    }
+    
     const content = data.choices[0].message.content;
 
     const wordCount = content.split(/\s+/).length;
@@ -271,9 +282,16 @@ ${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Content generation error:", {
+      error: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error occurred during content generation",
+        details: "Check edge function logs for more information"
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

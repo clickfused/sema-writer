@@ -17,6 +17,20 @@ interface MetaTagsFormProps {
     semantic: string[];
     lsi: string[];
   };
+  headings: {
+    h1: string;
+    h2s: string[];
+    h3s: Array<{ h2Index: number; text: string }>;
+  };
+  faqContent: Array<{
+    intent?: string;
+    question: string;
+    conversationalVariation?: string;
+    longtailVariation?: string;
+    answer: string;
+    namedEntities?: string[];
+    conceptualEntities?: string[];
+  }>;
   metaTags: {
     title: string;
     description: string;
@@ -26,8 +40,9 @@ interface MetaTagsFormProps {
   onNext: () => void;
 }
 
-export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTagsFormProps) {
+export function MetaTagsForm({ keywords, headings, faqContent, metaTags, setMetaTags, onNext }: MetaTagsFormProps) {
   const [generating, setGenerating] = useState(false);
+  const [schemaMarkup, setSchemaMarkup] = useState<string>("");
   const [intentAnalysis, setIntentAnalysis] = useState<{
     searchIntent?: string;
     topicIntent?: string;
@@ -57,9 +72,12 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
         aiIntent: data.aiIntent,
       });
 
+      // Generate schema markup
+      generateSchemaMarkup(data.title, data.description);
+
       toast({
         title: "Success",
-        description: "Intent-optimized meta tags generated successfully",
+        description: "Intent-optimized meta tags and schema markup generated successfully",
       });
     } catch (error: any) {
       toast({
@@ -70,6 +88,56 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
     } finally {
       setGenerating(false);
     }
+  };
+
+  const generateSchemaMarkup = (title: string, description: string) => {
+    const schema = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": title,
+          "description": description,
+          "author": {
+            "@type": "Organization",
+            "name": "Ai Writer Click Fused"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Ai Writer Click Fused",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://example.com/logo.png"
+            }
+          },
+          "datePublished": new Date().toISOString(),
+          "dateModified": new Date().toISOString()
+        },
+        ...(faqContent.length > 0 ? [{
+          "@type": "FAQPage",
+          "mainEntity": faqContent.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": faq.answer
+            }
+          }))
+        }] : []),
+        ...(headings.h2s.length > 0 ? [{
+          "@type": "HowTo",
+          "name": title,
+          "description": description,
+          "step": headings.h2s.map((h2, index) => ({
+            "@type": "HowToStep",
+            "position": index + 1,
+            "name": h2
+          }))
+        }] : [])
+      ]
+    };
+
+    setSchemaMarkup(JSON.stringify(schema, null, 2));
   };
 
   const canProceed = metaTags.title && metaTags.description && metaTags.slug;
@@ -175,9 +243,37 @@ export function MetaTagsForm({ keywords, metaTags, setMetaTags, onNext }: MetaTa
         />
       )}
 
+      {/* Schema Markup */}
+      {schemaMarkup && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg sm:text-xl">Schema Markup (JSON-LD)</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Structured data for enhanced search visibility and rich snippets
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              value={schemaMarkup}
+              readOnly
+              rows={12}
+              className="font-mono text-xs bg-muted"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge variant="outline">Article Schema</Badge>
+              {faqContent.length > 0 && <Badge variant="outline">FAQ Schema</Badge>}
+              {headings.h2s.length > 0 && <Badge variant="outline">HowTo Schema</Badge>}
+            </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Copy this JSON-LD and add it to your page's &lt;head&gt; section for enhanced SEO
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-end">
         <Button onClick={onNext} disabled={!canProceed} size="lg" className="w-full sm:w-auto">
-          Next: Headings
+          Complete
         </Button>
       </div>
     </div>

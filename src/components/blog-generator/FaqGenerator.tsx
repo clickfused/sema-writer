@@ -511,8 +511,11 @@ export function FaqGenerator({
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={publishToWordPress} disabled={generating || !fullContent || faqContent.length === 0} size="lg">
+      <div className="flex justify-between gap-4">
+        <Button onClick={onNext} disabled={faqContent.length === 0} size="lg" variant="outline" className="flex-1">
+          Next: Meta Tags
+        </Button>
+        <Button onClick={publishToWordPress} disabled={generating || !fullContent || faqContent.length === 0} size="lg" className="flex-1">
           <Send className="h-4 w-4 mr-2" />
           {generating ? "Publishing..." : "Publish to WordPress"}
         </Button>
