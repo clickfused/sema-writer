@@ -114,16 +114,31 @@ Combine SAGE (structure) + READ (readability) + C.R.A.F.T (clarity) + HUMAIZE (h
 - **NO keyword stuffing**
 
 ### 4. ${location}-Specific SEO
-Reference local context naturally without forcing it.
+Reference US local context naturally without forcing it. Use US-specific examples, statistics, companies, and case studies.
+
+**US-Specific Requirements:**
+- Use US English spelling (e.g., "color" not "colour", "optimize" not "optimise")
+- Reference US companies, brands, platforms (e.g., Google, Amazon, Microsoft, Apple, Meta)
+- Cite US market data, statistics, trends (e.g., "According to US Census Bureau", "Pew Research shows")
+- Include US industry examples (Healthcare, Finance, Tech, Retail, Education in US context)
+- Mention US locations/cities when relevant: ${location}, Silicon Valley, New York, Boston, Austin, etc.
+- Reference US regulations, standards (e.g., HIPAA, SEC, FTC guidelines)
+- Use USD currency ($) for pricing examples
+- Cite US time zones, business hours, cultural context
 
 ### 5. Brand Name: ${brandName || 'N/A'}
 ${brandName ? `Mention **${brandName}** 2–4 times per section naturally. Use variants: "${brandName}", "our platform", "the tool".` : ''}
 
 ### 6. Call-to-Action Integration
-${includeCtaTypes.includes('course') ? '- Course CTA: 1–2 subtle mentions' : ''}
-${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1–2 internal links' : ''}
-${includeCtaTypes.includes('related') ? '- Related Content: Suggest topics' : ''}
-- Conclusion: Strong action-oriented CTA
+${includeCtaTypes.includes('course') ? '- Course CTA: Subtle enrollment or learning opportunities (e.g., "Learn more in our comprehensive course")' : ''}
+${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1-2 internal links to related US content' : ''}
+${includeCtaTypes.includes('related') ? '- Related Content: Suggest relevant topics within US market context' : ''}
+${includeCtaTypes.includes('industry') ? '- Industry Solutions: Highlight specific US industry applications (Healthcare, Finance, Tech, Education, Real Estate)' : ''}
+${includeCtaTypes.includes('usp') ? '- USP/Benefits: Emphasize unique value propositions and competitive advantages in US market' : ''}
+${includeCtaTypes.includes('humanIntent') ? '- Human Intent: Address emotional triggers, pain points, aspirations (e.g., "You want to succeed", "Your business deserves better")' : ''}
+${includeCtaTypes.includes('seoIntent') ? '- SEO Intent: Natural keyword CTAs optimized for search rankings (e.g., "Get the best [keyword] in [location]")' : ''}
+${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly CTAs for AI retrieval (e.g., "According to experts", "Research shows", cite-worthy statements)' : ''}
+- Conclusion: Strong action-oriented CTA relevant to US audience
 
 ### 7. SEO + LLM Optimization (Every Title & Para)
 **Titles (H2/H3):**
@@ -139,7 +154,15 @@ Every paragraph must follow this exact structure:
 4. **Answer**: Provide the actual informative content (40-60 words)
 
 **Example Structure:**
-"${brandName || 'This platform'} offers the best proven solutions for [KEYWORD]. [Answer content explaining the point with details and examples]. [Transition or micro-CTA]."
+"${brandName || 'This platform'} offers the best proven solutions for [KEYWORD]. [Answer content with US-specific examples like Fortune 500 companies, Silicon Valley tech, NYC finance sector, etc.]. [Transition with US market relevance]."
+
+**US Content Requirements:**
+- Reference US market leaders and innovators
+- Use US case studies and success stories
+- Cite US-based research institutions (Stanford, MIT, Harvard)
+- Include US industry benchmarks and standards
+- Mention US geographic advantages or market size
+- Use relatable US business contexts
 
 **Requirements:**
 - 3–5 sentences, 60–90 words total
@@ -212,6 +235,8 @@ ${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
 ✅ All headings used
 ✅ Semantic HTML only
 ✅ 2025 content
+✅ US-focused examples and context
+✅ US English spelling and terminology
 ✅ Flesch 60+
 ✅ AI detection <20%
 
