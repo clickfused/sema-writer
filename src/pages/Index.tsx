@@ -4,185 +4,265 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Target, FileText, TrendingUp, CheckCircle, Zap, Clock, Shield, Award, Users, BarChart3, Brain, Lightbulb, Rocket, Star, Quote, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import clickFusedLogo from "@/assets/click-fused-logo.png";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
+  const [scrollY, setScrollY] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const heroY = useTransform(smoothProgress, [0, 0.3], [0, -150]);
+  const heroOpacity = useTransform(smoothProgress, [0, 0.3], [1, 0]);
+  const heroScale = useTransform(smoothProgress, [0, 0.3], [1, 0.8]);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--gradient-subtle)" }}>
+    <div ref={containerRef} className="min-h-screen bg-background overflow-hidden">
       <head>
         <title>Best Free AI Writer, Content Generator & Writing Assistant | Click Fused</title>
         <meta name="description" content="Discover the best free AI writer and content generator. Create SEO-optimized blog posts with our AI writing assistant. Free AI copywriter for content creation and blog generation." />
         <meta name="keywords" content="best free AI writer, content generator, writing assistant, AI writing tool, blog generator, SEO content writer, free AI copywriter, content creation software, automated writing assistant" />
       </head>
 
+      {/* Ambient Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <motion.div 
+          className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full opacity-20 blur-3xl"
+          style={{
+            background: "radial-gradient(circle, hsl(160, 80%, 50%) 0%, transparent 70%)",
+            y: useTransform(smoothProgress, [0, 1], [0, -200])
+          }}
+        />
+        <motion.div 
+          className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full opacity-15 blur-3xl"
+          style={{
+            background: "radial-gradient(circle, hsl(263, 70%, 50%) 0%, transparent 70%)",
+            y: useTransform(smoothProgress, [0, 1], [0, 200])
+          }}
+        />
+      </div>
+
       {/* Navigation */}
-      <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+      <motion.nav 
+        className="border-b border-border/40 backdrop-blur-xl bg-background/80 sticky top-0 z-50"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={clickFusedLogo} alt="Best Free AI Writer - Click Fused Logo" className="h-12 w-auto object-contain" />
-              <div>
-                <div className="text-xl font-bold">Best Free AI Writer by Click Fused</div>
+            <motion.div 
+              className="flex items-center gap-3"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            >
+              <img src={clickFusedLogo} alt="Best Free AI Writer - Click Fused Logo" className="h-10 sm:h-12 w-auto object-contain" />
+              <div className="hidden sm:block">
+                <div className="text-lg sm:text-xl font-bold">Best Free AI Writer by Click Fused</div>
                 <div className="text-xs text-muted-foreground">Content Generator & Writing Assistant</div>
               </div>
-            </div>
+            </motion.div>
             <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => navigate("/auth")}>
+              <Button variant="ghost" onClick={() => navigate("/auth")} className="text-sm sm:text-base">
                 Sign In
               </Button>
-              <Button onClick={() => navigate("/auth")} className="shadow-lg">
-                Start Free AI Writer
+              <Button onClick={() => navigate("/auth")} className="shadow-lg text-sm sm:text-base">
+                Start Free
               </Button>
             </div>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-24 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-6 animate-fade-in">
-            ✨ Best Free AI Writer, Content Generator & Writing Assistant
-          </div>
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black mb-8 leading-tight">
-            Best Free AI Writer for
-            <br />
-            <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-primary)" }}>
-              Content That Ranks & Converts
-            </span>
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-            Discover the best free AI writer and content generator for creating SEO-optimized blog posts. Our AI writing assistant helps you generate 1500+ word articles designed for Google, ChatGPT, Perplexity, and Gemini—all in minutes. This free AI copywriter is perfect for bloggers, content marketers, agencies, and businesses who need automated content creation with proven results.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8 py-6 shadow-2xl hover:scale-105 transition-transform">
-              <Rocket className="mr-2 h-6 w-6" />
-              Start Free AI Writer Now
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="text-lg px-8 py-6">
-              Watch AI Content Generator Demo
-            </Button>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-            <Card className="border-2 text-center">
-              <CardHeader>
-                <div className="text-4xl font-black text-primary">5M+</div>
-                <div className="text-sm text-muted-foreground">Words Generated Monthly</div>
-              </CardHeader>
-            </Card>
-            <Card className="border-2 text-center">
-              <CardHeader>
-                <div className="text-4xl font-black text-primary">4.9/5</div>
-                <div className="text-sm text-muted-foreground">User Satisfaction Rating</div>
-              </CardHeader>
-            </Card>
-            <Card className="border-2 text-center">
-              <CardHeader>
-                <div className="text-4xl font-black text-primary">50K+</div>
-                <div className="text-sm text-muted-foreground">Hours Saved in Content Creation</div>
-              </CardHeader>
-            </Card>
-          </div>
-          <div className="flex items-center justify-center gap-8 mt-8 text-sm text-muted-foreground flex-wrap">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              No Credit Card Required
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              1500+ Words Per Article
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-primary" />
-              Multi-Engine Optimized
-            </div>
-          </div>
+      {/* Hero Section with Parallax */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Animated Background Gradient */}
+        <motion.div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: "radial-gradient(ellipse at center, hsl(160, 60%, 40%) 0%, transparent 60%)",
+            scale: useTransform(smoothProgress, [0, 0.5], [1, 1.2]),
+          }}
+        />
+        
+        <div className="container mx-auto px-4 sm:px-6 text-center relative z-10">
+          <motion.div
+            style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
+            className="max-w-5xl mx-auto"
+          >
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-sm font-semibold mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Sparkles className="w-4 h-4" />
+              Best Free AI Writer, Content Generator & Writing Assistant
+            </motion.div>
+            
+            <motion.h1 
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              Flowing Ideas, Clear Insights,
+              <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary animate-gradient">
+                Triumph with Dynamic Content
+              </span>
+            </motion.h1>
+            
+            <motion.p 
+              className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              Turn raw data into meaningful insights with the best free AI writer and content generator. 
+              Create SEO-optimized blog posts designed with AI-powered features for content that ranks.
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.7 }}
+            >
+              <Button 
+                size="lg" 
+                onClick={() => navigate("/auth")} 
+                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 shadow-2xl hover:scale-105 transition-all bg-gradient-to-r from-primary to-accent hover:shadow-primary/50"
+              >
+                <Rocket className="mr-2 h-5 w-5" />
+                Create Now
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={() => navigate("/auth")} 
+                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 border-2 backdrop-blur-sm"
+              >
+                Watch Demo
+              </Button>
+            </motion.div>
+            
+            {/* Stats Cards with Stagger Animation */}
+            <motion.div 
+              className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-16 max-w-4xl mx-auto"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: { staggerChildren: 0.1, delayChildren: 0.9 }
+                }
+              }}
+            >
+              {[
+                { value: "5M+", label: "Words Generated Monthly" },
+                { value: "4.9/5", label: "User Satisfaction Rating" },
+                { value: "50K+", label: "Hours Saved in Content Creation" }
+              ].map((stat, idx) => (
+                <motion.div
+                  key={idx}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 }
+                  }}
+                >
+                  <Card className="border border-border/40 backdrop-blur-sm bg-card/50 text-center hover:border-primary/40 transition-all hover:shadow-xl">
+                    <CardHeader className="p-4 sm:p-6">
+                      <div className="text-3xl sm:text-4xl font-black text-primary">{stat.value}</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground mt-2">{stat.label}</div>
+                    </CardHeader>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+            
+            <motion.div 
+              className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 mt-8 text-xs sm:text-sm text-muted-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+            >
+              {[
+                "No Credit Card Required",
+                "1500+ Words Per Article",
+                "Multi-Engine Optimized"
+              ].map((feature, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  {feature}
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features & Benefits */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">Why This is the Best Free AI Writer & Content Generator</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Our AI writing assistant combines cutting-edge technology with proven SEO strategies to deliver content that ranks on search engines and resonates with AI assistants. This free AI writer is built for content creators, marketers, and businesses who need a reliable content generation tool with automated writing capabilities and measurable results.
+      {/* Features & Benefits with Parallax */}
+      <section className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 relative">
+        <motion.div 
+          className="text-center mb-12 sm:mb-16"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Why This is the Best Free AI Writer</h2>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+            Our AI writing assistant combines cutting-edge technology with proven SEO strategies for content that ranks.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <Brain className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Multi-Engine Optimization</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused optimizes your content for SEO (Google/Bing), AEO (Perplexity), GEO (ChatGPT/Gemini), and LLMO (AI comprehension). Unlike traditional tools that focus only on search engines, we ensure your content performs across all modern discovery platforms—maximizing visibility, traffic, and authority in the AI-driven web.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <Target className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Intelligent Keyword Integration</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused naturally weaves primary, secondary, semantic, LSI, and NLP keywords throughout your content with surgical precision. Our AI maintains optimal keyword density (1-1.8%) while ensuring readability and natural flow. Every paragraph, heading, and FAQ is strategically crafted to target multiple search intents without keyword stuffing—delivering content that ranks and engages.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <Clock className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Lightning-Fast Generation</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused generates comprehensive 1500+ word blog posts in under 5 minutes—complete with SEO-optimized meta tags, structured headings, engaging introductions, detailed paragraphs, and conversion-focused FAQs. What used to take hours of research and writing now happens in minutes, freeing you to focus on strategy, promotion, and scaling your content empire.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <FileText className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Perfect Content Structure</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused creates perfectly structured content with H1 titles, 10+ H2 sections, and 5+ H3 subsections per topic. Every heading includes three query variations optimized for different engines: core SEO questions for Google/Bing, conversational phrasing for ChatGPT/Gemini, and long-tail variations for Perplexity/Claude. This multi-format approach ensures maximum discoverability across all platforms.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <Award className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Framework-Driven Quality</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused offers multiple content frameworks: SAGE (Search + Answer + Generative + Experience), READ (Rhythm + Ease + Active voice + Digestibility), CRAFT, HUMAIZE (Humanize + Optimize + Contextualize + Empathize), and HYBRID combinations. Choose the framework that matches your brand voice and audience—ensuring every piece of content aligns with your strategic goals while maintaining premium quality.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="border-2 hover:border-primary transition-colors hover:shadow-xl">
-            <CardHeader>
-              <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ background: "var(--gradient-primary)" }}>
-                <Zap className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">Real-Time Optimization</CardTitle>
-              <CardDescription className="text-base leading-relaxed">
-                Ai Writer Click Fused provides live keyword density tracking, SEO score monitoring, and content quality analysis as you generate content. See exactly how your secondary, semantic, and LSI keywords are distributed. Get instant feedback on readability, structure, and optimization—allowing you to fine-tune content before publication and ensure every article meets premium standards.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-16">
+          {[
+            { icon: Brain, title: "Multi-Engine Optimization", desc: "Optimizes for SEO (Google/Bing), AEO (Perplexity), GEO (ChatGPT/Gemini), and LLMO (AI comprehension). Maximize visibility across all discovery platforms." },
+            { icon: Target, title: "Intelligent Keyword Integration", desc: "Naturally weaves primary, secondary, semantic, LSI, and NLP keywords with optimal density (1-1.8%) while ensuring readability and natural flow." },
+            { icon: Clock, title: "Lightning-Fast Generation", desc: "Generates comprehensive 1500+ word blog posts in under 5 minutes—complete with SEO-optimized meta tags, structured headings, and FAQs." },
+            { icon: FileText, title: "Perfect Content Structure", desc: "Creates perfectly structured content with H1 titles, 10+ H2 sections, and 5+ H3 subsections optimized for different search engines." },
+            { icon: Award, title: "Framework-Driven Quality", desc: "Offers multiple content frameworks: SAGE, READ, CRAFT, HUMAIZE, and HYBRID combinations to match your brand voice and audience." },
+            { icon: Zap, title: "Real-Time Optimization", desc: "Provides live keyword density tracking, SEO score monitoring, and content quality analysis as you generate content." }
+          ].map((feature, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.1 }}
+            >
+              <Card className="h-full border border-border/40 backdrop-blur-sm bg-card/50 hover:border-primary/50 transition-all hover:shadow-2xl hover:-translate-y-1 group">
+                <CardHeader className="p-4 sm:p-6">
+                  <motion.div 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-4 bg-gradient-to-br from-primary to-accent shadow-lg"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <feature.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+                  </motion.div>
+                  <CardTitle className="text-xl sm:text-2xl mb-2">{feature.title}</CardTitle>
+                  <CardDescription className="text-sm sm:text-base leading-relaxed">
+                    {feature.desc}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </section>
 
