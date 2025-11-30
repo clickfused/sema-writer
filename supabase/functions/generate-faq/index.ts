@@ -78,6 +78,8 @@ serve(async (req) => {
 **FRAMEWORK:** ${selectedFramework.name}
 **FORMULA:** ${selectedFramework.formula}
 
+IMPORTANT: Generate UNIQUE FAQs every time. Use timestamp ${Date.now()} for variation. No repeated questions or answers.
+
 ## CRITICAL FAQ GENERATION RULES:
 
 ### 1. FAQ COUNT & STRUCTURE
@@ -182,7 +184,7 @@ For each answer, identify:
           },
           {
             role: "user",
-            content: `Generate ${faqCount} ${selectedFramework.name}-optimized FAQs:
+            content: `Generate ${faqCount} ${selectedFramework.name}-optimized FAQs (Request ID: ${Date.now()}):
 
 **TOPIC:** ${metaTags.title}
 **DESCRIPTION:** ${metaTags.description}
@@ -191,6 +193,8 @@ For each answer, identify:
 **FAQ COUNT:** ${faqCount}
 **MIN WORDS/ANSWER:** ${minWordsPerAnswer}
 **KEYWORD DENSITY TARGET:** ${keywordDensity}%
+
+CRITICAL: Generate UNIQUE FAQs. Use varied question formats, different examples, unique phrasing. No repetition.
 
 **KEYWORDS:**
 Primary: ${keywords.primary.join(", ")}

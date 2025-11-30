@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -11,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { Save } from "lucide-react";
+import { Save, Moon, Sun } from "lucide-react";
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -209,7 +211,7 @@ const Settings = () => {
                   <CardTitle>Preferences</CardTitle>
                   <CardDescription>Customize your experience</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label htmlFor="autoSave">Auto-save</Label>
@@ -224,6 +226,32 @@ const Settings = () => {
                         setSettings({ ...settings, autoSaveEnabled: checked })
                       }
                     />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="theme">Theme</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Choose your preferred color scheme
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={theme === "light" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setTheme("light")}
+                      >
+                        <Sun className="h-4 w-4 mr-2" />
+                        Light
+                      </Button>
+                      <Button
+                        variant={theme === "dark" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setTheme("dark")}
+                      >
+                        <Moon className="h-4 w-4 mr-2" />
+                        Dark
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

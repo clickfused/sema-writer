@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2 } from "lucide-react";
+import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -63,6 +63,7 @@ export function ContentGenerator({
   } | null>(null);
   const [checkingQuality, setCheckingQuality] = useState(false);
   const [humanizing, setHumanizing] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   
   const [framework, setFramework] = useState('HYBRID');
   const [location, setLocation] = useState('Chennai');
@@ -430,6 +431,68 @@ export function ContentGenerator({
     );
   };
 
+  const publishToWordPress = async () => {
+    if (!fullContent || !metaTags.title) {
+      toast({
+        title: "Error",
+        description: "Please generate content before publishing",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setPublishing(true);
+    try {
+      // Get WordPress credentials from user profile
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("wordpress_url, wordpress_username, wordpress_app_password")
+        .eq("id", userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (!profile?.wordpress_url || !profile?.wordpress_username || !profile?.wordpress_app_password) {
+        toast({
+          title: "WordPress Not Configured",
+          description: "Please configure WordPress settings in Settings page",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("publish-to-wordpress", {
+        body: {
+          wordpressUrl: profile.wordpress_url,
+          username: profile.wordpress_username,
+          appPassword: profile.wordpress_app_password,
+          post: {
+            title: metaTags.title,
+            content: fullContent,
+            metaDescription: metaTags.description,
+            slug: metaTags.slug,
+            status: "draft",
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Published to WordPress!",
+        description: `Post published as draft. Post ID: ${data.postId}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const wordCount = fullContent.split(/\s+/).filter((word) => word.length > 0).length;
 
   return (
@@ -694,7 +757,7 @@ export function ContentGenerator({
         targetDensity={keywordDensity}
       />
 
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" onClick={exportContent} disabled={!fullContent}>
           <Download className="h-4 w-4 mr-2" />
           Export Markdown
@@ -702,6 +765,10 @@ export function ContentGenerator({
         <Button variant="outline" onClick={exportToDocx} disabled={!fullContent}>
           <FileText className="h-4 w-4 mr-2" />
           Export Google Docx
+        </Button>
+        <Button variant="secondary" onClick={publishToWordPress} disabled={!fullContent || publishing}>
+          <Globe className="h-4 w-4 mr-2" />
+          {publishing ? "Publishing..." : "Publish to WordPress"}
         </Button>
         <Button onClick={saveBlogPost} disabled={!fullContent || saving}>
           <Save className="h-4 w-4 mr-2" />
