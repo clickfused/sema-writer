@@ -86,25 +86,16 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
       <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="keywords">Keywords</TabsTrigger>
-          <TabsTrigger value="meta">Meta Tags</TabsTrigger>
           <TabsTrigger value="headings">Headings</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="faq">FAQ & Links</TabsTrigger>
+          <TabsTrigger value="faq">FAQ</TabsTrigger>
+          <TabsTrigger value="meta">Meta Tags</TabsTrigger>
         </TabsList>
 
         <TabsContent value="keywords" className="mt-6">
           <KeywordInput 
             keywords={keywords} 
             setKeywords={setKeywords}
-            onNext={() => setCurrentTab("meta")}
-          />
-        </TabsContent>
-
-        <TabsContent value="meta" className="mt-6">
-          <MetaTagsForm
-            keywords={keywords}
-            metaTags={metaTags}
-            setMetaTags={setMetaTags}
             onNext={() => setCurrentTab("headings")}
           />
         </TabsContent>
@@ -140,6 +131,17 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             faqContent={faqContent}
             setFaqContent={setFaqContent}
             fullContent={fullContent}
+            onNext={() => setCurrentTab("meta")}
+          />
+        </TabsContent>
+
+        <TabsContent value="meta" className="mt-6">
+          <MetaTagsForm
+            keywords={keywords}
+            headings={headings}
+            faqContent={faqContent}
+            metaTags={metaTags}
+            setMetaTags={setMetaTags}
             onNext={() => {}}
           />
         </TabsContent>
