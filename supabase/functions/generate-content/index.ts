@@ -60,6 +60,8 @@ serve(async (req) => {
             role: "system",
             content: `You are an elite SEO + AEO + GEO + LLMO content strategist specializing in 2025-optimized blog posts.
 
+IMPORTANT: Generate UNIQUE content every time. Use timestamp ${Date.now()} and request ID for variation.
+
 Generate comprehensive blog content using the **${selectedFramework.name}** (Formula: ${selectedFramework.formula}).
 
 ## FRAMEWORK APPLICATION:
@@ -177,13 +179,15 @@ Every paragraph must follow this exact structure:
           },
           {
             role: "user",
-            content: `Generate a ${selectedFramework.name}-optimized blog post:
+            content: `Generate a ${selectedFramework.name}-optimized blog post (Request ID: ${Date.now()}):
 
 **TOPIC:** ${metaTags.title}
 **LOCATION INTENT:** ${location}
 **BRAND:** ${brandName || 'N/A'}
 **TARGET WORD COUNT:** ${targetWordCount}+
 **KEYWORD DENSITY:** ${keywordDensity}%
+
+CRITICAL: Generate UNIQUE content. No repetition from previous generations. Use varied examples, different phrasing, unique analogies.
 
 **INTRODUCTION (expand):** ${shortIntro}
 

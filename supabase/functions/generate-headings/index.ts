@@ -42,6 +42,8 @@ Use the SAGE Framework to create heading structures that rank across:
 - Answer Engines (Perplexity, Gemini)
 - Generative Engines (ChatGPT, Claude)
 
+IMPORTANT: Generate UNIQUE headings every time. Use timestamp ${Date.now()} for variation.
+
 SAGE Framework:
 S = Search Optimization (SEO)
 A = Answer Optimization (AEO) 
@@ -50,7 +52,9 @@ E = Experience Optimization (UX)`
           },
           {
             role: "user",
-            content: `Create a SAGE-optimized heading structure (H1–H3) for a blog post about: ${allKeywords}
+            content: `Create a SAGE-optimized heading structure (H1–H3) for (Request ID: ${Date.now()}): ${allKeywords}
+
+CRITICAL: Generate UNIQUE headings. Use varied phrasing, different question formats, unique angles.
 
 Return ONLY a JSON object with this structure:
 {

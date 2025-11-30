@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Trash2 } from "lucide-react";
+import { FileText, Download, Trash2, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BlogContentDisplay } from "./BlogContentDisplay";
 
@@ -26,6 +26,7 @@ interface BlogListProps {
 export function BlogList({ userId }: BlogListProps) {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [publishing, setPublishing] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBlogs();
@@ -109,6 +110,66 @@ export function BlogList({ userId }: BlogListProps) {
     }
   };
 
+  const handlePublishToWordPress = async (id: string) => {
+    setPublishing(id);
+    try {
+      const { data: blog, error: blogError } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (blogError) throw blogError;
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("wordpress_url, wordpress_username, wordpress_app_password")
+        .eq("id", userId)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (!profile?.wordpress_url || !profile?.wordpress_username || !profile?.wordpress_app_password) {
+        toast({
+          title: "WordPress Not Configured",
+          description: "Please configure WordPress settings in Settings page",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("publish-to-wordpress", {
+        body: {
+          wordpressUrl: profile.wordpress_url,
+          username: profile.wordpress_username,
+          appPassword: profile.wordpress_app_password,
+          post: {
+            title: blog.title,
+            content: blog.content,
+            metaDescription: blog.meta_description,
+            slug: blog.url_slug,
+            status: "draft",
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Published to WordPress!",
+        description: `Post published as draft. Post ID: ${data.postId}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setPublishing(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -167,6 +228,16 @@ export function BlogList({ userId }: BlogListProps) {
                   >
                     <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
                     <span className="hidden sm:inline">Export</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => handlePublishToWordPress(blog.id)}
+                    disabled={publishing === blog.id}
+                    className="text-xs sm:text-sm"
+                  >
+                    <Globe className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">{publishing === blog.id ? "Publishing..." : "Publish"}</span>
                   </Button>
                   <Button
                     size="sm"
