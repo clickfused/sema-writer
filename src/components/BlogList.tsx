@@ -3,9 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Trash2, Globe } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { FileText, Download, Trash2, Globe, Edit, Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BlogContentDisplay } from "./BlogContentDisplay";
+import { RichTextEditor } from "./RichTextEditor";
 
 interface BlogPost {
   id: string;
@@ -27,6 +31,13 @@ export function BlogList({ userId }: BlogListProps) {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState<string | null>(null);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    meta_title: "",
+    content: "",
+  });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchBlogs();
@@ -54,6 +65,9 @@ export function BlogList({ userId }: BlogListProps) {
   };
 
   const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this blog post? This action cannot be undone.");
+    if (!confirmed) return;
+
     try {
       const { error } = await supabase
         .from("blog_posts")
@@ -73,6 +87,69 @@ export function BlogList({ userId }: BlogListProps) {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEdit = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+
+      setEditingBlog(data);
+      setEditForm({
+        title: data.title || "",
+        meta_title: data.meta_title || "",
+        content: data.content || "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editingBlog) return;
+
+    setSaving(true);
+    try {
+      const wordCount = editForm.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+
+      const { error } = await supabase
+        .from("blog_posts")
+        .update({
+          title: editForm.title,
+          meta_title: editForm.meta_title,
+          content: editForm.content,
+          word_count: wordCount,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", editingBlog.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Blog post updated successfully.",
+      });
+
+      setEditingBlog(null);
+      fetchBlogs();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -219,7 +296,16 @@ export function BlogList({ userId }: BlogListProps) {
                   <span className="hidden sm:inline">{new Date(blog.created_at).toLocaleDateString()}</span>
                   <span className="sm:hidden">{new Date(blog.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(blog.id)}
+                    className="text-xs sm:text-sm"
+                  >
+                    <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Edit</span>
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -253,6 +339,63 @@ export function BlogList({ userId }: BlogListProps) {
           </Card>
         ))}
       </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingBlog} onOpenChange={(open) => !open && setEditingBlog(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Blog Post</DialogTitle>
+            <DialogDescription>
+              Update your blog post content and metadata
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Title</Label>
+              <Input
+                id="edit-title"
+                value={editForm.title}
+                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                placeholder="Blog post title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-meta-title">Meta Title</Label>
+              <Input
+                id="edit-meta-title"
+                value={editForm.meta_title}
+                onChange={(e) => setEditForm({ ...editForm, meta_title: e.target.value })}
+                placeholder="SEO meta title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Content</Label>
+              <RichTextEditor
+                content={editForm.content}
+                onChange={(content) => setEditForm({ ...editForm, content })}
+                placeholder="Start writing your blog content..."
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setEditingBlog(null)}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving}>
+              <Save className="h-4 w-4 mr-2" />
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
