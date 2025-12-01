@@ -7,10 +7,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Download, Trash2, Globe, Edit, Save, Eye } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileText, Download, Trash2, Globe, Edit, Save, Eye, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BlogContentDisplay } from "./BlogContentDisplay";
 import { RichTextEditor } from "./RichTextEditor";
+import { Document, Paragraph, TextRun, HeadingLevel, Packer } from "docx";
 
 interface BlogPost {
   id: string;
@@ -154,7 +156,7 @@ export function BlogList({ userId }: BlogListProps) {
     }
   };
 
-  const handleExport = async (id: string) => {
+  const handleExportMarkdown = async (id: string) => {
     try {
       const { data, error } = await supabase
         .from("blog_posts")
@@ -177,7 +179,159 @@ export function BlogList({ userId }: BlogListProps) {
 
       toast({
         title: "Success",
-        description: "Blog post exported successfully.",
+        description: "Blog post exported as Markdown.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportText = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+
+      // Strip HTML tags and convert to plain text
+      const plainText = data.content
+        .replace(/<[^>]*>/g, '')
+        .replace(/\n\s*\n/g, '\n\n')
+        .trim();
+      
+      const content = `${data.title}\n\n${plainText}`;
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${data.url_slug || "blog-post"}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Blog post exported as plain text.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportDocx = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+
+      // Convert HTML content to paragraphs
+      const htmlContent = data.content || '';
+      const paragraphs: Paragraph[] = [];
+
+      // Add title
+      paragraphs.push(
+        new Paragraph({
+          text: data.title,
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 200 },
+        })
+      );
+
+      // Parse HTML content and convert to paragraphs
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      
+      const processNode = (node: Node) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent?.trim();
+          if (text) {
+            paragraphs.push(
+              new Paragraph({
+                children: [new TextRun(text)],
+                spacing: { after: 120 },
+              })
+            );
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const element = node as HTMLElement;
+          const tagName = element.tagName.toLowerCase();
+          
+          if (tagName === 'h1' || tagName === 'h2' || tagName === 'h3') {
+            const headingLevel = tagName === 'h1' ? HeadingLevel.HEADING_1 :
+                                tagName === 'h2' ? HeadingLevel.HEADING_2 :
+                                HeadingLevel.HEADING_3;
+            paragraphs.push(
+              new Paragraph({
+                text: element.textContent || '',
+                heading: headingLevel,
+                spacing: { before: 240, after: 120 },
+              })
+            );
+          } else if (tagName === 'p') {
+            const textContent = element.textContent?.trim();
+            if (textContent) {
+              paragraphs.push(
+                new Paragraph({
+                  children: [new TextRun(textContent)],
+                  spacing: { after: 120 },
+                })
+              );
+            }
+          } else if (tagName === 'ul' || tagName === 'ol') {
+            Array.from(element.children).forEach((li) => {
+              paragraphs.push(
+                new Paragraph({
+                  text: `• ${li.textContent?.trim() || ''}`,
+                  spacing: { after: 80 },
+                })
+              );
+            });
+          } else {
+            Array.from(element.childNodes).forEach(processNode);
+          }
+        }
+      };
+
+      Array.from(tempDiv.childNodes).forEach(processNode);
+
+      // Create document
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: paragraphs,
+        }],
+      });
+
+      // Generate and download
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${data.url_slug || "blog-post"}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Blog post exported as DOCX.",
       });
     } catch (error: any) {
       toast({
@@ -307,15 +461,33 @@ export function BlogList({ userId }: BlogListProps) {
                     <Edit className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
                     <span className="hidden sm:inline">Edit</span>
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleExport(blog.id)}
-                    className="text-xs sm:text-sm"
-                  >
-                    <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
-                    <span className="hidden sm:inline">Export</span>
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs sm:text-sm"
+                      >
+                        <Download className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Export</span>
+                        <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 sm:ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleExportMarkdown(blog.id)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as Markdown
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExportDocx(blog.id)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as DOCX
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleExportText(blog.id)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as Text
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button
                     size="sm"
                     variant="secondary"
