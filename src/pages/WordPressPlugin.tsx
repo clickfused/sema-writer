@@ -70,8 +70,9 @@ export default function WordPressPlugin() {
     {
       number: 4,
       title: "Generate API Key",
-      description: "Go to Settings page in ClickFused dashboard and generate an API key",
-      icon: Code
+      description: "Go to Settings page and generate your API key for authentication",
+      icon: Code,
+      action: () => navigate("/settings")
     },
     {
       number: 5,
@@ -79,7 +80,13 @@ export default function WordPressPlugin() {
       description: "Enter the API key in WordPress plugin settings",
       icon: Settings
     }
-  ];
+  ] as Array<{
+    number: number;
+    title: string;
+    description: string;
+    icon: any;
+    action?: () => void;
+  }>;
 
   const features = [
     "Publish posts directly from ClickFused dashboard",
@@ -196,7 +203,7 @@ export default function WordPressPlugin() {
                           {step.number}
                         </div>
                       </div>
-                      <div className="flex-1 space-y-1 pt-1">
+                      <div className="flex-1 space-y-2 pt-1">
                         <div className="flex items-center gap-2">
                           <Icon className="h-4 w-4 text-primary" />
                           <h3 className="font-semibold">{step.title}</h3>
@@ -204,6 +211,17 @@ export default function WordPressPlugin() {
                         <p className="text-sm text-muted-foreground">
                           {step.description}
                         </p>
+                        {step.action && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={step.action}
+                            className="mt-2"
+                          >
+                            Go to Settings
+                            <ExternalLink className="h-3 w-3 ml-1" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
