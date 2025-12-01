@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FileText, Download, Trash2, Globe, Edit, Save } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Download, Trash2, Globe, Edit, Save, Eye } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { BlogContentDisplay } from "./BlogContentDisplay";
 import { RichTextEditor } from "./RichTextEditor";
@@ -350,36 +351,87 @@ export function BlogList({ userId }: BlogListProps) {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-title">Title</Label>
-              <Input
-                id="edit-title"
-                value={editForm.title}
-                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                placeholder="Blog post title"
-              />
-            </div>
+          <Tabs defaultValue="edit" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="edit">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </TabsTrigger>
+              <TabsTrigger value="preview">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </TabsTrigger>
+            </TabsList>
 
-            <div className="space-y-2">
-              <Label htmlFor="edit-meta-title">Meta Title</Label>
-              <Input
-                id="edit-meta-title"
-                value={editForm.meta_title}
-                onChange={(e) => setEditForm({ ...editForm, meta_title: e.target.value })}
-                placeholder="SEO meta title"
-              />
-            </div>
+            <TabsContent value="edit" className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Title</Label>
+                <Input
+                  id="edit-title"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  placeholder="Blog post title"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label>Content</Label>
-              <RichTextEditor
-                content={editForm.content}
-                onChange={(content) => setEditForm({ ...editForm, content })}
-                placeholder="Start writing your blog content..."
-              />
-            </div>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-meta-title">Meta Title</Label>
+                <Input
+                  id="edit-meta-title"
+                  value={editForm.meta_title}
+                  onChange={(e) => setEditForm({ ...editForm, meta_title: e.target.value })}
+                  placeholder="SEO meta title"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Content</Label>
+                <RichTextEditor
+                  content={editForm.content}
+                  onChange={(content) => setEditForm({ ...editForm, content })}
+                  placeholder="Start writing your blog content..."
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="preview" className="py-4">
+              <div className="border rounded-lg p-6 bg-background min-h-[400px]">
+                <article className="max-w-3xl mx-auto">
+                  <header className="mb-8 border-b pb-6">
+                    <h1 className="text-4xl font-bold mb-3 text-foreground">
+                      {editForm.title || "Untitled Blog Post"}
+                    </h1>
+                    {editForm.meta_title && (
+                      <p className="text-lg text-muted-foreground">
+                        {editForm.meta_title}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                      <time dateTime={new Date().toISOString()}>
+                        {new Date().toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </time>
+                      <span>•</span>
+                      <span>
+                        {editForm.content.replace(/<[^>]*>/g, '').split(/\s+/).length} words
+                      </span>
+                    </div>
+                  </header>
+                  
+                  <div className="prose prose-lg max-w-none">
+                    {editForm.content ? (
+                      <BlogContentDisplay content={editForm.content} />
+                    ) : (
+                      <p className="text-muted-foreground italic">No content yet. Switch to Edit mode to add content.</p>
+                    )}
+                  </div>
+                </article>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <DialogFooter className="gap-2">
             <Button
