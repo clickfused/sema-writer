@@ -295,12 +295,31 @@ Generate structured FAQ data now.`
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
-      throw new Error("Failed to generate FAQs");
+      const errorBody = await response.text();
+      console.error("AI gateway error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+        timestamp: new Date().toISOString()
+      });
+      throw new Error(`Failed to generate FAQs: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
+    
+    if (!data?.choices?.[0]?.message?.tool_calls?.[0]) {
+      console.error("Invalid FAQ response structure:", {
+        hasData: !!data,
+        hasChoices: !!data?.choices,
+        hasMessage: !!data?.choices?.[0]?.message,
+        hasToolCalls: !!data?.choices?.[0]?.message?.tool_calls,
+        fullResponse: JSON.stringify(data),
+        timestamp: new Date().toISOString()
+      });
+      throw new Error("Invalid response structure from AI gateway");
+    }
+    
+    const toolCall = data.choices[0].message.tool_calls[0];
     const faqs = JSON.parse(toolCall.function.arguments).faqs;
 
     return new Response(

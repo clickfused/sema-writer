@@ -247,23 +247,30 @@ ${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", {
+      const errorBody = await response.text();
+      console.error("AI gateway HTTP error:", {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: errorBody,
+        timestamp: new Date().toISOString()
       });
-      throw new Error(`AI gateway failed with status ${response.status}: ${response.statusText}`);
+      throw new Error(`AI gateway returned ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-      console.error("Invalid AI response structure:", data);
-      throw new Error("AI returned invalid response structure");
+    if (!data?.choices?.[0]?.message?.content) {
+      console.error("Invalid AI response structure:", {
+        hasData: !!data,
+        hasChoices: !!data?.choices,
+        choicesLength: data?.choices?.length,
+        fullResponse: JSON.stringify(data).substring(0, 500),
+        timestamp: new Date().toISOString()
+      });
+      throw new Error("Invalid response structure from AI gateway");
     }
     
-    const content = data.choices[0].message.content;
+     let content = data.choices[0].message.content;
 
     const wordCount = content.split(/\s+/).length;
     const primaryKeywordCount = (content.match(new RegExp(keywords.primary[0], "gi")) || []).length;
