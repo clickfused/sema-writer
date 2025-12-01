@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Download, Check, ExternalLink, Code, Settings, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function WordPressPlugin() {
@@ -121,11 +123,16 @@ export default function WordPressPlugin() {
     }
   ];
 
+  if (!user) return null;
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {user && <DashboardHeader user={user} />}
-      
-      <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader user={user} />
+          
+          <main className="flex-1 container mx-auto px-4 py-6 sm:py-8">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Hero Section */}
           <div className="text-center space-y-4 mb-8">
@@ -312,6 +319,8 @@ export default function WordPressPlugin() {
           </Card>
         </div>
       </main>
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
