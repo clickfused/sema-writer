@@ -4,6 +4,7 @@ import { MetaTagsForm } from "./blog-generator/MetaTagsForm";
 import { HeadingBuilder } from "./blog-generator/HeadingBuilder";
 import { FaqGenerator } from "./blog-generator/FaqGenerator";
 import { ContentGenerator } from "./blog-generator/ContentGenerator";
+import { ContextUploader } from "./blog-generator/ContextUploader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +43,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
   }>>([]);
   const [shortIntro, setShortIntro] = useState("");
   const [fullContent, setFullContent] = useState("");
+  const [contextContent, setContextContent] = useState("");
 
   // Load user preferences
   useEffect(() => {
@@ -93,11 +95,17 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
         </TabsList>
 
         <TabsContent value="keywords" className="mt-6">
-          <KeywordInput 
-            keywords={keywords} 
-            setKeywords={setKeywords}
-            onNext={() => setCurrentTab("headings")}
-          />
+          <div className="space-y-6">
+            <ContextUploader 
+              contextContent={contextContent}
+              setContextContent={setContextContent}
+            />
+            <KeywordInput 
+              keywords={keywords} 
+              setKeywords={setKeywords}
+              onNext={() => setCurrentTab("headings")}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="headings" className="mt-6">
@@ -120,6 +128,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             setShortIntro={setShortIntro}
             fullContent={fullContent}
             setFullContent={setFullContent}
+            contextContent={contextContent}
             onNext={() => setCurrentTab("faq")}
           />
         </TabsContent>
