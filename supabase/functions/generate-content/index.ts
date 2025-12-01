@@ -22,7 +22,8 @@ serve(async (req) => {
       brandName = '',
       targetWordCount = 1500,
       keywordDensity = 1.5,
-      includeCtaTypes = ['course', 'alsoRead', 'related']
+      includeCtaTypes = ['course', 'alsoRead', 'related'],
+      contextContent = ''
     } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
@@ -212,7 +213,13 @@ Every paragraph must follow this exact structure:
 
 CRITICAL: Generate UNIQUE content. No repetition from previous generations. Use varied examples, different phrasing, unique analogies.
 
-**INTRODUCTION (expand):** ${shortIntro}
+${contextContent ? `**REFERENCE CONTEXT:**
+Use the following reference document as context and inspiration for tone, style, and topic understanding. Do not copy directly, but let it inform your writing approach:
+---
+${contextContent.substring(0, 4000)}
+---
+
+` : ''}**INTRODUCTION (expand):** ${shortIntro}
 
 **KEYWORDS:**
 Primary: ${keywords.primary.join(", ")}

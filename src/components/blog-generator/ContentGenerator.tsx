@@ -35,6 +35,7 @@ interface ContentGeneratorProps {
   setShortIntro: (intro: string) => void;
   fullContent: string;
   setFullContent: (content: string) => void;
+  contextContent?: string;
   onNext: () => void;
 }
 
@@ -48,6 +49,7 @@ export function ContentGenerator({
   setShortIntro,
   fullContent,
   setFullContent,
+  contextContent = "",
   onNext,
 }: ContentGeneratorProps) {
   const navigate = useNavigate();
@@ -121,7 +123,8 @@ export function ContentGenerator({
           brandName,
           targetWordCount,
           keywordDensity,
-          includeCtaTypes
+          includeCtaTypes,
+          contextContent: contextContent || undefined
         },
       });
 
