@@ -9,6 +9,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
+import JSZip from "jszip";
 
 export default function WordPressPlugin() {
   const [downloading, setDownloading] = useState(false);
@@ -30,19 +31,68 @@ export default function WordPressPlugin() {
   const handleDownload = async () => {
     setDownloading(true);
     try {
-      // In a real implementation, this would create a ZIP file
-      // For now, we'll just show instructions for manual download
       toast({
-        title: "Download Instructions",
-        description: "Download the plugin files from /public/wordpress-plugin folder",
+        title: "Preparing Download",
+        description: "Creating plugin ZIP file...",
       });
-      
-      // Open the folder location in a new tab
-      window.open('/wordpress-plugin/', '_blank');
-    } catch (error) {
+
+      // Create a new ZIP file
+      const zip = new JSZip();
+      const pluginFolder = zip.folder("clickfused-connector");
+
+      if (!pluginFolder) {
+        throw new Error("Failed to create plugin folder");
+      }
+
+      // Fetch all plugin files
+      const files = [
+        { path: "clickfused-connector.php", url: "/wordpress-plugin/clickfused-connector.php" },
+        { path: "readme.txt", url: "/wordpress-plugin/readme.txt" },
+        { path: "README.md", url: "/wordpress-plugin/README.md" },
+        { path: "assets/admin.js", url: "/wordpress-plugin/assets/admin.js" },
+      ];
+
+      // Fetch and add each file to the ZIP
+      for (const file of files) {
+        try {
+          const response = await fetch(file.url);
+          if (!response.ok) {
+            console.warn(`Failed to fetch ${file.path}: ${response.status}`);
+            continue;
+          }
+          const content = await response.text();
+          pluginFolder.file(file.path, content);
+        } catch (error) {
+          console.error(`Error fetching ${file.path}:`, error);
+        }
+      }
+
+      // Generate the ZIP file
+      const zipBlob = await zip.generateAsync({ 
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 9 }
+      });
+
+      // Trigger download
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = "clickfused-connector.zip";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+
       toast({
-        title: "Error",
-        description: "Failed to download plugin",
+        title: "Download Complete! ✓",
+        description: "Plugin ZIP file downloaded successfully. You can now upload it to WordPress.",
+      });
+    } catch (error: any) {
+      console.error("Download error:", error);
+      toast({
+        title: "Download Failed",
+        description: error.message || "Failed to create plugin ZIP file",
         variant: "destructive",
       });
     } finally {
@@ -148,14 +198,26 @@ export default function WordPressPlugin() {
           </div>
 
           {/* Download Card */}
-          <Card className="border-primary/20">
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Download ClickFused Connector</CardTitle>
               <CardDescription>
-                Install this plugin on your WordPress site to enable remote publishing
+                One-click download of the complete WordPress plugin package
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="bg-background/80 backdrop-blur-sm rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Package includes:</span>
+                  <Badge variant="secondary">4 files</Badge>
+                </div>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>✓ Main plugin file (clickfused-connector.php)</li>
+                  <li>✓ Admin JavaScript (assets/admin.js)</li>
+                  <li>✓ WordPress readme (readme.txt)</li>
+                  <li>✓ Documentation (README.md)</li>
+                </ul>
+              </div>
               <Button 
                 size="lg" 
                 className="w-full" 
@@ -163,10 +225,10 @@ export default function WordPressPlugin() {
                 disabled={downloading}
               >
                 <Download className="mr-2 h-5 w-5" />
-                {downloading ? "Preparing Download..." : "Download Plugin"}
+                {downloading ? "Creating ZIP..." : "Download Plugin ZIP"}
               </Button>
               <p className="text-sm text-center text-muted-foreground">
-                Compatible with WordPress 5.8+ and PHP 7.4+
+                Version 1.0.0 • Compatible with WordPress 5.8+ and PHP 7.4+
               </p>
             </CardContent>
           </Card>
