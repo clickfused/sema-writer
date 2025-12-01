@@ -13,12 +13,27 @@ serve(async (req) => {
   try {
     const { wordpressUrl, username, appPassword, post } = await req.json();
 
+    console.log("Publishing to WordPress:", {
+      url: wordpressUrl,
+      username,
+      hasPassword: !!appPassword,
+      postTitle: post?.title,
+      timestamp: new Date().toISOString()
+    });
+
     if (!wordpressUrl || !username || !appPassword) {
       throw new Error("WordPress credentials not configured");
     }
 
+    if (!post?.title || !post?.content) {
+      throw new Error("Post title and content are required");
+    }
+
+    // Ensure URL doesn't have trailing slash for API endpoint
+    const cleanUrl = wordpressUrl.replace(/\/$/, '');
+    
     // Create WordPress post
-    const response = await fetch(`${wordpressUrl}/wp-json/wp/v2/posts`, {
+    const response = await fetch(`${cleanUrl}/wp-json/wp/v2/posts`, {
       method: "POST",
       headers: {
         "Authorization": `Basic ${btoa(`${username}:${appPassword}`)}`,

@@ -221,17 +221,31 @@ Generate now using structured output.`
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
-      throw new Error("Failed to generate meta tags");
+      const errorBody = await response.text();
+      console.error("AI gateway error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+        timestamp: new Date().toISOString()
+      });
+      throw new Error(`Failed to generate meta tags: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
     
-    if (!toolCall) {
-      throw new Error("No tool call returned from AI");
+    if (!data?.choices?.[0]?.message?.tool_calls?.[0]) {
+      console.error("Invalid meta tags response structure:", {
+        hasData: !!data,
+        hasChoices: !!data?.choices,
+        hasMessage: !!data?.choices?.[0]?.message,
+        hasToolCalls: !!data?.choices?.[0]?.message?.tool_calls,
+        fullResponse: JSON.stringify(data).substring(0, 500),
+        timestamp: new Date().toISOString()
+      });
+      throw new Error("Invalid response structure from AI gateway");
     }
-
+    
+    const toolCall = data.choices[0].message.tool_calls[0];
     const metaTags = JSON.parse(toolCall.function.arguments);
 
     // Validate lengths
