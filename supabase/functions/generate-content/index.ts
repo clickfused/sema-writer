@@ -11,19 +11,20 @@ serve(async (req) => {
   }
 
   try {
-    const { 
+const { 
       keywords, 
       metaTags, 
       headings, 
       shortIntro, 
       faqContent,
       framework = 'HYBRID',
-      location = 'Chennai',
+      location = 'United States',
       brandName = '',
       targetWordCount = 1500,
       keywordDensity = 1.5,
       includeCtaTypes = ['course', 'alsoRead', 'related'],
-      contextContent = ''
+      contextContent = '',
+      userIntent = null
     } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
@@ -64,6 +65,19 @@ serve(async (req) => {
 IMPORTANT: Generate UNIQUE content every time. Use timestamp ${Date.now()} and request ID for variation.
 
 Generate comprehensive blog content using the **${selectedFramework.name}** (Formula: ${selectedFramework.formula}).
+
+## USER INTENT OPTIMIZATION (CRITICAL)
+${userIntent ? `
+**Detected User Intent:** ${userIntent.primaryIntent}
+**Searcher Goal:** ${userIntent.searcherGoal}
+**Content Angle:** ${userIntent.contentAngle}
+
+Align ALL content with this user intent:
+- **Informational**: Focus on education, explanations, how-tos, guides
+- **Commercial Investigation**: Include comparisons, reviews, pros/cons, recommendations
+- **Transactional**: Emphasize benefits, CTAs, pricing info, getting started
+- **Navigational**: Help users find specific resources/pages
+` : ''}
 
 ## FRAMEWORK APPLICATION:
 

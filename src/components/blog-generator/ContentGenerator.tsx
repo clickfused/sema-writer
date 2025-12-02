@@ -12,6 +12,13 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { KeywordDensityTracker } from "./KeywordDensityTracker";
 
+interface UserIntent {
+  primaryIntent: string;
+  intentSignals: string[];
+  searcherGoal: string;
+  contentAngle: string;
+}
+
 interface ContentGeneratorProps {
   userId: string;
   keywords: {
@@ -36,6 +43,7 @@ interface ContentGeneratorProps {
   fullContent: string;
   setFullContent: (content: string) => void;
   contextContent?: string;
+  userIntent?: UserIntent | null;
   onNext: () => void;
 }
 
@@ -50,6 +58,7 @@ export function ContentGenerator({
   fullContent,
   setFullContent,
   contextContent = "",
+  userIntent = null,
   onNext,
 }: ContentGeneratorProps) {
   const navigate = useNavigate();
@@ -124,7 +133,8 @@ export function ContentGenerator({
           targetWordCount,
           keywordDensity,
           includeCtaTypes,
-          contextContent: contextContent || undefined
+          contextContent: contextContent || undefined,
+          userIntent: userIntent || undefined
         },
       });
 

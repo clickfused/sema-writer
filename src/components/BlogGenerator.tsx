@@ -13,6 +13,13 @@ interface BlogGeneratorProps {
   userId: string;
 }
 
+interface UserIntent {
+  primaryIntent: string;
+  intentSignals: string[];
+  searcherGoal: string;
+  contentAngle: string;
+}
+
 export function BlogGenerator({ userId }: BlogGeneratorProps) {
   const [currentTab, setCurrentTab] = useState("keywords");
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
@@ -21,7 +28,12 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
     secondary: [] as string[],
     semantic: [] as string[],
     lsi: [] as string[],
+    conversational: [] as string[],
+    related: [] as string[],
+    longTail: [] as string[],
+    autoSuggestions: [] as string[],
   });
+  const [userIntent, setUserIntent] = useState<UserIntent | null>(null);
   const [metaTags, setMetaTags] = useState({
     title: "",
     description: "",
@@ -103,6 +115,9 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             <KeywordInput 
               keywords={keywords} 
               setKeywords={setKeywords}
+              userIntent={userIntent}
+              setUserIntent={setUserIntent}
+              contextContent={contextContent}
               onNext={() => setCurrentTab("headings")}
             />
           </div>
@@ -113,6 +128,8 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             keywords={keywords}
             headings={headings}
             setHeadings={setHeadings}
+            userIntent={userIntent}
+            contextContent={contextContent}
             onNext={() => setCurrentTab("content")}
           />
         </TabsContent>
@@ -129,6 +146,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             fullContent={fullContent}
             setFullContent={setFullContent}
             contextContent={contextContent}
+            userIntent={userIntent}
             onNext={() => setCurrentTab("faq")}
           />
         </TabsContent>
