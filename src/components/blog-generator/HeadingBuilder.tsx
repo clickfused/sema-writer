@@ -4,9 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X, Plus, Sparkles } from "lucide-react";
+import { X, Plus, Sparkles, Target } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
+interface UserIntent {
+  primaryIntent: string;
+  intentSignals: string[];
+  searcherGoal: string;
+  contentAngle: string;
+}
 
 interface HeadingBuilderProps {
   keywords: {
@@ -14,6 +21,7 @@ interface HeadingBuilderProps {
     secondary: string[];
     semantic: string[];
     lsi: string[];
+    conversational?: string[];
   };
   headings: {
     h1: string;
@@ -21,10 +29,12 @@ interface HeadingBuilderProps {
     h3s: Array<{ h2Index: number; text: string }>;
   };
   setHeadings: (headings: any) => void;
+  userIntent?: UserIntent | null;
+  contextContent?: string;
   onNext: () => void;
 }
 
-export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: HeadingBuilderProps) {
+export function HeadingBuilder({ keywords, headings, setHeadings, userIntent, contextContent, onNext }: HeadingBuilderProps) {
   const [h1Input, setH1Input] = useState("");
   const [h2Input, setH2Input] = useState("");
   const [h3Input, setH3Input] = useState("");
@@ -35,7 +45,11 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-headings", {
-        body: { keywords },
+        body: { 
+          keywords,
+          userIntent: userIntent || undefined,
+          contextContent: contextContent || undefined
+        },
       });
 
       if (error) throw error;
@@ -48,7 +62,7 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
 
       toast({
         title: "Success",
-        description: "Headings generated successfully",
+        description: `Generated H1, ${data.h2s?.length || 0} H2s, and ${data.h3s?.length || 0} H3s`,
       });
     } catch (error: any) {
       toast({
@@ -98,18 +112,38 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
 
   const canProceed = headings.h1 && headings.h2s.length >= 10;
 
+  // Count H3s per H2
+  const getH3CountForH2 = (h2Index: number) => {
+    return headings.h3s.filter((h3) => h3.h2Index === h2Index).length;
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* User Intent Display */}
+      {userIntent && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">Generating Headings for: {userIntent.primaryIntent} Intent</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{userIntent.contentAngle}</p>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader className="pb-3 sm:pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <CardTitle className="text-lg sm:text-xl">Heading Structure</CardTitle>
-              <CardDescription className="text-xs sm:text-sm">Build a well-structured content hierarchy</CardDescription>
+              <CardDescription className="text-xs sm:text-sm">Build a well-structured content hierarchy with H3 subheadings</CardDescription>
             </div>
             <Button onClick={generateHeadings} disabled={generating || keywords.primary.length === 0} size="sm" className="w-full sm:w-auto">
               <Sparkles className="h-4 w-4 mr-2" />
-              {generating ? "Generating..." : "AI Generate"}
+              {generating ? "Generating..." : "AI Generate All"}
             </Button>
           </div>
         </CardHeader>
@@ -143,6 +177,7 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
               {headings.h2s.map((h2, index) => (
                 <Badge key={index} className="gap-1 text-xs">
                   <span className="max-w-[200px] sm:max-w-none truncate">{h2}</span>
+                  <span className="text-muted-foreground">({getH3CountForH2(index)} H3s)</span>
                   <X
                     className="h-3 w-3 cursor-pointer flex-shrink-0"
                     onClick={() => removeH2(index)}
@@ -150,12 +185,12 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
                 </Badge>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">{headings.h2s.length} H2 headings added</p>
+            <p className="text-xs text-muted-foreground">{headings.h2s.length} H2 headings added | {headings.h3s.length} total H3 subheadings</p>
           </div>
 
           {headings.h2s.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm sm:text-base">H3 Subheadings (Minimum 5 per H2)</Label>
+              <Label className="text-sm sm:text-base">H3 Subheadings (3-5 per H2 recommended)</Label>
               <div className="space-y-2">
                 <select
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -164,7 +199,7 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
                 >
                   {headings.h2s.map((h2, index) => (
                     <option key={index} value={index}>
-                      {h2}
+                      {h2} ({getH3CountForH2(index)} H3s)
                     </option>
                   ))}
                 </select>
@@ -184,21 +219,29 @@ export function HeadingBuilder({ keywords, headings, setHeadings, onNext }: Head
               <div className="space-y-2 mt-4">
                 {headings.h2s.map((h2, h2Index) => {
                   const h3sForThisH2 = headings.h3s.filter((h3) => h3.h2Index === h2Index);
-                  if (h3sForThisH2.length === 0) return null;
                   return (
                     <div key={h2Index} className="border rounded-md p-3">
-                      <p className="font-medium text-xs sm:text-sm mb-2 line-clamp-2">{h2}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {h3sForThisH2.map((h3, index) => (
-                          <Badge key={index} variant="outline" className="gap-1 text-xs">
-                            <span className="max-w-[150px] sm:max-w-none truncate">{h3.text}</span>
-                            <X
-                              className="h-3 w-3 cursor-pointer flex-shrink-0"
-                              onClick={() => removeH3(headings.h3s.indexOf(h3))}
-                            />
-                          </Badge>
-                        ))}
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="font-medium text-xs sm:text-sm line-clamp-2">{h2}</p>
+                        <Badge variant={h3sForThisH2.length >= 3 ? "default" : "outline"} className="text-xs">
+                          {h3sForThisH2.length} H3s
+                        </Badge>
                       </div>
+                      {h3sForThisH2.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {h3sForThisH2.map((h3, index) => (
+                            <Badge key={index} variant="outline" className="gap-1 text-xs">
+                              <span className="max-w-[150px] sm:max-w-none truncate">{h3.text}</span>
+                              <X
+                                className="h-3 w-3 cursor-pointer flex-shrink-0"
+                                onClick={() => removeH3(headings.h3s.indexOf(h3))}
+                              />
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No H3 subheadings yet</p>
+                      )}
                     </div>
                   );
                 })}

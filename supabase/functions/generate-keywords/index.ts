@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { primaryKeywords, type, topic, audience, searchIntent } = await req.json();
+    const { primaryKeywords, type, topic, audience, searchIntent, contextContent } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -57,7 +57,6 @@ Return ONLY a JSON array of 8 keyword strings, nothing else. Example: ["keyword1
       const data = await response.json();
       let content = data.choices[0].message.content;
       
-      // Remove markdown code blocks if present
       content = content.trim();
       if (content.startsWith('```json')) {
         content = content.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
@@ -74,7 +73,7 @@ Return ONLY a JSON array of 8 keyword strings, nothing else. Example: ["keyword1
       );
     }
 
-    // K.I.D Framework™ - Full keyword intelligence generation
+    // Enhanced K.I.D Framework™ with User Intent Analysis
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -86,54 +85,80 @@ Return ONLY a JSON array of 8 keyword strings, nothing else. Example: ["keyword1
         messages: [
           {
             role: "system",
-            content: `You are a keyword strategy expert specializing in SEO, AEO, and GEO optimization.
+            content: `You are an elite keyword strategist specializing in SEO, AEO, GEO, and LLMO optimization.
 
-Your task is to create a complete keyword framework using the K.I.D Framework™:
+Your task is to create a complete keyword framework using the Enhanced K.I.D Framework™ with User Intent Analysis:
 
-**K.I.D Framework™ = Keyword Intelligence Design**
+**K.I.D Framework™ = Keyword Intelligence Design + User Intent**
+
+## USER INTENT ANALYSIS (MANDATORY)
+Before generating keywords, analyze and classify the user's search intent:
+
+**Intent Types:**
+1. **Informational** - User wants to learn (What, Why, How, Guide, Tutorial)
+2. **Navigational** - User wants to find a specific page/site
+3. **Transactional** - User wants to buy/sign up (Buy, Price, Discount, Free)
+4. **Commercial Investigation** - User comparing options (Best, vs, Review, Top 10)
+
+**Intent Signals to Detect:**
+- Question modifiers (what, how, why, when, where)
+- Action words (buy, download, sign up, get, hire)
+- Comparison words (best, vs, alternative, compare, review)
+- Location modifiers (near me, in [city], local)
+
+## KEYWORD LAYERS
 
 Layer Structure:
-1. Core Layer (Primary) - Main intent topic that defines the content
-2. Context Layer (Secondary) - Supporting keywords that expand coverage
-3. Meaning Layer (Semantic) - Contextual keywords adding meaning, entities, and NLP relationships
-4. Relevance Layer (LSI) - Latent Semantic Indexing keywords (synonyms and conceptually related terms)
-5. Intent Layer (Conversational) - Query-based keywords aligned with user/LLM prompts
+1. **Core Layer (Primary)** - Main intent topic that defines the content
+2. **Context Layer (Secondary)** - Supporting keywords that expand coverage (12-15 keywords)
+3. **Meaning Layer (Semantic)** - Contextual keywords adding meaning, entities, NLP relationships (10-12 keywords)
+4. **Relevance Layer (LSI)** - Latent Semantic Indexing keywords, synonyms, conceptually related (10-12 keywords)
+5. **Intent Layer (Conversational)** - Query-based keywords aligned with user/LLM prompts (8-10 keywords)
+6. **Related Keywords** - Trending, competitor, and alternative keywords (8-10 keywords)
+7. **Long-tail Keywords** - Specific 4-6 word phrases with lower competition (8-10 keywords)
+8. **Auto-Suggestions** - Google/Bing autocomplete style suggestions (10-15 keywords)
 
-**Keyword Distribution:**
-- Primary Keywords: 1-3 main focus keywords
-- Secondary Keywords: 8-12 supporting/expansion keywords
-- Semantic Keywords: 8-10 NLP/Entity-based keywords
-- LSI Keywords: 8-10 conceptually related or synonym terms
-- Conversational Keywords: 5-8 natural query-style keywords (questions)
+## SEO & LLMO OPTIMIZATION
+- Include keywords optimized for Google Featured Snippets
+- Include keywords for ChatGPT/Gemini/Perplexity retrieval
+- Include entity-based keywords for Knowledge Graph
+- Include question-based keywords for PAA (People Also Ask)
 
-**Keyword Clusters:**
-Organize keywords into 3 thematic clusters:
-- Cluster 1: Intent/Topic Group
-- Cluster 2: Feature/Benefit Group
-- Cluster 3: Use Case Group
-
-Return a structured JSON object with all keyword layers.`
+Return comprehensive keyword intelligence with user intent analysis.`
           },
           {
             role: "user",
-            content: `Generate a complete K.I.D Framework™ keyword matrix:
+            content: `Generate Enhanced K.I.D Framework™ keyword matrix with User Intent Analysis:
 
 Topic: ${topic || primaryKeywords.join(", ")}
 Primary Keyword: ${primaryKeywords[0]}
 Target Audience: ${audience || "general professional readers"}
-Search Intent: ${searchIntent || "Informational"}
+Search Intent: ${searchIntent || "Auto-detect from topic"}
+${contextContent ? `\nContext Document (use for keyword extraction):\n${contextContent.substring(0, 3000)}` : ''}
+
+**ANALYZE USER INTENT FIRST**, then generate keywords aligned with that intent.
 
 Return ONLY a JSON object in this exact format:
 {
-  "primary": ["keyword1", "keyword2"],
-  "secondary": ["keyword1", "keyword2", ...],
-  "semantic": ["keyword1", "keyword2", ...],
-  "lsi": ["keyword1", "keyword2", ...],
-  "conversational": ["What is...", "How to...", ...],
+  "userIntent": {
+    "primaryIntent": "Informational|Navigational|Transactional|Commercial",
+    "intentSignals": ["signal1", "signal2"],
+    "searcherGoal": "What the user ultimately wants to achieve",
+    "contentAngle": "Recommended content approach based on intent"
+  },
+  "primary": ["keyword1", "keyword2", "keyword3"],
+  "secondary": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8", "keyword9", "keyword10", "keyword11", "keyword12"],
+  "semantic": ["entity1", "concept1", "nlp_term1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8", "keyword9", "keyword10"],
+  "lsi": ["synonym1", "related1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8", "keyword9", "keyword10"],
+  "conversational": ["What is...", "How to...", "Why does...", "When should...", "Where can...", "Can I...", "Is it...", "Does..."],
+  "related": ["trending_keyword1", "competitor_keyword1", "alternative1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"],
+  "longTail": ["specific 4-5 word phrase 1", "specific phrase 2", "phrase 3", "phrase 4", "phrase 5", "phrase 6", "phrase 7", "phrase 8"],
+  "autoSuggestions": ["topic + suggestion1", "topic + suggestion2", "how to topic", "best topic for", "topic vs", "topic examples", "topic guide", "topic tutorial", "topic benefits", "topic tips", "topic 2025", "topic for beginners", "topic strategy"],
   "clusters": {
-    "intent": ["keyword1", "keyword2", ...],
-    "features": ["keyword1", "keyword2", ...],
-    "useCases": ["keyword1", "keyword2", ...]
+    "intent": ["keyword1", "keyword2", "keyword3", "keyword4"],
+    "features": ["keyword1", "keyword2", "keyword3", "keyword4"],
+    "useCases": ["keyword1", "keyword2", "keyword3", "keyword4"],
+    "benefits": ["keyword1", "keyword2", "keyword3", "keyword4"]
   },
   "optimization": {
     "density": "1-1.5%",
@@ -141,7 +166,8 @@ Return ONLY a JSON object in this exact format:
     "secondaryPlacement": "H2/H3 headings, body paragraphs, internal links",
     "semanticPlacement": "Factual paragraphs, explanations, examples, AEO sections",
     "lsiPlacement": "Image ALT tags, meta description, FAQ, TL;DR",
-    "conversationalPlacement": "FAQ section, H2/H3 as questions, meta Q&A"
+    "conversationalPlacement": "FAQ section, H2/H3 as questions, meta Q&A",
+    "llmoOptimization": "Use in cite-worthy statements, definitions, structured answers"
   }
 }`
           }
@@ -150,14 +176,14 @@ Return ONLY a JSON object in this exact format:
     });
 
     if (!response.ok) {
-      console.error("AI gateway error:", response.status);
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
       throw new Error("Failed to generate K.I.D Framework keywords");
     }
 
     const data = await response.json();
     let content = data.choices[0].message.content;
     
-    // Remove markdown code blocks if present
     content = content.trim();
     if (content.startsWith('```json')) {
       content = content.replace(/```json\n?/g, '').replace(/```\n?$/g, '');
@@ -167,6 +193,14 @@ Return ONLY a JSON object in this exact format:
     content = content.trim();
     
     const keywordMatrix = JSON.parse(content);
+
+    console.log("Generated keyword matrix with user intent:", {
+      userIntent: keywordMatrix.userIntent,
+      primaryCount: keywordMatrix.primary?.length,
+      secondaryCount: keywordMatrix.secondary?.length,
+      autoSuggestionsCount: keywordMatrix.autoSuggestions?.length,
+      timestamp: new Date().toISOString()
+    });
 
     return new Response(
       JSON.stringify(keywordMatrix),
