@@ -77,19 +77,19 @@ Align heading structure with detected user intent:
 - Compelling for CTR + optimized for search
 - Match user intent directly
 
-### H2 Requirements (10-12 headings):
+### H2 Requirements (8-12 headings):
 - Cover complete topic journey
 - Include keyword variations naturally
 - Mix question-based (AEO) and statement-based (SEO)
 - Structure for Featured Snippets eligibility
 - Follow logical content flow
 
-### H3 Requirements (3-5 per relevant H2):
-- Detailed subtopics under each major H2
-- Question-based where appropriate for PAA
-- Include long-tail keyword opportunities
-- Support scannable content structure
-- Optimize for LLMO retrieval
+### H3 Requirements (NATURAL PLACEMENT ONLY):
+- Add H3s ONLY where content logically benefits from subdivision
+- NOT every H2 needs H3s - use judgment
+- H3s should break down complex topics into digestible parts
+- Question-based H3s where appropriate for PAA
+- Typically 2-4 H3s per applicable H2 (not all H2s)
 
 ## SEO BLOG STRUCTURE
 
@@ -104,8 +104,7 @@ Standard structure to follow:
 8. Common Mistakes to Avoid
 9. Tools & Resources
 10. Future Trends & Predictions
-11. FAQ Section
-12. Conclusion with CTA`
+11. Conclusion with CTA`
           },
           {
             role: "user",
@@ -122,7 +121,7 @@ Generate headings that:
 ✅ Include primary keyword in H1 naturally
 ✅ Use question-based H2s/H3s for AEO/PAA optimization
 ✅ Include keyword variations in H2s
-✅ Have 3-5 detailed H3s under each major H2
+✅ Add H3s ONLY where content logically needs subdivision (NOT forced)
 ✅ Structure for Featured Snippets
 ✅ Optimize for LLMO retrieval
 ✅ Cover complete topic comprehensively
@@ -132,57 +131,35 @@ Return ONLY a JSON object:
   "h1": "Primary keyword-optimized title (≤60 chars)",
   "h2s": [
     "TL;DR: [Topic] Key Takeaways",
-    "Introduction to [Topic]",
-    "What is [Topic]? Complete Definition",
-    "How Does [Topic] Work? Step-by-Step",
+    "What is [Topic]? Definition & Overview",
+    "How [Topic] Works: The Process",
     "Why [Topic] Matters in 2025",
     "[Topic] Best Practices & Strategies",
-    "Real-World [Topic] Examples & Case Studies",
+    "Real-World [Topic] Examples",
     "Common [Topic] Mistakes to Avoid",
     "[Topic] Tools & Resources",
-    "Future of [Topic]: Trends & Predictions",
-    "Frequently Asked Questions About [Topic]",
+    "Future of [Topic]: Trends",
     "Conclusion: [Topic] Final Thoughts"
   ],
   "h3s": [
-    {"h2Index": 2, "text": "Simple Definition of [Topic]"},
     {"h2Index": 2, "text": "Key Components of [Topic]"},
-    {"h2Index": 2, "text": "[Topic] vs Related Concepts"},
-    {"h2Index": 3, "text": "Step 1: [First Process Step]"},
-    {"h2Index": 3, "text": "Step 2: [Second Process Step]"},
-    {"h2Index": 3, "text": "Step 3: [Third Process Step]"},
-    {"h2Index": 3, "text": "Step 4: [Fourth Process Step]"},
-    {"h2Index": 4, "text": "Key Benefits of [Topic]"},
-    {"h2Index": 4, "text": "[Topic] Industry Statistics 2025"},
+    {"h2Index": 3, "text": "Step-by-Step Process"},
+    {"h2Index": 4, "text": "Top Benefits of [Topic]"},
     {"h2Index": 4, "text": "Who Should Use [Topic]?"},
-    {"h2Index": 5, "text": "Strategy 1: [Specific Method]"},
-    {"h2Index": 5, "text": "Strategy 2: [Specific Method]"},
-    {"h2Index": 5, "text": "Strategy 3: [Specific Method]"},
-    {"h2Index": 5, "text": "Strategy 4: [Specific Method]"},
-    {"h2Index": 6, "text": "Case Study 1: [Company/Brand]"},
-    {"h2Index": 6, "text": "Case Study 2: [Company/Brand]"},
-    {"h2Index": 6, "text": "Case Study 3: [Company/Brand]"},
-    {"h2Index": 7, "text": "Mistake 1: [Common Error]"},
-    {"h2Index": 7, "text": "Mistake 2: [Common Error]"},
-    {"h2Index": 7, "text": "Mistake 3: [Common Error]"},
-    {"h2Index": 8, "text": "Top Free [Topic] Tools"},
-    {"h2Index": 8, "text": "Premium [Topic] Platforms"},
-    {"h2Index": 8, "text": "Learning Resources for [Topic]"},
-    {"h2Index": 9, "text": "Emerging [Topic] Technologies"},
-    {"h2Index": 9, "text": "AI Impact on [Topic]"},
-    {"h2Index": 9, "text": "[Topic] Predictions for 2025-2026"},
-    {"h2Index": 10, "text": "What is [Topic] and how does it work?"},
-    {"h2Index": 10, "text": "How much does [Topic] cost?"},
-    {"h2Index": 10, "text": "Is [Topic] worth it in 2025?"},
-    {"h2Index": 10, "text": "What are the best [Topic] tools?"},
-    {"h2Index": 10, "text": "How to get started with [Topic]?"}
+    {"h2Index": 5, "text": "Strategy 1: [Method]"},
+    {"h2Index": 5, "text": "Strategy 2: [Method]"},
+    {"h2Index": 6, "text": "Case Study: [Example]"},
+    {"h2Index": 8, "text": "Free [Topic] Tools"},
+    {"h2Index": 8, "text": "Premium Platforms"}
   ],
   "seoStructure": {
     "featuredSnippetTargets": ["h2Index1", "h2Index2"],
     "paaTargets": ["h3 question 1", "h3 question 2"],
     "schemaTypes": ["Article", "HowTo", "FAQPage"]
   }
-}`
+}
+
+NOTE: Only add H3s where they naturally improve content structure. Not every H2 needs H3s.`
           }
         ],
       }),
