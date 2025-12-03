@@ -44,8 +44,21 @@ Return ONLY a JSON array with this structure:
   }
 ]
 
-For internal links, suggest relevant topic URLs (use placeholder URLs like /blog/related-topic).
-For external links, suggest authoritative sources related to the topic.`
+IMPORTANT REQUIREMENTS:
+1. For EXTERNAL links: Provide FULL, REAL, WORKING URLs to authoritative sources
+   - Use real websites like Wikipedia, official documentation, industry publications
+   - Example: "https://en.wikipedia.org/wiki/Digital_marketing"
+   - Example: "https://www.forbes.com/advisor/business/what-is-seo/"
+   - Example: "https://developers.google.com/search/docs/fundamentals/seo-starter-guide"
+
+2. For INTERNAL links: Suggest relevant topic URLs for the user's site
+   - Use descriptive slugs: "/blog/related-topic-name"
+   - Example: "/blog/seo-best-practices-2025"
+   - Example: "/services/digital-marketing"
+
+3. All URLs must be complete and properly formatted
+4. Anchor text should be descriptive and keyword-relevant
+5. External sources should be high-authority, trustworthy sites`
           }
         ],
       }),
