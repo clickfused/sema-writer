@@ -11,11 +11,10 @@ serve(async (req) => {
   }
 
   try {
-const { 
+    const { 
       keywords, 
       metaTags, 
       headings, 
-      shortIntro, 
       faqContent,
       framework = 'HYBRID',
       location = 'United States',
@@ -79,6 +78,40 @@ Align ALL content with this user intent:
 - **Navigational**: Help users find specific resources/pages
 ` : ''}
 
+## CRITICAL CONTENT STRUCTURE REQUIREMENTS:
+
+### 1. PARAGRAPH READABILITY (MANDATORY)
+- Each paragraph MUST be ~30 words maximum
+- Split long paragraphs into 2-3 shorter ones
+- Every paragraph should be 2-3 sentences only
+- Use line breaks between paragraphs for visual breathing room
+- Flesch Reading Ease score: 60-70
+
+### 2. NATURAL H3 SUBHEADINGS (MANDATORY)
+- Add H3 subheadings NATURALLY within H2 sections where logical
+- H3s should break down complex topics into digestible parts
+- NOT every H2 needs H3s - only add when content benefits from subdivision
+- H3s should feel organic, not forced
+
+### 3. NATURAL BULLET POINTS (MANDATORY)
+- Add bullet points (<ul><li>) where lists make content clearer
+- Use bullets for: features, benefits, steps, tips, examples
+- NOT every section needs bullets - only where appropriate
+- Mix bullet lists with regular paragraphs for variety
+
+### 4. NO REPEATED CONTENT (CRITICAL)
+- NEVER repeat the same information twice
+- Each section must provide NEW, UNIQUE insights
+- Check that examples, statistics, and explanations are not duplicated
+- Use varied vocabulary and phrasing throughout
+
+### 5. SEO + USER READABILITY BALANCE
+- Write for humans FIRST, search engines SECOND
+- Natural keyword integration (${keywordDensity}% density)
+- Conversational tone with authority
+- Active voice 80%+
+- Varied sentence lengths (5-25 words)
+
 ## FRAMEWORK APPLICATION:
 
 ${framework === 'SAGE' ? `**SAGE Framework:**
@@ -112,105 +145,50 @@ ${framework === 'HUMAIZE' ? `**HUMAIZE Framework:**
 ${framework === 'HYBRID' ? `**HYBRID Framework:**
 Combine SAGE (structure) + READ (readability) + C.R.A.F.T (clarity) + HUMAIZE (human tone).` : ''}
 
-## CRITICAL REQUIREMENTS:
+## CONTENT REQUIREMENTS:
 
-### 1. TL;DR (MANDATORY)
-<p class="tldr"><strong>TL;DR:</strong> [2–3 sentences, include primary keyword]</p>
+### Word Count: ${targetWordCount}+ words
+- Introduction: 100-150 words (2-3 short paragraphs)
+- Body sections: 150-250 words each
+- Conclusion: 80-120 words + CTA
 
-### 2. Word Count: ${targetWordCount}+ words
-- Introduction: 150–200 words
-- Body sections: 200–300 words each
-- Conclusion: 100–150 words + CTA
-
-### 3. Keyword Integration (${location}-Based Intent)
+### Keyword Integration (${location}-Based Intent)
 - **Primary:** ${keywordDensity}% density, use in H1, first 100 words, H2s, conclusion
 - **Secondary/Semantic/LSI:** Natural throughout
-- **Location:** Mention "${location}" 3–5 times naturally (e.g., "in ${location}", "for ${location} businesses")
+- **Location:** Mention "${location}" 3–5 times naturally
 - **NO keyword stuffing**
 
-### 4. ${location}-Specific SEO
-Reference US local context naturally without forcing it. Use US-specific examples, statistics, companies, and case studies.
+### ${location}-Specific SEO
+- US English spelling (color, optimize)
+- US companies, brands, platforms (Google, Amazon, Microsoft)
+- US market data, statistics, trends
+- USD currency ($) for pricing
 
-**US-Specific Requirements:**
-- Use US English spelling (e.g., "color" not "colour", "optimize" not "optimise")
-- Reference US companies, brands, platforms (e.g., Google, Amazon, Microsoft, Apple, Meta)
-- Cite US market data, statistics, trends (e.g., "According to US Census Bureau", "Pew Research shows")
-- Include US industry examples (Healthcare, Finance, Tech, Retail, Education in US context)
-- Mention US locations/cities when relevant: ${location}, Silicon Valley, New York, Boston, Austin, etc.
-- Reference US regulations, standards (e.g., HIPAA, SEC, FTC guidelines)
-- Use USD currency ($) for pricing examples
-- Cite US time zones, business hours, cultural context
+### Brand Name: ${brandName || 'N/A'}
+${brandName ? `Mention **${brandName}** 2–4 times per section naturally.` : ''}
 
-### 5. Brand Name: ${brandName || 'N/A'}
-${brandName ? `Mention **${brandName}** 2–4 times per section naturally. Use variants: "${brandName}", "our platform", "the tool".` : ''}
+### Call-to-Action Integration
+${includeCtaTypes.includes('course') ? '- Course CTA: Subtle enrollment opportunities' : ''}
+${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1-2 internal links' : ''}
+${includeCtaTypes.includes('related') ? '- Related Content: Suggest relevant topics' : ''}
+${includeCtaTypes.includes('industry') ? '- Industry Solutions: US industry applications' : ''}
+${includeCtaTypes.includes('usp') ? '- USP/Benefits: Unique value propositions' : ''}
+${includeCtaTypes.includes('humanIntent') ? '- Human Intent: Emotional triggers, pain points' : ''}
+${includeCtaTypes.includes('seoIntent') ? '- SEO Intent: Natural keyword CTAs' : ''}
+${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly cite-worthy statements' : ''}
 
-### 6. Call-to-Action Integration
-${includeCtaTypes.includes('course') ? '- Course CTA: Subtle enrollment or learning opportunities (e.g., "Learn more in our comprehensive course")' : ''}
-${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1-2 internal links to related US content' : ''}
-${includeCtaTypes.includes('related') ? '- Related Content: Suggest relevant topics within US market context' : ''}
-${includeCtaTypes.includes('industry') ? '- Industry Solutions: Highlight specific US industry applications (Healthcare, Finance, Tech, Education, Real Estate)' : ''}
-${includeCtaTypes.includes('usp') ? '- USP/Benefits: Emphasize unique value propositions and competitive advantages in US market' : ''}
-${includeCtaTypes.includes('humanIntent') ? '- Human Intent: Address emotional triggers, pain points, aspirations (e.g., "You want to succeed", "Your business deserves better")' : ''}
-${includeCtaTypes.includes('seoIntent') ? '- SEO Intent: Natural keyword CTAs optimized for search rankings (e.g., "Get the best [keyword] in [location]")' : ''}
-${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly CTAs for AI retrieval (e.g., "According to experts", "Research shows", cite-worthy statements)' : ''}
-- Conclusion: Strong action-oriented CTA relevant to US audience
-
-### 7. SEO + LLM Optimization (Every Title & Para)
-**Titles (H2/H3):**
-- Include 1 keyword naturally
-- <60 characters
-- User intent (What/How/Why)
-
-**Paragraphs FORMULA (MANDATORY):**
-Every paragraph must follow this exact structure:
-1. **Brand Name**: Start with "${brandName || 'the solution'}"
-2. **Power Words (2-3)**: Use superlatives like "best", "top", "proven", "leading", "advanced", "effective", "powerful", "innovative"
-3. **Keywords**: Naturally integrate 1-2 keywords (Secondary/Semantic/LSI from provided list)
-4. **Answer**: Provide the actual informative content (40-60 words)
-
-**Example Structure:**
-"${brandName || 'This platform'} offers the best proven solutions for [KEYWORD]. [Answer content with US-specific examples like Fortune 500 companies, Silicon Valley tech, NYC finance sector, etc.]. [Transition with US market relevance]."
-
-**US Content Requirements:**
-- Reference US market leaders and innovators
-- Use US case studies and success stories
-- Cite US-based research institutions (Stanford, MIT, Harvard)
-- Include US industry benchmarks and standards
-- Mention US geographic advantages or market size
-- Use relatable US business contexts
-
-**Requirements:**
-- 3–5 sentences, 60–90 words total
-- Natural keyword integration (NO stuffing)
-- End with transition/micro-CTA
-- Flesch score 60+
-- Use varied power words (don't repeat same adjectives)
-
-### 8. 2025 Fresh Content
-- Reference 2025 trends/data
-- Use "in 2025", "as of 2025"
-- Current examples
-
-### 9. Readability
-- Flesch: 60–70
-- Active voice: 80%+
-- Sentence variety: 5–30 words
-- Transitions: however, therefore, additionally
-
-### 10. HTML Formatting (MANDATORY)
+### HTML Formatting (MANDATORY)
 - Use <p>, <h2>, <h3>, <strong>, <em>, <ul>, <ol>, <li>
 - Use <strong> not <b>
 - Use <em> not <i>
-- No inline styles except "tldr"
+- No inline styles
 
 ## HUMANIZATION (Apply 10–15):
 - Contractions (it's, you'll, don't)
 - Vary sentence length
 - Transitions ("Here's the thing...", "That said...")
 - Specific examples
-- Remove "in today's digital landscape"
 - Industry terminology naturally
-- Expert insights
 - Concrete numbers
 - Rhetorical questions
 - Metaphors/analogies`
@@ -225,23 +203,20 @@ Every paragraph must follow this exact structure:
 **TARGET WORD COUNT:** ${targetWordCount}+
 **KEYWORD DENSITY:** ${keywordDensity}%
 
-CRITICAL: Generate UNIQUE content. No repetition from previous generations. Use varied examples, different phrasing, unique analogies.
+CRITICAL REQUIREMENTS:
+✅ Paragraphs ~30 words each (2-3 sentences max)
+✅ Add H3 subheadings NATURALLY where logical
+✅ Add bullet points NATURALLY where appropriate
+✅ NO repeated content - each section unique
+✅ SEO optimized but human-readable FIRST
 
 ${contextContent ? `**PRIMARY CONTEXT DOCUMENT (MANDATORY USE):**
-The user has provided a context document that MUST be the primary source for this blog post. 
-- Use the information, facts, data, examples, and insights from this document as the foundation
-- Expand upon the context with SEO optimization and proper structure
-- Maintain the core message and information from the context
-- Add relevant keywords naturally while preserving the context's meaning
-- Fill gaps with relevant, accurate information that complements the context
-
+Use this as the foundation for the blog post:
 --- CONTEXT DOCUMENT START ---
 ${contextContent.substring(0, 8000)}
 --- CONTEXT DOCUMENT END ---
 
-` : ''}**INTRODUCTION (expand):** ${shortIntro}
-
-**KEYWORDS:**
+` : ''}**KEYWORDS:**
 Primary: ${keywords.primary.join(", ")}
 Secondary: ${keywords.secondary.join(", ")}
 Semantic: ${keywords.semantic.join(", ")}
@@ -254,16 +229,16 @@ ${faqContent && faqContent.length > 0 ? `\n**FAQ (integrate at end):**\n${faqCon
 
 **VALIDATION CHECKLIST:**
 ✅ ≥${targetWordCount} words
-✅ TL;DR included
+✅ ~30 word paragraphs
+✅ Natural H3s where beneficial
+✅ Natural bullet points where helpful
+✅ NO content repetition
 ✅ ${keywordDensity}% keyword density
 ✅ "${location}" mentioned 3–5 times
-${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
-✅ CTAs: ${includeCtaTypes.join(', ')}
-✅ All headings used
+${brandName ? `✅ "${brandName}" naturally integrated` : ''}
+✅ All provided headings used
 ✅ Semantic HTML only
 ✅ 2025 content
-✅ US-focused examples and context
-✅ US English spelling and terminology
 ✅ Flesch 60+
 ✅ AI detection <20%
 
@@ -297,7 +272,7 @@ ${brandName ? `✅ "${brandName}" 2–4 times/section` : ''}
       throw new Error("Invalid response structure from AI gateway");
     }
     
-     let content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
 
     const wordCount = content.split(/\s+/).length;
     const primaryKeywordCount = (content.match(new RegExp(keywords.primary[0], "gi")) || []).length;

@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { content } = await req.json();
+    const { content, targetHumanization = 80 } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
@@ -30,92 +30,75 @@ serve(async (req) => {
           {
             role: "system",
             content: `You are an SEO, AEO & GEO content strategist with 10+ years of experience.
-Your task is to humanize AI-generated text using the HUMAIZE Framework™ so it:
-- Feels authentic, emotional, and conversational
-- Maintains factual accuracy and SEO entities
-- Is optimized for retrieval by ChatGPT, Perplexity, Gemini, and Google
-- Keeps clear intent alignment and natural flow
+Your task is to humanize AI-generated text to achieve ${targetHumanization}% human-like quality (max 80%).
 
-🧩 HUMAIZE Formula:
-H = Human Tone + Storytelling
-U = Unique POV + Emotion
-M = Meaningful Context (Entity + EEAT)
-A = Active Voice + Simplicity
-I = Intent Alignment (Search + Conversational)
-Z = Zest (Voice, Rhythm, and Flow)
-E = Engagement Triggers (CTA, Empathy, Relatability)
+🎯 TARGET: ${targetHumanization}% humanization (NOT 100% - keep some structure for SEO)
 
-🧩 Transformation Rules:
+🧩 HUMAIZE Framework™ (Balanced Application):
 
-H → Human Tone + Storytelling
-- Replace robotic phrasing with conversational transitions ("Let's explore...", "Here's the catch…")
-- Add natural pauses or empathy markers ("Honestly," "Imagine this," "Think of it like…")
-- Use real-life metaphors and analogies
-✅ Example: "Think of AI tools as your 24/7 teammate who never gets tired"
+H = Human Tone + Storytelling (apply moderately)
+- Add conversational transitions ("Let's explore...", "Here's the thing…")
+- Use empathy markers sparingly ("Honestly," "Imagine this")
+- Include real-life metaphors where natural
 
-U → Unique POV + Emotion
-- Add first/second-person POV ("you", "we", "our")
-- Sprinkle emotional connectors ("exciting", "frustrating", "powerful")
-- Show perspective instead of just data
-✅ Example: "We've all been buried under repetitive tasks — that's exactly where automation feels like magic"
+U = Unique POV + Emotion (apply moderately)
+- Add first/second-person POV ("you", "we")
+- Sprinkle emotional connectors naturally
+- Show perspective alongside data
 
-M → Meaningful Context (Entity + EEAT)
-- Keep key entities and stats (important for ranking)
-- Add authority references when relevant
-- Reinforce brand trust with experience signals
+M = Meaningful Context (preserve fully)
+- KEEP all entities, stats, facts
+- Maintain authority references
+- Preserve brand mentions and keywords
 
-A → Active Voice + Simplicity
+A = Active Voice + Simplicity (apply fully)
 - Cut filler and passive verbs
-- Break long sentences into 2–3 short ones
-- Keep grade-8 readability
+- Keep sentences 10-25 words
+- Grade-8 readability
 
-I → Intent Alignment
-- "What is…" → Clear, factual answer
-- "How to…" → Step-by-step
-- "Why…" → Insight-driven explanation
-- "Which…" → Comparative tone
+I = Intent Alignment (preserve)
+- Maintain search intent optimization
+- Keep answer structure for featured snippets
 
-Z → Zest
-- Add micro-emotion (curiosity, surprise, relief)
-- Use rhythm (short + medium + long sentences)
-- Keep flow conversational yet insightful
+Z = Zest (apply moderately)
+- Add micro-emotions (curiosity, surprise)
+- Vary sentence rhythm
+- Keep conversational yet professional
 
-E → Engagement Triggers
-- Use calls to action
-- Add "you" language
-- Pose reflective questions
+E = Engagement Triggers (apply moderately)
+- Use "you" language
+- Occasional rhetorical questions
+- Subtle CTAs
 
-CRITICAL FORMATTING RULES:
+⚠️ CRITICAL RULES:
+- Target ${targetHumanization}% humanization, NOT 100%
 - Preserve ALL HTML tags (<h2>, <h3>, <p>, <strong>, <mark>, <ul>, <li>, <a>)
 - NEVER use markdown symbols (**, *, #, -, etc.)
 - Keep all links and structure intact
-- Maintain keyword placement
+- Maintain keyword placement for SEO
 - Preserve all factual content and statistics
+- Keep SEO-optimized structure (headings, lists)
 
-OUTPUT FORMAT:
-Return ONLY the humanized HTML content. Do NOT add explanations, do NOT convert to markdown, do NOT remove HTML tags.`
+OUTPUT: Return ONLY the humanized HTML content.`
           },
           {
             role: "user",
-            content: `Humanize this content using the HUMAIZE Framework™:
+            content: `Humanize this content to ${targetHumanization}% human-like quality:
 
 ${content}
 
 REQUIREMENTS:
-✅ Apply all HUMAIZE transformation rules (H, U, M, A, I, Z, E)
-✅ Make it feel authentic, emotional, and conversational
+✅ Apply HUMAIZE framework at ${targetHumanization}% intensity (max 80%)
+✅ Make it feel authentic and conversational
 ✅ Maintain ALL facts, statistics, and entities
-✅ Keep ALL HTML formatting (<h2>, <h3>, <p>, <strong>, <mark>, <ul>, <li>, <a>)
-✅ NEVER use markdown symbols (**, *, #, -, etc.)
-✅ Preserve all keywords and SEO entities
-✅ Target AI detection score < 30
-✅ Enhance EEAT signals naturally
-✅ Add conversational transitions and empathy markers
-✅ Use active voice and varied sentence rhythm
-✅ Include engagement triggers (questions, CTAs, "you" language)
+✅ Keep ALL HTML formatting
+✅ NEVER use markdown symbols
+✅ Preserve keywords and SEO structure
+✅ Target AI detection score: ${100 - targetHumanization}/100
 ✅ Keep grade-8 readability
+✅ Balance human feel with SEO optimization
 
-Return ONLY the humanized HTML content without any explanations or notes.`
+Return ONLY the humanized HTML content without explanations.`
           }
         ],
       }),

@@ -53,7 +53,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
     namedEntities?: string[];
     conceptualEntities?: string[];
   }>>([]);
-  const [shortIntro, setShortIntro] = useState("");
+  
   const [fullContent, setFullContent] = useState("");
   const [contextContent, setContextContent] = useState("");
 
@@ -81,7 +81,6 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
       keywords,
       metaTags,
       headings,
-      shortIntro,
       content: fullContent,
       faqContent,
     },
@@ -141,8 +140,6 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             metaTags={metaTags}
             headings={headings}
             faqContent={faqContent}
-            shortIntro={shortIntro}
-            setShortIntro={setShortIntro}
             fullContent={fullContent}
             setFullContent={setFullContent}
             contextContent={contextContent}

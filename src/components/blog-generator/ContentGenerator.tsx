@@ -38,8 +38,6 @@ interface ContentGeneratorProps {
     h3s: Array<{ h2Index: number; text: string }>;
   };
   faqContent: Array<{ question: string; answer: string }>;
-  shortIntro: string;
-  setShortIntro: (intro: string) => void;
   fullContent: string;
   setFullContent: (content: string) => void;
   contextContent?: string;
@@ -53,8 +51,6 @@ export function ContentGenerator({
   metaTags,
   headings,
   faqContent,
-  shortIntro,
-  setShortIntro,
   fullContent,
   setFullContent,
   contextContent = "",
@@ -92,31 +88,6 @@ export function ContentGenerator({
     'llmoIntent'
   ]);
 
-  const generateShortIntro = async () => {
-    setGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-intro", {
-        body: { keywords, metaTags },
-      });
-
-      if (error) throw error;
-      setShortIntro(data.intro);
-
-      toast({
-        title: "Success",
-        description: "Short intro generated successfully",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setGenerating(false);
-    }
-  };
-
   const generateFullContent = async () => {
     setGenerating(true);
     try {
@@ -125,7 +96,6 @@ export function ContentGenerator({
           keywords, 
           metaTags, 
           headings, 
-          shortIntro, 
           faqContent: [],
           framework,
           location,
@@ -249,7 +219,7 @@ export function ContentGenerator({
           meta_description: metaTags.description,
           url_slug: metaTags.slug,
           h1_title: headings.h1,
-          short_intro: shortIntro,
+          short_intro: "",
           content: fullContent,
           faq_content: JSON.stringify(faqContent),
           word_count: wordCount,
@@ -323,7 +293,7 @@ export function ContentGenerator({
           .join("\n\n")}`
       : "";
 
-    const markdown = `# ${metaTags.title}\n\n**Meta Description:** ${metaTags.description}\n\n**URL Slug:** ${metaTags.slug}\n\n## Short Intro\n\n${shortIntro}\n\n## Full Content\n\n${fullContent}${faqSection}`;
+    const markdown = `# ${metaTags.title}\n\n**Meta Description:** ${metaTags.description}\n\n**URL Slug:** ${metaTags.slug}\n\n## Full Content\n\n${fullContent}${faqSection}`;
     
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -359,12 +329,6 @@ export function ContentGenerator({
           new TextRun(metaTags.slug),
         ],
       }),
-      new Paragraph(""),
-      new Paragraph({
-        text: "Short Introduction",
-        heading: HeadingLevel.HEADING_2,
-      }),
-      new Paragraph(shortIntro),
       new Paragraph(""),
       new Paragraph({
         text: "Full Content",
@@ -704,36 +668,10 @@ export function ContentGenerator({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Short Intro / Summary</CardTitle>
-              <CardDescription>100-word snippet for featured snippets</CardDescription>
-            </div>
-            <Button onClick={generateShortIntro} disabled={generating}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              {generating ? "Generating..." : "AI Generate"}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            value={shortIntro}
-            onChange={(e) => setShortIntro(e.target.value)}
-            placeholder="A concise 100-word introduction..."
-            rows={4}
-          />
-          <p className="text-xs text-muted-foreground mt-2">
-            {shortIntro.split(/\s+/).filter((w) => w).length} words
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
               <CardTitle>Full Blog Content</CardTitle>
               <CardDescription>AI-generated 2000+ word SEO-optimized content</CardDescription>
             </div>
-            <Button onClick={generateFullContent} disabled={generating || !shortIntro}>
+            <Button onClick={generateFullContent} disabled={generating}>
               <Sparkles className="h-4 w-4 mr-2" />
               {generating ? "Generating..." : "Generate Full Content"}
             </Button>

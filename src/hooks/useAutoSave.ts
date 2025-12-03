@@ -7,7 +7,6 @@ interface AutoSaveData {
   keywords: any;
   metaTags: any;
   headings: any;
-  shortIntro: string;
   content: string;
   faqContent: any;
 }
@@ -36,7 +35,7 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
             keywords: data.keywords,
             meta_tags: data.metaTags,
             headings: data.headings,
-            short_intro: data.shortIntro,
+            short_intro: "",
             content: data.content,
             faq_content: data.faqContent,
           })
@@ -51,7 +50,7 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
             keywords: data.keywords,
             meta_tags: data.metaTags,
             headings: data.headings,
-            short_intro: data.shortIntro,
+            short_intro: "",
             content: data.content,
             faq_content: data.faqContent,
           });
