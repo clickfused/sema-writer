@@ -18,12 +18,20 @@ interface FaqItem {
   conceptualEntities?: string[];
 }
 
+interface UserIntent {
+  primaryIntent: string;
+  intentSignals: string[];
+  searcherGoal: string;
+  contentAngle: string;
+}
+
 interface FaqGeneratorProps {
   keywords: {
     primary: string[];
     secondary: string[];
     semantic: string[];
     lsi: string[];
+    conversational?: string[];
   };
   metaTags: {
     title: string;
@@ -33,6 +41,7 @@ interface FaqGeneratorProps {
   faqContent: Array<FaqItem>;
   setFaqContent: (faq: Array<FaqItem>) => void;
   fullContent: string;
+  userIntent?: UserIntent | null;
   onNext: () => void;
 }
 
@@ -42,6 +51,7 @@ export function FaqGenerator({
   faqContent,
   setFaqContent,
   fullContent,
+  userIntent,
   onNext,
 }: FaqGeneratorProps) {
   const [generating, setGenerating] = useState(false);
@@ -49,10 +59,10 @@ export function FaqGenerator({
   const [linkSuggestions, setLinkSuggestions] = useState<Array<{ anchor: string; url: string; type: 'internal' | 'external' }>>([]);
   
   const [faqFramework, setFaqFramework] = useState('AEO_LLMO');
-  const [location, setLocation] = useState('Chennai');
+  const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
   const [faqCount, setFaqCount] = useState(20);
-  const [minWordsPerAnswer, setMinWordsPerAnswer] = useState(40);
+  const [minWordsPerAnswer, setMinWordsPerAnswer] = useState(35);
   const [keywordDensity, setKeywordDensity] = useState(1.5);
 
   const generateFaqs = async () => {
@@ -77,7 +87,8 @@ export function FaqGenerator({
           brandName,
           faqCount,
           minWordsPerAnswer,
-          keywordDensity
+          keywordDensity,
+          userIntent
         },
       });
 
@@ -349,15 +360,6 @@ export function FaqGenerator({
             </div>
           </div>
 
-          <div className="p-4 bg-muted rounded-lg space-y-2">
-            <p className="text-sm font-medium">Active Answer Formula:</p>
-            <code className="text-xs text-muted-foreground block">
-              [{brandName || 'Brand'}] + [Superlative] + [Keyword + {location} + 2025] + [Unique Value] + [Experts] + [Tech Stack] + [Outcomes + Proof]
-            </code>
-            <p className="text-xs text-muted-foreground mt-2">
-              Example: "{brandName || 'Digital Scholar'} is the best digital marketing course in {location} for 2025..."
-            </p>
-          </div>
         </CardContent>
       </Card>
 

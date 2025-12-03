@@ -155,6 +155,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
             faqContent={faqContent}
             setFaqContent={setFaqContent}
             fullContent={fullContent}
+            userIntent={userIntent}
             onNext={() => setCurrentTab("meta")}
           />
         </TabsContent>
