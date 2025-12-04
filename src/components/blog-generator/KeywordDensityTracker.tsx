@@ -41,14 +41,17 @@ export function KeywordDensityTracker({
     });
   };
 
+  const primaryStats = calculateKeywordStats(keywords.primary);
   const secondaryStats = calculateKeywordStats(keywords.secondary);
   const semanticStats = calculateKeywordStats(keywords.semantic);
   const lsiStats = calculateKeywordStats(keywords.lsi);
 
   const allSupportingStats = [...secondaryStats, ...semanticStats, ...lsiStats];
   const totalSupportingCount = allSupportingStats.reduce((sum, stat) => sum + stat.count, 0);
+  const totalPrimaryCount = primaryStats.reduce((sum, stat) => sum + stat.count, 0);
   const totalWords = content.split(/\s+/).filter(w => w.length > 0).length;
   const overallDensity = totalWords > 0 ? (totalSupportingCount / totalWords) * 100 : 0;
+  const primaryDensity = totalWords > 0 ? (totalPrimaryCount / totalWords) * 100 : 0;
 
   const getStatusIcon = (density: number) => {
     if (density >= 1.0 && density <= 1.8) {
@@ -176,6 +179,13 @@ export function KeywordDensityTracker({
         </div>
 
         <div className="h-px bg-border" />
+
+        {/* Primary Keywords */}
+        {renderKeywordGroup(
+          "Primary Keywords",
+          primaryStats,
+          "bg-rose-500"
+        )}
 
         {/* Secondary Keywords */}
         {renderKeywordGroup(
