@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe } from "lucide-react";
@@ -11,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { KeywordDensityTracker } from "./KeywordDensityTracker";
-
+import { ReadabilityAnalyzer } from "./ReadabilityAnalyzer";
+import { AIDetectionChecker } from "./AIDetectionChecker";
 interface UserIntent {
   primaryIntent: string;
   intentSignals: string[];
@@ -753,11 +753,23 @@ export function ContentGenerator({
         </CardContent>
       </Card>
 
-      {/* Keyword Density Tracker */}
-      <KeywordDensityTracker 
-        content={fullContent}
-        keywords={keywords}
-        targetDensity={keywordDensity}
+      {/* Analytics Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Keyword Density Tracker */}
+        <KeywordDensityTracker 
+          content={fullContent}
+          keywords={keywords}
+          targetDensity={keywordDensity}
+        />
+
+        {/* Readability Analyzer */}
+        <ReadabilityAnalyzer content={fullContent} />
+      </div>
+
+      {/* AI Detection Checker */}
+      <AIDetectionChecker 
+        content={fullContent} 
+        aiScore={qualityMetrics?.aiDetectionScore}
       />
 
       <div className="flex flex-wrap justify-end gap-2">
