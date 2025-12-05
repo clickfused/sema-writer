@@ -73,7 +73,6 @@ export function ContentGenerator({
   const [humanizing, setHumanizing] = useState(false);
   const [publishing, setPublishing] = useState(false);
   
-  const [framework, setFramework] = useState('HYBRID');
   const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
   const [targetWordCount, setTargetWordCount] = useState(1500);
@@ -98,7 +97,7 @@ export function ContentGenerator({
           metaTags, 
           headings, 
           faqContent: [],
-          framework,
+          framework: 'HYBRID',
           location,
           brandName,
           targetWordCount,
@@ -497,28 +496,6 @@ export function ContentGenerator({
         <CardContent className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
-              <Label className="text-sm sm:text-base">Framework Type</Label>
-              <select
-                value={framework}
-                onChange={(e) => setFramework(e.target.value)}
-                className="w-full px-2 sm:px-3 py-2 text-sm border border-input rounded-md bg-background text-foreground"
-              >
-                <option value="SAGE">SAGE (Structure + Authority + Guidance + Engagement)</option>
-                <option value="READ">READ (Rhythm + Engagement + Accessibility + Direction)</option>
-                <option value="CRAFT">C.R.A.F.T (Clear + Relevant + Accurate + Factual + Terse)</option>
-                <option value="HUMAIZE">HUMAIZE (Human-like + Natural + Contextual)</option>
-                <option value="HYBRID">HYBRID (All Frameworks Combined) ⭐</option>
-              </select>
-              <p className="text-xs text-muted-foreground">
-                {framework === 'SAGE' && 'Structured, authoritative content with clear guidance'}
-                {framework === 'READ' && 'Optimized for natural readability and flow'}
-                {framework === 'CRAFT' && 'Focus on clarity, accuracy, and concise writing'}
-                {framework === 'HUMAIZE' && 'Maximum human-like tone, passes AI detectors'}
-                {framework === 'HYBRID' && 'Combines all frameworks for comprehensive SEO+AEO+GEO+LLMO'}
-              </p>
-            </div>
-
-            <div className="space-y-2">
               <Label>Location Intent</Label>
               <input
                 type="text"
@@ -650,17 +627,6 @@ export function ContentGenerator({
                 </Button>
               </div>
             </div>
-          </div>
-
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm font-medium mb-2">Active Framework Formula:</p>
-            <code className="text-xs text-muted-foreground">
-              {framework === 'SAGE' && '(Structure × 0.3) + (Authority × 0.25) + (Guidance × 0.25) + (Engagement × 0.2)'}
-              {framework === 'READ' && '(Rhythm × 0.25) + (Engagement × 0.3) + (Accessibility × 0.25) + (Direction × 0.2)'}
-              {framework === 'CRAFT' && '(Clarity × 0.25) + (Relevance × 0.25) + (Accuracy × 0.2) + (Factual × 0.2) + (Terseness × 0.1)'}
-              {framework === 'HUMAIZE' && '(Human-tone × 0.35) + (Natural-flow × 0.35) + (Context × 0.3)'}
-              {framework === 'HYBRID' && '(SAGE × 0.3) + (READ × 0.25) + (CRAFT × 0.25) + (HUMAIZE × 0.2)'}
-            </code>
           </div>
         </CardContent>
       </Card>
