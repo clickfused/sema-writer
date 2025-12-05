@@ -2,10 +2,13 @@ import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, FileText, AlignLeft, Type, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BookOpen, FileText, AlignLeft, Type, CheckCircle2, AlertTriangle, XCircle, Wand2 } from "lucide-react";
 
 interface ReadabilityAnalyzerProps {
   content: string;
+  onOptimize?: () => void;
+  isOptimizing?: boolean;
 }
 
 interface ReadabilityMetrics {
@@ -25,7 +28,7 @@ interface ReadabilityMetrics {
   structureScore: number;
 }
 
-export function ReadabilityAnalyzer({ content }: ReadabilityAnalyzerProps) {
+export function ReadabilityAnalyzer({ content, onOptimize, isOptimizing }: ReadabilityAnalyzerProps) {
   const metrics = useMemo((): ReadabilityMetrics | null => {
     if (!content || content.trim().length === 0) return null;
 
@@ -184,9 +187,23 @@ export function ReadabilityAnalyzer({ content }: ReadabilityAnalyzerProps) {
             <BookOpen className="h-4 w-4" />
             Readability Analyzer
           </span>
-          <Badge variant={getFleschBadge(metrics.fleschReadingEase)}>
-            Flesch: {metrics.fleschReadingEase}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={getFleschBadge(metrics.fleschReadingEase)}>
+              Flesch: {metrics.fleschReadingEase}
+            </Badge>
+            {onOptimize && metrics.fleschReadingEase < 60 && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={onOptimize}
+                disabled={isOptimizing}
+                className="h-7 text-xs"
+              >
+                <Wand2 className="h-3 w-3 mr-1" />
+                {isOptimizing ? "Optimizing..." : "Optimize"}
+              </Button>
+            )}
+          </div>
         </CardTitle>
         <CardDescription>
           {metrics.fleschGrade} • Target: 60-70 (Standard)

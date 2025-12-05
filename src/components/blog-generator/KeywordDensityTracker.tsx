@@ -1,7 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, AlertCircle, TrendingUp, Wand2 } from "lucide-react";
 
 interface KeywordDensityTrackerProps {
   content: string;
@@ -12,6 +13,8 @@ interface KeywordDensityTrackerProps {
     lsi: string[];
   };
   targetDensity?: number;
+  onOptimize?: () => void;
+  isOptimizing?: boolean;
 }
 
 interface KeywordStats {
@@ -23,7 +26,9 @@ interface KeywordStats {
 export function KeywordDensityTracker({ 
   content, 
   keywords,
-  targetDensity = 1.5 
+  targetDensity = 1.5,
+  onOptimize,
+  isOptimizing
 }: KeywordDensityTrackerProps) {
   const calculateKeywordStats = (keywordList: string[]): KeywordStats[] => {
     if (!content || !keywordList.length) return [];
@@ -152,6 +157,18 @@ export function KeywordDensityTracker({
             >
               {getStatusText(overallDensity)}
             </Badge>
+            {onOptimize && (overallDensity < 1.0 || overallDensity > 1.8) && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={onOptimize}
+                disabled={isOptimizing}
+                className="h-7 text-xs"
+              >
+                <Wand2 className="h-3 w-3 mr-1" />
+                {isOptimizing ? "Optimizing..." : "Optimize"}
+              </Button>
+            )}
           </div>
         </CardTitle>
         <CardDescription>

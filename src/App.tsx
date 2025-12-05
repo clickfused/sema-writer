@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import WordPressPlugin from "./pages/WordPressPlugin";
 import SeoFiles from "./pages/SeoFiles";
 import GeoTracking from "./pages/GeoTracking";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const AnimatedRoutes = () => {
         <Route path="/wordpress-plugin" element={<PageTransition><WordPressPlugin /></PageTransition>} />
         <Route path="/seo-files" element={<PageTransition><SeoFiles /></PageTransition>} />
         <Route path="/geo-tracking" element={<PageTransition><GeoTracking /></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
