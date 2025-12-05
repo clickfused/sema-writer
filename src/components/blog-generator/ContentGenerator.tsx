@@ -12,6 +12,7 @@ import { RichTextEditor } from "@/components/RichTextEditor";
 import { KeywordDensityTracker } from "./KeywordDensityTracker";
 import { ReadabilityAnalyzer } from "./ReadabilityAnalyzer";
 import { AIDetectionChecker } from "./AIDetectionChecker";
+import { ContentSuggestions } from "./ContentSuggestions";
 interface UserIntent {
   primaryIntent: string;
   intentSignals: string[];
@@ -764,13 +765,19 @@ export function ContentGenerator({
 
         {/* Readability Analyzer */}
         <ReadabilityAnalyzer content={fullContent} />
-      </div>
 
-      {/* AI Detection Checker */}
-      <AIDetectionChecker 
-        content={fullContent} 
-        aiScore={qualityMetrics?.aiDetectionScore}
-      />
+        {/* Content Suggestions */}
+        <ContentSuggestions 
+          content={fullContent}
+          keywords={keywords}
+        />
+
+        {/* AI Detection Checker */}
+        <AIDetectionChecker 
+          content={fullContent} 
+          aiScore={qualityMetrics?.aiDetectionScore}
+        />
+      </div>
 
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="outline" onClick={exportContent} disabled={!fullContent}>
