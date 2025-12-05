@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lightbulb, AlertTriangle, CheckCircle, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Lightbulb, AlertTriangle, CheckCircle, TrendingUp, Wand2 } from "lucide-react";
 
 interface ContentSuggestionsProps {
   content: string;
@@ -11,6 +12,8 @@ interface ContentSuggestionsProps {
     semantic?: string[];
     lsi?: string[];
   };
+  onOptimize?: () => void;
+  isOptimizing?: boolean;
 }
 
 interface Suggestion {
@@ -20,7 +23,7 @@ interface Suggestion {
   priority: "high" | "medium" | "low";
 }
 
-export const ContentSuggestions = ({ content, keywords }: ContentSuggestionsProps) => {
+export const ContentSuggestions = ({ content, keywords, onOptimize, isOptimizing }: ContentSuggestionsProps) => {
   const suggestions = useMemo(() => {
     const tips: Suggestion[] = [];
     const text = content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -231,7 +234,19 @@ export const ContentSuggestions = ({ content, keywords }: ContentSuggestionsProp
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Lightbulb className="h-4 w-4" />
           Content Suggestions
-          <Badge variant="secondary" className="ml-auto">{suggestions.length} tips</Badge>
+          <Badge variant="secondary" className="ml-2">{suggestions.length} tips</Badge>
+          {onOptimize && suggestions.filter(s => s.priority === 'high').length > 0 && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={onOptimize}
+              disabled={isOptimizing}
+              className="ml-auto h-7 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              {isOptimizing ? "Optimizing..." : "Fix All"}
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 max-h-[300px] overflow-y-auto">

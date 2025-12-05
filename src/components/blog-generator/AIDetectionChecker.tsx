@@ -2,11 +2,14 @@ import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Bot, CheckCircle2, AlertTriangle, XCircle, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Bot, CheckCircle2, AlertTriangle, XCircle, Wand2 } from "lucide-react";
 
 interface AIDetectionCheckerProps {
   content: string;
   aiScore?: number | null;
+  onOptimize?: () => void;
+  isOptimizing?: boolean;
 }
 
 interface PatternAnalysis {
@@ -16,7 +19,7 @@ interface PatternAnalysis {
   description: string;
 }
 
-export function AIDetectionChecker({ content, aiScore }: AIDetectionCheckerProps) {
+export function AIDetectionChecker({ content, aiScore, onOptimize, isOptimizing }: AIDetectionCheckerProps) {
   const analysis = useMemo(() => {
     if (!content || content.trim().length === 0) return null;
 
@@ -186,9 +189,23 @@ export function AIDetectionChecker({ content, aiScore }: AIDetectionCheckerProps
             <Bot className="h-4 w-4" />
             AI Detection Checker
           </span>
-          <Badge variant={getScoreBadge(analysis.estimatedScore)}>
-            {getScoreLabel(analysis.estimatedScore)}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={getScoreBadge(analysis.estimatedScore)}>
+              {getScoreLabel(analysis.estimatedScore)}
+            </Badge>
+            {onOptimize && analysis.estimatedScore > 20 && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={onOptimize}
+                disabled={isOptimizing}
+                className="h-7 text-xs"
+              >
+                <Wand2 className="h-3 w-3 mr-1" />
+                {isOptimizing ? "Optimizing..." : "Humanize"}
+              </Button>
+            )}
+          </div>
         </CardTitle>
         <CardDescription>
           Estimated AI Score: {analysis.estimatedScore}% • Target: &lt;20%

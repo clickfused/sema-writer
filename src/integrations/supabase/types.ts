@@ -107,6 +107,39 @@ export type Database = {
         }
         Relationships: []
       }
+      frameworks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          formula: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          system_prompt: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          formula?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          system_prompt?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          formula?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          system_prompt?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       headings: {
         Row: {
           blog_post_id: string

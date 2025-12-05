@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,15 @@ import { KeywordDensityTracker } from "./KeywordDensityTracker";
 import { ReadabilityAnalyzer } from "./ReadabilityAnalyzer";
 import { AIDetectionChecker } from "./AIDetectionChecker";
 import { ContentSuggestions } from "./ContentSuggestions";
+
+interface Framework {
+  id: string;
+  name: string;
+  description: string | null;
+  formula: string | null;
+  system_prompt: string | null;
+}
+
 interface UserIntent {
   primaryIntent: string;
   intentSignals: string[];
@@ -72,7 +81,10 @@ export function ContentGenerator({
   const [checkingQuality, setCheckingQuality] = useState(false);
   const [humanizing, setHumanizing] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   
+  const [frameworks, setFrameworks] = useState<Framework[]>([]);
+  const [selectedFramework, setSelectedFramework] = useState<string>("");
   const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
   const [targetWordCount, setTargetWordCount] = useState(1500);
@@ -88,16 +100,51 @@ export function ContentGenerator({
     'llmoIntent'
   ]);
 
+  // Fetch frameworks on mount
+  useEffect(() => {
+    fetchFrameworks();
+  }, []);
+
+  const fetchFrameworks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("frameworks")
+        .select("id, name, description, formula, system_prompt")
+        .eq("is_active", true)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setFrameworks(data || []);
+      
+      // Set default to HYBRID if exists
+      const hybrid = data?.find(f => f.name === "HYBRID");
+      if (hybrid) {
+        setSelectedFramework(hybrid.id);
+      } else if (data && data.length > 0) {
+        setSelectedFramework(data[0].id);
+      }
+    } catch (error: any) {
+      console.error("Error fetching frameworks:", error);
+    }
+  };
+
+  const getSelectedFrameworkData = () => {
+    return frameworks.find(f => f.id === selectedFramework);
+  };
+
   const generateFullContent = async () => {
     setGenerating(true);
     try {
+      const frameworkData = getSelectedFrameworkData();
+      
       const { data, error } = await supabase.functions.invoke("generate-content", {
         body: { 
           keywords, 
           metaTags, 
           headings, 
           faqContent: [],
-          framework: 'HYBRID',
+          framework: frameworkData?.name || 'HYBRID',
+          frameworkPrompt: frameworkData?.system_prompt || undefined,
           location,
           brandName,
           targetWordCount,
@@ -202,6 +249,48 @@ export function ContentGenerator({
       });
     } finally {
       setHumanizing(false);
+    }
+  };
+
+  // One-click optimize content based on issues
+  const optimizeContent = async (optimizeType: 'readability' | 'ai' | 'keywords' | 'all') => {
+    if (!fullContent) {
+      toast({
+        title: "Error",
+        description: "No content to optimize",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setOptimizing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("humanize-content", {
+        body: { 
+          content: fullContent,
+          optimizeType,
+          keywords,
+          targetKeywordDensity: keywordDensity,
+        },
+      });
+
+      if (error) throw error;
+
+      setFullContent(data.humanizedContent);
+      await checkContentQuality(data.humanizedContent);
+
+      toast({
+        title: "Content Optimized!",
+        description: `Content has been optimized for ${optimizeType === 'all' ? 'all metrics' : optimizeType}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setOptimizing(false);
     }
   };
 
@@ -495,6 +584,27 @@ export function ContentGenerator({
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            {/* Framework Selection */}
+            <div className="space-y-2">
+              <Label>Content Framework</Label>
+              <select
+                value={selectedFramework}
+                onChange={(e) => setSelectedFramework(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              >
+                {frameworks.map((framework) => (
+                  <option key={framework.id} value={framework.id}>
+                    {framework.name} {framework.name === 'HYBRID' ? '⭐' : ''}
+                  </option>
+                ))}
+              </select>
+              {getSelectedFrameworkData()?.description && (
+                <p className="text-xs text-muted-foreground">
+                  {getSelectedFrameworkData()?.description}
+                </p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label>Location Intent</Label>
               <input
@@ -727,21 +837,31 @@ export function ContentGenerator({
           content={fullContent}
           keywords={keywords}
           targetDensity={keywordDensity}
+          onOptimize={() => optimizeContent('keywords')}
+          isOptimizing={optimizing}
         />
 
         {/* Readability Analyzer */}
-        <ReadabilityAnalyzer content={fullContent} />
+        <ReadabilityAnalyzer 
+          content={fullContent}
+          onOptimize={() => optimizeContent('readability')}
+          isOptimizing={optimizing}
+        />
 
         {/* Content Suggestions */}
         <ContentSuggestions 
           content={fullContent}
           keywords={keywords}
+          onOptimize={() => optimizeContent('all')}
+          isOptimizing={optimizing}
         />
 
         {/* AI Detection Checker */}
         <AIDetectionChecker 
           content={fullContent} 
           aiScore={qualityMetrics?.aiDetectionScore}
+          onOptimize={() => optimizeContent('ai')}
+          isOptimizing={optimizing}
         />
       </div>
 
