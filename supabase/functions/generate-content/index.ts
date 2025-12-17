@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,13 +24,93 @@ serve(async (req) => {
       keywordDensity = 1.5,
       includeCtaTypes = ['course', 'alsoRead', 'related'],
       contextContent = '',
-      userIntent = null
+      userIntent = null,
+      model = 'gemini-flash'
     } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
+    
+    // Get user ID from auth header for API key lookup
+    const authHeader = req.headers.get('authorization');
+    let userId: string | null = null;
+    
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      userId = user?.id || null;
     }
+    
+    // Determine API endpoint and key based on model
+    let apiUrl: string;
+    let apiKey: string | null = null;
+    let modelId: string;
+    
+    if (model === 'gemini-flash') {
+      // Use Lovable AI Gateway
+      apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+      apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
+      modelId = "google/gemini-2.5-flash";
+    } else if (model === 'claude-sonnet-4' || model === 'claude-sonnet-4.5') {
+      // Use OpenRouter - need user's API key
+      apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+      modelId = model === 'claude-sonnet-4' ? 'anthropic/claude-sonnet-4' : 'anthropic/claude-sonnet-4-5';
+      
+      if (userId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        
+        const { data: apiKeyData } = await supabase
+          .from('user_api_keys')
+          .select('encrypted_key')
+          .eq('user_id', userId)
+          .eq('provider', 'openrouter')
+          .single();
+          
+        apiKey = apiKeyData?.encrypted_key || null;
+      }
+      
+      if (!apiKey) {
+        throw new Error("OpenRouter API key not configured. Please add your API key in Settings → AI Keys.");
+      }
+    } else if (model === 'gemini-free') {
+      // Use Google's Gemini API directly with user's key
+      apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+      modelId = "gemini-2.0-flash";
+      
+      if (userId) {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        
+        const { data: apiKeyData } = await supabase
+          .from('user_api_keys')
+          .select('encrypted_key')
+          .eq('user_id', userId)
+          .eq('provider', 'gemini')
+          .single();
+          
+        apiKey = apiKeyData?.encrypted_key || null;
+      }
+      
+      if (!apiKey) {
+        throw new Error("Gemini API key not configured. Please add your API key in Settings → AI Keys.");
+      }
+    } else {
+      // Default to Lovable AI Gateway
+      apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+      apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
+      modelId = "google/gemini-2.5-flash";
+    }
+
+    if (!apiKey) {
+      throw new Error("API key not configured for selected model");
+    }
+    
+    // Check if using Google's direct API (different format)
+    const isGoogleDirectApi = model === 'gemini-free';
 
     const h2List = headings.h2s.map((h2: string, index: number) => {
       const h3s = headings.h3s
@@ -48,14 +129,14 @@ serve(async (req) => {
     };
     const selectedFramework = frameworks[framework as keyof typeof frameworks] || frameworks.HYBRID;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: modelId,
         messages: [
           {
             role: "system",

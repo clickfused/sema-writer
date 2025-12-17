@@ -107,6 +107,48 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_voices: {
+        Row: {
+          created_at: string
+          description: string | null
+          example_content: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          style_guidelines: string | null
+          tone: string | null
+          updated_at: string
+          user_id: string
+          vocabulary_preferences: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          example_content?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          style_guidelines?: string | null
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+          vocabulary_preferences?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          example_content?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          style_guidelines?: string | null
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+          vocabulary_preferences?: string | null
+        }
+        Relationships: []
+      }
       frameworks: {
         Row: {
           created_at: string | null
@@ -246,6 +288,75 @@ export type Database = {
           wordpress_app_password?: string | null
           wordpress_url?: string | null
           wordpress_username?: string | null
+        }
+        Relationships: []
+      }
+      sitemap_collections: {
+        Row: {
+          created_at: string
+          discovered_urls: Json | null
+          error_message: string | null
+          id: string
+          last_crawled_at: string | null
+          name: string
+          sitemap_url: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discovered_urls?: Json | null
+          error_message?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          name: string
+          sitemap_url: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discovered_urls?: Json | null
+          error_message?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          name?: string
+          sitemap_url?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_api_keys: {
+        Row: {
+          created_at: string
+          encrypted_key: string
+          id: string
+          is_valid: boolean | null
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_key: string
+          id?: string
+          is_valid?: boolean | null
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_key?: string
+          id?: string
+          is_valid?: boolean | null
+          provider?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

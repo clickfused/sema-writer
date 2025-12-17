@@ -85,6 +85,7 @@ export function ContentGenerator({
   
   const [frameworks, setFrameworks] = useState<Framework[]>([]);
   const [selectedFramework, setSelectedFramework] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-flash");
   const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
   const [targetWordCount, setTargetWordCount] = useState(1500);
@@ -151,7 +152,8 @@ export function ContentGenerator({
           keywordDensity,
           includeCtaTypes,
           contextContent: contextContent || undefined,
-          userIntent: userIntent || undefined
+          userIntent: userIntent || undefined,
+          model: selectedModel
         },
       });
 
@@ -584,6 +586,27 @@ export function ContentGenerator({
         </CardHeader>
         <CardContent className="space-y-3 sm:space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            {/* AI Model Selection */}
+            <div className="space-y-2">
+              <Label>AI Model</Label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              >
+                <option value="gemini-flash">Gemini 2.5 Flash (Default)</option>
+                <option value="claude-sonnet-4">Claude Sonnet 4 (OpenRouter) ⭐</option>
+                <option value="claude-sonnet-4.5">Claude Sonnet 4.5 (OpenRouter)</option>
+                <option value="gemini-free">Gemini (Free - Your API Key)</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                {selectedModel === 'gemini-flash' && 'Fast, high-quality model - best for most uses'}
+                {selectedModel === 'claude-sonnet-4' && 'Premium model with best reasoning - requires OpenRouter API key'}
+                {selectedModel === 'claude-sonnet-4.5' && 'Latest Claude model - requires OpenRouter API key'}
+                {selectedModel === 'gemini-free' && 'Uses your own Gemini API key from settings'}
+              </p>
+            </div>
+            
             {/* Framework Selection */}
             <div className="space-y-2">
               <Label>Content Framework</Label>
