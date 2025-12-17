@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -18,7 +19,8 @@ import {
   Layout, 
   Save,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Pencil
 } from "lucide-react";
 
 interface AnalysisResult {
@@ -68,6 +70,13 @@ interface AnalysisResult {
   };
 }
 
+interface EditableFramework {
+  name: string;
+  description: string;
+  formula: string;
+  system_prompt: string;
+}
+
 interface BlogAnalyzerProps {
   onFrameworkSaved: () => void;
 }
@@ -77,6 +86,21 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
   const [analyzing, setAnalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [editableFramework, setEditableFramework] = useState<EditableFramework | null>(null);
+
+  // Sync editable framework when result changes
+  useEffect(() => {
+    if (result?.framework) {
+      setEditableFramework({
+        name: result.framework.name,
+        description: result.framework.description,
+        formula: result.framework.formula,
+        system_prompt: result.framework.system_prompt,
+      });
+    } else {
+      setEditableFramework(null);
+    }
+  }, [result]);
 
   const handleAnalyze = async () => {
     if (!url.trim()) {
@@ -132,17 +156,26 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
   };
 
   const handleSaveFramework = async () => {
-    if (!result?.framework) return;
+    if (!editableFramework) return;
+
+    if (!editableFramework.name.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please enter a framework name",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setSaving(true);
     try {
       const { error } = await supabase
         .from('frameworks')
         .insert({
-          name: result.framework.name,
-          description: result.framework.description,
-          formula: result.framework.formula,
-          system_prompt: result.framework.system_prompt,
+          name: editableFramework.name.trim(),
+          description: editableFramework.description.trim(),
+          formula: editableFramework.formula.trim(),
+          system_prompt: editableFramework.system_prompt.trim(),
           is_active: true,
         });
 
@@ -150,10 +183,13 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
 
       toast({
         title: "Framework Saved",
-        description: `"${result.framework.name}" has been added to your frameworks`,
+        description: `"${editableFramework.name}" has been added to your frameworks`,
       });
       
       onFrameworkSaved();
+      setResult(null);
+      setEditableFramework(null);
+      setUrl("");
     } catch (error: any) {
       toast({
         title: "Save Failed",
@@ -162,6 +198,12 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const updateFrameworkField = (field: keyof EditableFramework, value: string) => {
+    if (editableFramework) {
+      setEditableFramework({ ...editableFramework, [field]: value });
     }
   };
 
@@ -331,14 +373,60 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
               </TabsContent>
 
               <TabsContent value="framework" className="mt-4">
-                <ScrollArea className="h-[300px]">
-                  <div className="space-y-4 pr-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">{result.framework.name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{result.framework.description}</p>
+                <ScrollArea className="h-[400px]">
+                  {editableFramework && (
+                    <div className="space-y-4 pr-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <Pencil className="h-4 w-4" />
+                        Edit the generated framework before saving
                       </div>
-                      <Button onClick={handleSaveFramework} disabled={saving}>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-name">Name</Label>
+                        <Input
+                          id="framework-name"
+                          value={editableFramework.name}
+                          onChange={(e) => updateFrameworkField('name', e.target.value)}
+                          placeholder="Framework name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-description">Description</Label>
+                        <Textarea
+                          id="framework-description"
+                          value={editableFramework.description}
+                          onChange={(e) => updateFrameworkField('description', e.target.value)}
+                          placeholder="Framework description"
+                          rows={2}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-formula">Formula</Label>
+                        <Textarea
+                          id="framework-formula"
+                          value={editableFramework.formula}
+                          onChange={(e) => updateFrameworkField('formula', e.target.value)}
+                          placeholder="Content formula pattern"
+                          rows={3}
+                          className="font-mono text-xs"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="framework-prompt">System Prompt</Label>
+                        <Textarea
+                          id="framework-prompt"
+                          value={editableFramework.system_prompt}
+                          onChange={(e) => updateFrameworkField('system_prompt', e.target.value)}
+                          placeholder="System prompt for content generation"
+                          rows={6}
+                          className="text-xs"
+                        />
+                      </div>
+
+                      <Button onClick={handleSaveFramework} disabled={saving} className="w-full">
                         {saving ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
@@ -347,17 +435,7 @@ export function BlogAnalyzer({ onFrameworkSaved }: BlogAnalyzerProps) {
                         Save Framework
                       </Button>
                     </div>
-                    <AnalysisSection title="Formula">
-                      <code className="block p-3 bg-muted rounded text-xs font-mono">
-                        {result.framework.formula}
-                      </code>
-                    </AnalysisSection>
-                    <AnalysisSection title="System Prompt">
-                      <div className="p-3 bg-muted rounded text-xs whitespace-pre-wrap max-h-[150px] overflow-y-auto">
-                        {result.framework.system_prompt}
-                      </div>
-                    </AnalysisSection>
-                  </div>
+                  )}
                 </ScrollArea>
               </TabsContent>
             </Tabs>
