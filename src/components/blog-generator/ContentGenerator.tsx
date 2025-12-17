@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe, Image, Search, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +29,25 @@ interface UserIntent {
   intentSignals: string[];
   searcherGoal: string;
   contentAngle: string;
+}
+
+interface GeneratedImage {
+  type: string;
+  prompt: string;
+  imageUrl: string;
+}
+
+interface CompetitorAnalysis {
+  keyword: string;
+  analysis: string;
+  recommendations: {
+    wordCountRange: string;
+    headingStructure: string[];
+    suggestedSections: string[];
+    keyTopics: string[];
+    contentGaps: string[];
+  };
+  generatedAt: string;
 }
 
 interface ContentGeneratorProps {
@@ -101,6 +122,18 @@ export function ContentGenerator({
     'llmoIntent'
   ]);
 
+  // Image generation settings
+  const [generateImages, setGenerateImages] = useState(false);
+  const [numberOfImages, setNumberOfImages] = useState(2);
+  const [generateCoverImage, setGenerateCoverImage] = useState(true);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [generatingImages, setGeneratingImages] = useState(false);
+
+  // Competitor analysis settings
+  const [enableCompetitorAnalysis, setEnableCompetitorAnalysis] = useState(false);
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<CompetitorAnalysis | null>(null);
+  const [analyzingCompetitors, setAnalyzingCompetitors] = useState(false);
+
   // Fetch frameworks on mount
   useEffect(() => {
     fetchFrameworks();
@@ -131,6 +164,83 @@ export function ContentGenerator({
 
   const getSelectedFrameworkData = () => {
     return frameworks.find(f => f.id === selectedFramework);
+  };
+
+  // Run competitor analysis
+  const runCompetitorAnalysis = async () => {
+    const primaryKeyword = keywords.primary[0];
+    if (!primaryKeyword) {
+      toast({
+        title: "Error",
+        description: "Please add a primary keyword first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAnalyzingCompetitors(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-competitors", {
+        body: { keyword: primaryKeyword, numberOfResults: 5 },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setCompetitorAnalysis(data.data);
+        toast({
+          title: "Analysis Complete",
+          description: "Competitor analysis finished successfully",
+        });
+      } else {
+        throw new Error(data.error || "Analysis failed");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzingCompetitors(false);
+    }
+  };
+
+  // Generate images for the blog post
+  const generateBlogImages = async () => {
+    const topic = metaTags.title || keywords.primary[0] || "blog post";
+    
+    setGeneratingImages(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-images", {
+        body: { 
+          topic, 
+          keywords, 
+          numberOfImages, 
+          generateCover: generateCoverImage 
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setGeneratedImages(data.images || []);
+        toast({
+          title: "Images Generated",
+          description: `Successfully generated ${data.images?.length || 0} images`,
+        });
+      } else {
+        throw new Error(data.error || "Image generation failed");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingImages(false);
+    }
   };
 
   const generateFullContent = async () => {
@@ -761,6 +871,191 @@ export function ContentGenerator({
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Competitor Analysis Card */}
+      <Card>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+            Competitor Analysis
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Analyze top-ranking articles to create better content
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Enable Competitor Analysis</Label>
+              <p className="text-xs text-muted-foreground">
+                Analyze competitor content before generating
+              </p>
+            </div>
+            <Switch
+              checked={enableCompetitorAnalysis}
+              onCheckedChange={setEnableCompetitorAnalysis}
+            />
+          </div>
+
+          {enableCompetitorAnalysis && (
+            <div className="space-y-4">
+              <Button
+                onClick={runCompetitorAnalysis}
+                disabled={analyzingCompetitors || !keywords.primary[0]}
+                variant="outline"
+                className="w-full"
+              >
+                {analyzingCompetitors ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Analyze Competitors for "{keywords.primary[0] || 'keyword'}"
+                  </>
+                )}
+              </Button>
+
+              {competitorAnalysis && (
+                <div className="p-4 border rounded-lg bg-muted/50 space-y-3">
+                  <Label className="text-sm font-semibold">Analysis Results:</Label>
+                  <div className="prose prose-sm max-w-none text-muted-foreground">
+                    <pre className="whitespace-pre-wrap text-xs overflow-auto max-h-64">
+                      {competitorAnalysis.analysis}
+                    </pre>
+                  </div>
+                  {competitorAnalysis.recommendations.keyTopics.length > 0 && (
+                    <div>
+                      <Label className="text-xs">Key Topics to Cover:</Label>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {competitorAnalysis.recommendations.keyTopics.slice(0, 8).map((topic, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {topic.slice(0, 40)}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Image Settings Card */}
+      <Card>
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Image className="h-4 w-4 sm:h-5 sm:w-5" />
+            Image Settings
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Configure automatic image generation for your article
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Generate Images</Label>
+              <p className="text-xs text-muted-foreground">
+                Automatically generate images for your article
+              </p>
+            </div>
+            <Switch
+              checked={generateImages}
+              onCheckedChange={setGenerateImages}
+            />
+          </div>
+
+          {generateImages && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Number of Content Images: {numberOfImages}</Label>
+                </div>
+                <Slider
+                  value={[numberOfImages]}
+                  onValueChange={(value) => setNumberOfImages(value[0])}
+                  min={0}
+                  max={5}
+                  step={1}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground">0-5 images</p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Generate Cover Image</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Create a cover image for your article
+                  </p>
+                </div>
+                <Switch
+                  checked={generateCoverImage}
+                  onCheckedChange={setGenerateCoverImage}
+                />
+              </div>
+
+              <Button
+                onClick={generateBlogImages}
+                disabled={generatingImages || (!numberOfImages && !generateCoverImage)}
+                variant="outline"
+                className="w-full"
+              >
+                {generatingImages ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating Images...
+                  </>
+                ) : (
+                  <>
+                    <Image className="h-4 w-4 mr-2" />
+                    Generate {generateCoverImage ? 'Cover + ' : ''}{numberOfImages} Content Images
+                  </>
+                )}
+              </Button>
+
+              {generatedImages.length > 0 && (
+                <div className="space-y-3">
+                  <Label className="text-sm font-semibold">Generated Images:</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {generatedImages.map((img, i) => (
+                      <div key={i} className="relative group">
+                        <img
+                          src={img.imageUrl}
+                          alt={`Generated ${img.type} image`}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        <Badge 
+                          variant={img.type === 'cover' ? 'default' : 'secondary'}
+                          className="absolute top-2 left-2 text-xs"
+                        >
+                          {img.type === 'cover' ? 'Cover' : `Image ${i}`}
+                        </Badge>
+                        <a
+                          href={img.imageUrl}
+                          download={`blog-${img.type}-${i}.png`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Button size="sm" variant="secondary">
+                            <Download className="h-3 w-3" />
+                          </Button>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
       
