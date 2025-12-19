@@ -134,6 +134,14 @@ export function ContentGenerator({
   const [competitorAnalysis, setCompetitorAnalysis] = useState<CompetitorAnalysis | null>(null);
   const [analyzingCompetitors, setAnalyzingCompetitors] = useState(false);
 
+  // Article element toggles
+  const [useFirstPerson, setUseFirstPerson] = useState(true);
+  const [includeStories, setIncludeStories] = useState(true);
+  const [includeHook, setIncludeHook] = useState(true);
+  const [includeHtmlElement, setIncludeHtmlElement] = useState(false);
+  const [includeCitations, setIncludeCitations] = useState(true);
+  const [includeInternalLinks, setIncludeInternalLinks] = useState(true);
+
   // Fetch frameworks on mount
   useEffect(() => {
     fetchFrameworks();
@@ -263,7 +271,15 @@ export function ContentGenerator({
           includeCtaTypes,
           contextContent: contextContent || undefined,
           userIntent: userIntent || undefined,
-          model: selectedModel
+          model: selectedModel,
+          articleElements: {
+            useFirstPerson,
+            includeStories,
+            includeHook,
+            includeHtmlElement,
+            includeCitations,
+            includeInternalLinks,
+          },
         },
       });
 
@@ -868,6 +884,76 @@ export function ContentGenerator({
                 >
                   🤖 LLMO Intent
                 </Button>
+              </div>
+            </div>
+
+            {/* Article Elements */}
+            <div className="space-y-3 col-span-full border-t pt-4">
+              <Label>Article Elements</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select which elements to include in your content
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">First Person</Label>
+                    <p className="text-xs text-muted-foreground">Use "I" perspective</p>
+                  </div>
+                  <Switch
+                    checked={useFirstPerson}
+                    onCheckedChange={setUseFirstPerson}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Stories & Examples</Label>
+                    <p className="text-xs text-muted-foreground">Include anecdotes</p>
+                  </div>
+                  <Switch
+                    checked={includeStories}
+                    onCheckedChange={setIncludeStories}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Hook</Label>
+                    <p className="text-xs text-muted-foreground">Engaging introduction</p>
+                  </div>
+                  <Switch
+                    checked={includeHook}
+                    onCheckedChange={setIncludeHook}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">HTML Element</Label>
+                    <p className="text-xs text-muted-foreground">Interactive widget</p>
+                  </div>
+                  <Switch
+                    checked={includeHtmlElement}
+                    onCheckedChange={setIncludeHtmlElement}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Citations</Label>
+                    <p className="text-xs text-muted-foreground">Include references</p>
+                  </div>
+                  <Switch
+                    checked={includeCitations}
+                    onCheckedChange={setIncludeCitations}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Internal Links</Label>
+                    <p className="text-xs text-muted-foreground">Link to your content</p>
+                  </div>
+                  <Switch
+                    checked={includeInternalLinks}
+                    onCheckedChange={setIncludeInternalLinks}
+                  />
+                </div>
               </div>
             </div>
           </div>
