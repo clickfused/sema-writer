@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,8 @@ import {
   EyeOff, 
   ExternalLink,
   Loader2,
-  Info
+  Info,
+  Zap
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,8 +31,66 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
   const [showGemini, setShowGemini] = useState(false);
   const [savingOpenrouter, setSavingOpenrouter] = useState(false);
   const [savingGemini, setSavingGemini] = useState(false);
+  const [validatingOpenrouter, setValidatingOpenrouter] = useState(false);
+  const [validatingGemini, setValidatingGemini] = useState(false);
   const [openrouterStatus, setOpenrouterStatus] = useState<"valid" | "invalid" | null>(null);
   const [geminiStatus, setGeminiStatus] = useState<"valid" | "invalid" | null>(null);
+
+  // Load existing API key status on mount
+  useEffect(() => {
+    loadExistingKeyStatus();
+  }, [userId]);
+
+  const loadExistingKeyStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_api_keys")
+        .select("provider, is_valid")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      data?.forEach((key) => {
+        if (key.provider === "openrouter") {
+          setOpenrouterStatus(key.is_valid ? "valid" : "invalid");
+        } else if (key.provider === "gemini") {
+          setGeminiStatus(key.is_valid ? "valid" : "invalid");
+        }
+      });
+    } catch (error) {
+      console.error("Error loading API key status:", error);
+    }
+  };
+
+  // Validate OpenRouter API key
+  const validateOpenrouterKey = async (key: string): Promise<boolean> => {
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/models", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${key}`,
+        },
+      });
+      return response.ok;
+    } catch (error) {
+      console.error("OpenRouter validation error:", error);
+      return false;
+    }
+  };
+
+  // Validate Gemini API key
+  const validateGeminiKey = async (key: string): Promise<boolean> => {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`,
+        { method: "GET" }
+      );
+      return response.ok;
+    } catch (error) {
+      console.error("Gemini validation error:", error);
+      return false;
+    }
+  };
 
   const saveApiKey = async (provider: string, key: string) => {
     if (!key.trim()) {
@@ -44,11 +103,37 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
     }
 
     const setSaving = provider === "openrouter" ? setSavingOpenrouter : setSavingGemini;
+    const setValidating = provider === "openrouter" ? setValidatingOpenrouter : setValidatingGemini;
     const setStatus = provider === "openrouter" ? setOpenrouterStatus : setGeminiStatus;
 
     setSaving(true);
+    setValidating(true);
+
     try {
-      // Check if key exists
+      // Validate the key first
+      toast({
+        title: "Validating API Key",
+        description: "Testing connection to the API...",
+      });
+
+      const isValid = provider === "openrouter" 
+        ? await validateOpenrouterKey(key)
+        : await validateGeminiKey(key);
+
+      setValidating(false);
+
+      if (!isValid) {
+        setStatus("invalid");
+        toast({
+          title: "Invalid API Key",
+          description: `The ${provider === "openrouter" ? "OpenRouter" : "Gemini"} API key is invalid. Please check and try again.`,
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+
+      // Key is valid, save it
       const { data: existing } = await supabase
         .from("user_api_keys")
         .select("id")
@@ -57,7 +142,6 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
         .single();
 
       if (existing) {
-        // Update existing key
         const { error } = await supabase
           .from("user_api_keys")
           .update({
@@ -69,7 +153,6 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
 
         if (error) throw error;
       } else {
-        // Insert new key
         const { error } = await supabase
           .from("user_api_keys")
           .insert({
@@ -84,8 +167,8 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
 
       setStatus("valid");
       toast({
-        title: "API Key Saved",
-        description: `Your ${provider === "openrouter" ? "OpenRouter" : "Gemini"} API key has been saved successfully.`,
+        title: "API Key Verified & Saved ✓",
+        description: `Your ${provider === "openrouter" ? "OpenRouter" : "Gemini"} API key is working and has been saved.`,
       });
 
       if (onComplete) onComplete();
@@ -98,6 +181,7 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
       });
     } finally {
       setSaving(false);
+      setValidating(false);
     }
   };
 
@@ -106,7 +190,7 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
       <Alert className="bg-primary/5 border-primary/20">
         <Info className="h-4 w-4 text-primary" />
         <AlertDescription>
-          Add your API keys to start generating AI content. Your keys are stored securely and used only for content generation.
+          Add your API keys to start generating AI content. Keys are validated before saving to ensure they work correctly.
         </AlertDescription>
       </Alert>
 
@@ -120,13 +204,13 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
               </div>
               <div>
                 <CardTitle className="text-lg">OpenRouter API Key</CardTitle>
-                <CardDescription>Required for Claude Sonnet models</CardDescription>
+                <CardDescription>Required for Claude Sonnet 4 & 4.5 models</CardDescription>
               </div>
             </div>
             {openrouterStatus === "valid" && (
               <Badge className="bg-primary/10 text-primary border-primary/30">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                Connected
+                Verified
               </Badge>
             )}
             {openrouterStatus === "invalid" && (
@@ -174,10 +258,24 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
             <Button
               onClick={() => saveApiKey("openrouter", openrouterKey)}
               disabled={savingOpenrouter || !openrouterKey.trim()}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 gap-2"
             >
-              {savingOpenrouter && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save Key
+              {validatingOpenrouter ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Validating...
+                </>
+              ) : savingOpenrouter ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  Validate & Save
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
@@ -193,13 +291,13 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
               </div>
               <div>
                 <CardTitle className="text-lg">Google Gemini API Key</CardTitle>
-                <CardDescription>Required for Gemini models (Free tier available)</CardDescription>
+                <CardDescription>Free tier available - Best for getting started</CardDescription>
               </div>
             </div>
             {geminiStatus === "valid" && (
               <Badge className="bg-primary/10 text-primary border-primary/30">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                Connected
+                Verified
               </Badge>
             )}
             {geminiStatus === "invalid" && (
@@ -236,7 +334,7 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
           
           <div className="flex items-center justify-between">
             <a
-              href="https://makersuite.google.com/app/apikey"
+              href="https://aistudio.google.com/app/apikey"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-accent hover:underline flex items-center gap-1"
@@ -247,10 +345,24 @@ export function ApiKeySetup({ userId, onComplete }: ApiKeySetupProps) {
             <Button
               onClick={() => saveApiKey("gemini", geminiKey)}
               disabled={savingGemini || !geminiKey.trim()}
-              className="bg-accent hover:bg-accent/90"
+              className="bg-accent hover:bg-accent/90 gap-2"
             >
-              {savingGemini && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save Key
+              {validatingGemini ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Validating...
+                </>
+              ) : savingGemini ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  Validate & Save
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
