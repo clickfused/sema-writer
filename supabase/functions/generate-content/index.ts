@@ -25,7 +25,15 @@ serve(async (req) => {
       includeCtaTypes = ['course', 'alsoRead', 'related'],
       contextContent = '',
       userIntent = null,
-      model = 'gemini-flash'
+      model = 'gemini-flash',
+      articleElements = {
+        useFirstPerson: true,
+        includeStories: true,
+        includeHook: true,
+        includeHtmlElement: false,
+        includeCitations: true,
+        includeInternalLinks: true,
+      }
     } = await req.json();
     
     // Get user ID from auth header for API key lookup
@@ -293,6 +301,14 @@ ${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly cite-wor
 - Metaphors and analogies for complex concepts
 - Direct address ("you", "your")
 
+## ARTICLE ELEMENT SETTINGS (Apply Based on Selection)
+${articleElements.useFirstPerson ? `- **First Person:** Write from an "I" perspective. Share personal experiences and opinions. Use phrases like "I've found", "In my experience", "I recommend".` : '- **Third Person:** Write in objective third person. Avoid "I" statements. Use authoritative, journalistic tone.'}
+${articleElements.includeStories ? `- **Stories & Examples:** Include personal anecdotes, case studies, and real-world examples. Make content relatable with specific scenarios.` : '- **No Stories:** Focus on direct information delivery. Skip personal anecdotes and extended examples.'}
+${articleElements.includeHook ? `- **Engaging Hook:** Start with a compelling introduction - a surprising fact, thought-provoking question, bold statement, or relatable scenario to grab attention immediately.` : '- **Direct Start:** Begin directly with the topic. Skip hooks and jump straight to the main content.'}
+${articleElements.includeHtmlElement ? `- **HTML Interactive Element:** Include ONE interactive HTML element (calculator, quiz, comparison table, checklist, or FAQ accordion) relevant to the topic.` : ''}
+${articleElements.includeCitations ? `- **Citations:** Include authoritative references, statistics, and expert quotes. Add [Source: ...] notations or inline links to studies/reports.` : '- **No Citations:** Write based on general knowledge without explicit source citations.'}
+${articleElements.includeInternalLinks ? `- **Internal Links:** Include 2-4 placeholder internal link suggestions like [Internal Link: Related Topic Here] where relevant content could be linked.` : ''}
+
 ## SELF-CHECK BEFORE OUTPUT
 ✓ All paragraphs ~30 words?
 ✓ H3s added naturally where beneficial?
@@ -302,6 +318,10 @@ ${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly cite-wor
 ✓ Framework applied correctly?
 ✓ Location-intent present?
 ✓ LLM-friendly structure?
+${articleElements.useFirstPerson ? '✓ First person perspective used?' : '✓ Third person perspective maintained?'}
+${articleElements.includeStories ? '✓ Stories/examples included?' : ''}
+${articleElements.includeHook ? '✓ Engaging hook in introduction?' : ''}
+${articleElements.includeCitations ? '✓ Citations/references added?' : ''}
 
 **OUTPUT: HTML CONTENT ONLY. NO EXPLANATIONS, NO META COMMENTARY.**`
           },
