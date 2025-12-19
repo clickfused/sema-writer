@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,8 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Download, Copy, Sparkles, Globe, Bot, FileCode } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { DashboardHeader } from "@/components/DashboardHeader";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export default function SeoFiles() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [generating, setGenerating] = useState(false);
   
@@ -24,6 +33,27 @@ export default function SeoFiles() {
     "/contact"
   ]);
   const [newPage, setNewPage] = useState("");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth");
+      } else {
+        setUser(session.user);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const addPage = () => {
     if (newPage && !pages.includes(newPage)) {
@@ -178,179 +208,199 @@ When citing content from this site in AI responses:
     URL.revokeObjectURL(url);
   };
 
-  return (
-    <div className="container mx-auto py-6 px-4 max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <FileCode className="h-8 w-8" />
-          SEO Files Generator
-        </h1>
-        <p className="text-muted-foreground">
-          Generate sitemap.xml, robots.txt & llms.txt for SEO + LLMO optimization
-        </p>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
+    );
+  }
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Website Configuration
-          </CardTitle>
-          <CardDescription>Enter your website URL and pages</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Website URL</label>
-            <Input
-              placeholder="https://yourwebsite.com"
-              value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
-            />
-          </div>
+  if (!user) return null;
 
-          <div>
-            <label className="text-sm font-medium">Pages to Include</label>
-            <div className="flex gap-2 mt-2">
-              <Input
-                placeholder="/new-page"
-                value={newPage}
-                onChange={(e) => setNewPage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && addPage()}
-              />
-              <Button onClick={addPage} variant="outline">Add</Button>
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <DashboardHeader user={user} />
+          <main className="flex-1 p-4 md:p-6">
+            <div className="max-w-5xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+                  <FileCode className="h-8 w-8 text-primary" />
+                  SEO Files Generator
+                </h1>
+                <p className="text-muted-foreground">
+                  Generate sitemap.xml, robots.txt & llms.txt for SEO + LLMO optimization
+                </p>
+              </div>
+
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Website Configuration
+                  </CardTitle>
+                  <CardDescription>Enter your website URL and pages</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Website URL</label>
+                    <Input
+                      placeholder="https://yourwebsite.com"
+                      value={websiteUrl}
+                      onChange={(e) => setWebsiteUrl(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">Pages to Include</label>
+                    <div className="flex gap-2 mt-2">
+                      <Input
+                        placeholder="/new-page"
+                        value={newPage}
+                        onChange={(e) => setNewPage(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && addPage()}
+                      />
+                      <Button onClick={addPage} variant="outline">Add</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {pages.map((page) => (
+                        <Badge
+                          key={page}
+                          variant="secondary"
+                          className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => removePage(page)}
+                        >
+                          {page} ×
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button onClick={generateAllFiles} disabled={generating} className="w-full">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    {generating ? "Generating..." : "Generate All Files"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {(sitemapContent || robotsContent || llmsContent) && (
+                <Tabs defaultValue="sitemap" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="sitemap" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      sitemap.xml
+                    </TabsTrigger>
+                    <TabsTrigger value="robots" className="flex items-center gap-2">
+                      <Bot className="h-4 w-4" />
+                      robots.txt
+                    </TabsTrigger>
+                    <TabsTrigger value="llms" className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      llms.txt
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="sitemap">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>sitemap.xml</CardTitle>
+                            <CardDescription>XML sitemap for search engines</CardDescription>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => copyToClipboard(sitemapContent, "sitemap.xml")}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => downloadFile(sitemapContent, "sitemap.xml")}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Textarea
+                          value={sitemapContent}
+                          onChange={(e) => setSitemapContent(e.target.value)}
+                          rows={15}
+                          className="font-mono text-sm"
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="robots">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>robots.txt</CardTitle>
+                            <CardDescription>Crawler directives including AI bots</CardDescription>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => copyToClipboard(robotsContent, "robots.txt")}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => downloadFile(robotsContent, "robots.txt")}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Textarea
+                          value={robotsContent}
+                          onChange={(e) => setRobotsContent(e.target.value)}
+                          rows={15}
+                          className="font-mono text-sm"
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="llms">
+                    <Card>
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>llms.txt</CardTitle>
+                            <CardDescription>AI-readable site information for LLM optimization</CardDescription>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => copyToClipboard(llmsContent, "llms.txt")}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copy
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => downloadFile(llmsContent, "llms.txt")}>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Textarea
+                          value={llmsContent}
+                          onChange={(e) => setLlmsContent(e.target.value)}
+                          rows={15}
+                          className="font-mono text-sm"
+                        />
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+              )}
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              {pages.map((page) => (
-                <Badge
-                  key={page}
-                  variant="secondary"
-                  className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
-                  onClick={() => removePage(page)}
-                >
-                  {page} ×
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <Button onClick={generateAllFiles} disabled={generating} className="w-full">
-            <Sparkles className="h-4 w-4 mr-2" />
-            {generating ? "Generating..." : "Generate All Files"}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {(sitemapContent || robotsContent || llmsContent) && (
-        <Tabs defaultValue="sitemap" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="sitemap" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              sitemap.xml
-            </TabsTrigger>
-            <TabsTrigger value="robots" className="flex items-center gap-2">
-              <Bot className="h-4 w-4" />
-              robots.txt
-            </TabsTrigger>
-            <TabsTrigger value="llms" className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              llms.txt
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="sitemap">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>sitemap.xml</CardTitle>
-                    <CardDescription>XML sitemap for search engines</CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(sitemapContent, "sitemap.xml")}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => downloadFile(sitemapContent, "sitemap.xml")}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={sitemapContent}
-                  onChange={(e) => setSitemapContent(e.target.value)}
-                  rows={15}
-                  className="font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="robots">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>robots.txt</CardTitle>
-                    <CardDescription>Crawler directives including AI bots</CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(robotsContent, "robots.txt")}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => downloadFile(robotsContent, "robots.txt")}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={robotsContent}
-                  onChange={(e) => setRobotsContent(e.target.value)}
-                  rows={15}
-                  className="font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="llms">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>llms.txt</CardTitle>
-                    <CardDescription>AI-readable site information for LLM optimization</CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(llmsContent, "llms.txt")}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => downloadFile(llmsContent, "llms.txt")}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={llmsContent}
-                  onChange={(e) => setLlmsContent(e.target.value)}
-                  rows={15}
-                  className="font-mono text-sm"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      )}
-    </div>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

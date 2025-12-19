@@ -1,6 +1,5 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 
 interface AutoSaveData {
   userId: string;
@@ -14,6 +13,8 @@ interface AutoSaveData {
 export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
   const timeoutRef = useRef<NodeJS.Timeout>();
   const lastSavedRef = useRef<string>("");
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const saveDraft = useCallback(async () => {
     if (!enabled) return;
@@ -21,6 +22,7 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
     const dataString = JSON.stringify(data);
     if (dataString === lastSavedRef.current) return;
 
+    setIsSaving(true);
     try {
       const { data: existingDraft } = await supabase
         .from("blog_drafts")
@@ -59,8 +61,11 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
       }
 
       lastSavedRef.current = dataString;
+      setLastSavedTime(new Date());
     } catch (error: any) {
       console.error("Auto-save error:", error);
+    } finally {
+      setIsSaving(false);
     }
   }, [data, enabled]);
 
@@ -71,7 +76,7 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
 
     timeoutRef.current = setTimeout(() => {
       saveDraft();
-    }, 2000); // Auto-save after 2 seconds of inactivity
+    }, 3000); // Auto-save after 3 seconds of inactivity
 
     return () => {
       if (timeoutRef.current) {
@@ -80,5 +85,16 @@ export function useAutoSave(data: AutoSaveData, enabled: boolean = true) {
     };
   }, [saveDraft]);
 
-  return { saveDraft };
+  // Calculate seconds since last save
+  const getSecondsSinceLastSave = useCallback(() => {
+    if (!lastSavedTime) return null;
+    return Math.floor((Date.now() - lastSavedTime.getTime()) / 1000);
+  }, [lastSavedTime]);
+
+  return { 
+    saveDraft, 
+    isSaving, 
+    lastSavedTime, 
+    getSecondsSinceLastSave 
+  };
 }

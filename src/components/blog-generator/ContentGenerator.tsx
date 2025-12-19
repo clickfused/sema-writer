@@ -1492,27 +1492,41 @@ export function ContentGenerator({
         />
       </div>
 
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button variant="outline" onClick={exportContent} disabled={!fullContent}>
-          <Download className="h-4 w-4 mr-2" />
-          Export Markdown
-        </Button>
-        <Button variant="outline" onClick={exportToDocx} disabled={!fullContent}>
-          <FileText className="h-4 w-4 mr-2" />
-          Export Google Docx
-        </Button>
-        <Button variant="secondary" onClick={publishToWordPress} disabled={!fullContent || publishing}>
-          <Globe className="h-4 w-4 mr-2" />
-          {publishing ? "Publishing..." : "Publish to WordPress"}
-        </Button>
-        <Button onClick={saveBlogPost} disabled={!fullContent || saving}>
-          <Save className="h-4 w-4 mr-2" />
-          {saving ? "Saving..." : "Save Blog Post"}
-        </Button>
-        <Button onClick={onNext} disabled={!fullContent} size="lg">
-          Next: FAQ & Links
-        </Button>
-      </div>
+      {/* Final Action - Publish to WordPress */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+        <CardContent className="py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Globe className="h-5 w-5 text-primary" />
+                Ready to Publish?
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Publish your content directly to WordPress
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={saveBlogPost} 
+                disabled={!fullContent || saving}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? "Saving..." : "Save Draft"}
+              </Button>
+              <Button 
+                onClick={publishToWordPress} 
+                disabled={!fullContent || publishing}
+                className="bg-primary hover:bg-primary/90 gap-2"
+                size="lg"
+              >
+                <Globe className="h-4 w-4" />
+                {publishing ? "Publishing..." : "Publish to WordPress"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

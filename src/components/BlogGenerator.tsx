@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { KeywordInput } from "./blog-generator/KeywordInput";
 import { MetaTagsForm } from "./blog-generator/MetaTagsForm";
 import { HeadingBuilder } from "./blog-generator/HeadingBuilder";
@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Clock, Sparkles } from "lucide-react";
+import { CheckCircle2, Clock, Sparkles, Save, Loader2 } from "lucide-react";
 
 interface BlogGeneratorProps {
   userId: string;
@@ -27,6 +27,7 @@ interface UserIntent {
 export function BlogGenerator({ userId }: BlogGeneratorProps) {
   const [currentTab, setCurrentTab] = useState("keywords");
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [secondsDisplay, setSecondsDisplay] = useState<number | null>(null);
   const [keywords, setKeywords] = useState({
     primary: [] as string[],
     secondary: [] as string[],
@@ -102,7 +103,7 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
   }, [userId]);
 
   // Auto-save hook
-  useAutoSave(
+  const { isSaving, lastSavedTime, getSecondsSinceLastSave } = useAutoSave(
     {
       userId,
       keywords,
@@ -114,7 +115,24 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
     autoSaveEnabled
   );
 
+  // Update seconds display every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const seconds = getSecondsSinceLastSave();
+      setSecondsDisplay(seconds);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [getSecondsSinceLastSave]);
+
   const wordCount = fullContent.split(/\s+/).filter((word) => word.length > 0).length;
+
+  const formatTimeSince = useCallback((seconds: number | null) => {
+    if (seconds === null) return null;
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    return `${Math.floor(seconds / 3600)}h ago`;
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -132,11 +150,38 @@ export function BlogGenerator({ userId }: BlogGeneratorProps) {
         
         {/* Quick Stats */}
         <div className="flex flex-wrap gap-2">
+          {/* Auto-save Status */}
+          {autoSaveEnabled && (
+            <Badge 
+              variant="outline" 
+              className={`flex items-center gap-1.5 px-3 py-1.5 ${
+                isSaving ? 'border-primary/50 bg-primary/5' : ''
+              }`}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  <span>Saving...</span>
+                </>
+              ) : lastSavedTime ? (
+                <>
+                  <Save className="h-3.5 w-3.5 text-primary" />
+                  <span>Saved {formatTimeSince(secondsDisplay)}</span>
+                </>
+              ) : (
+                <>
+                  <Save className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>Auto-save on</span>
+                </>
+              )}
+            </Badge>
+          )}
+          
           <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1.5">
             {completedSteps.length === 5 ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
             ) : (
-              <Clock className="h-3.5 w-3.5 text-amber-500" />
+              <Clock className="h-3.5 w-3.5 text-accent" />
             )}
             {completedSteps.length}/5 Steps
           </Badge>
