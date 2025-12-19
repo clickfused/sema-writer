@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe, Image, Search, Loader2 } from "lucide-react";
+import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe, Image, Search, Loader2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,9 @@ import { KeywordDensityTracker } from "./KeywordDensityTracker";
 import { ReadabilityAnalyzer } from "./ReadabilityAnalyzer";
 import { AIDetectionChecker } from "./AIDetectionChecker";
 import { ContentSuggestions } from "./ContentSuggestions";
+import { KeywordHighlighter } from "./KeywordHighlighter";
+import { SectionRegenerator } from "./SectionRegenerator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface BrandVoice {
   id: string;
@@ -166,6 +169,13 @@ export function ContentGenerator({
   // Sitemap internal links
   const [sitemapCollections, setSitemapCollections] = useState<SitemapCollection[]>([]);
   const [selectedSitemap, setSelectedSitemap] = useState<string>("");
+
+  // Keyword highlighting
+  const [highlightKeywords, setHighlightKeywords] = useState(false);
+  const [activeKeywordTypes, setActiveKeywordTypes] = useState<string[]>(['primary', 'secondary']);
+
+  // Settings panel state
+  const [settingsOpen, setSettingsOpen] = useState(true);
 
   // Fetch frameworks, brand voices, and sitemaps on mount
   useEffect(() => {
@@ -800,17 +810,31 @@ export function ContentGenerator({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <Card>
-        <CardHeader className="pb-3 sm:pb-6">
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-            Content Generation Framework
-          </CardTitle>
-          <CardDescription className="text-xs sm:text-sm">
-            Configure framework, location intent, and content parameters for 2025-optimized content
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4">
+      <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 sm:pb-6 cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
+              <CardTitle className="flex items-center justify-between text-lg sm:text-xl">
+                <div className="flex items-center gap-2">
+                  <Settings2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Content Generation Settings
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {selectedModel === 'gemini-flash' ? 'Gemini Flash' : 
+                     selectedModel === 'claude-sonnet-4' ? 'Claude 4' :
+                     selectedModel === 'claude-sonnet-4.5' ? 'Claude 4.5' : 'Gemini Free'}
+                  </Badge>
+                  {settingsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Configure AI model, framework, and content parameters
+              </CardDescription>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-3 sm:space-y-4 pt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             {/* AI Model Selection */}
             <div className="space-y-2">
@@ -1122,7 +1146,9 @@ export function ContentGenerator({
             </div>
           </div>
         </CardContent>
-      </Card>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Competitor Analysis Card */}
       <Card>
@@ -1399,7 +1425,31 @@ export function ContentGenerator({
       </Card>
 
       {/* Analytics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {/* Keyword Highlighter */}
+        <KeywordHighlighter
+          content={fullContent}
+          keywords={keywords}
+          highlightEnabled={highlightKeywords}
+          onToggleHighlight={setHighlightKeywords}
+          activeKeywordTypes={activeKeywordTypes}
+          onToggleKeywordType={(type) => {
+            setActiveKeywordTypes(prev => 
+              prev.includes(type) 
+                ? prev.filter(t => t !== type)
+                : [...prev, type]
+            );
+          }}
+        />
+
+        {/* Section Regenerator */}
+        <SectionRegenerator
+          content={fullContent}
+          keywords={keywords}
+          onContentUpdate={setFullContent}
+          selectedModel={selectedModel}
+        />
+
         {/* Keyword Density Tracker */}
         <KeywordDensityTracker 
           content={fullContent}
