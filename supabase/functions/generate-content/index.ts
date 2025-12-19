@@ -33,7 +33,9 @@ serve(async (req) => {
         includeHtmlElement: false,
         includeCitations: true,
         includeInternalLinks: true,
-      }
+      },
+      brandVoice = null,
+      internalLinkUrls = []
     } = await req.json();
     
     // Get user ID from auth header for API key lookup
@@ -307,7 +309,19 @@ ${articleElements.includeStories ? `- **Stories & Examples:** Include personal a
 ${articleElements.includeHook ? `- **Engaging Hook:** Start with a compelling introduction - a surprising fact, thought-provoking question, bold statement, or relatable scenario to grab attention immediately.` : '- **Direct Start:** Begin directly with the topic. Skip hooks and jump straight to the main content.'}
 ${articleElements.includeHtmlElement ? `- **HTML Interactive Element:** Include ONE interactive HTML element (calculator, quiz, comparison table, checklist, or FAQ accordion) relevant to the topic.` : ''}
 ${articleElements.includeCitations ? `- **Citations:** Include authoritative references, statistics, and expert quotes. Add [Source: ...] notations or inline links to studies/reports.` : '- **No Citations:** Write based on general knowledge without explicit source citations.'}
-${articleElements.includeInternalLinks ? `- **Internal Links:** Include 2-4 placeholder internal link suggestions like [Internal Link: Related Topic Here] where relevant content could be linked.` : ''}
+${articleElements.includeInternalLinks ? `- **Internal Links:** ${internalLinkUrls && internalLinkUrls.length > 0 ? `Include 2-4 internal links from this list of available URLs:
+${internalLinkUrls.slice(0, 15).map((url: string) => `  - ${url}`).join('\n')}
+Choose the most contextually relevant URLs and insert them as proper anchor tags: <a href="URL">descriptive anchor text</a>` : 'Include 2-4 placeholder internal link suggestions like [Internal Link: Related Topic Here] where relevant content could be linked.'}` : ''}
+
+${brandVoice ? `## BRAND VOICE (Apply Throughout)
+**Voice Name:** ${brandVoice.name}
+**Tone:** ${brandVoice.tone || 'Not specified'}
+${brandVoice.styleGuidelines ? `**Style Guidelines:** ${brandVoice.styleGuidelines}` : ''}
+${brandVoice.vocabularyPreferences ? `**Vocabulary Preferences:** ${brandVoice.vocabularyPreferences}` : ''}
+${brandVoice.exampleContent ? `**Example of Brand Voice:**
+${brandVoice.exampleContent.substring(0, 500)}` : ''}
+
+Apply this brand voice consistently throughout all content - match the tone, vocabulary, and style.` : ''}
 
 ## SELF-CHECK BEFORE OUTPUT
 ✓ All paragraphs ~30 words?
