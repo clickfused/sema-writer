@@ -16,6 +16,23 @@ import { ReadabilityAnalyzer } from "./ReadabilityAnalyzer";
 import { AIDetectionChecker } from "./AIDetectionChecker";
 import { ContentSuggestions } from "./ContentSuggestions";
 
+interface BrandVoice {
+  id: string;
+  name: string;
+  description: string | null;
+  tone: string | null;
+  style_guidelines: string | null;
+  vocabulary_preferences: string | null;
+  example_content: string | null;
+}
+
+interface SitemapCollection {
+  id: string;
+  name: string;
+  sitemap_url: string;
+  discovered_urls: string[];
+}
+
 interface Framework {
   id: string;
   name: string;
@@ -142,10 +159,20 @@ export function ContentGenerator({
   const [includeCitations, setIncludeCitations] = useState(true);
   const [includeInternalLinks, setIncludeInternalLinks] = useState(true);
 
-  // Fetch frameworks on mount
+  // Brand Voice settings
+  const [brandVoices, setBrandVoices] = useState<BrandVoice[]>([]);
+  const [selectedBrandVoice, setSelectedBrandVoice] = useState<string>("");
+
+  // Sitemap internal links
+  const [sitemapCollections, setSitemapCollections] = useState<SitemapCollection[]>([]);
+  const [selectedSitemap, setSelectedSitemap] = useState<string>("");
+
+  // Fetch frameworks, brand voices, and sitemaps on mount
   useEffect(() => {
     fetchFrameworks();
-  }, []);
+    fetchBrandVoices();
+    fetchSitemaps();
+  }, [userId]);
 
   const fetchFrameworks = async () => {
     try {
@@ -170,8 +197,70 @@ export function ContentGenerator({
     }
   };
 
+  const fetchBrandVoices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("brand_voices")
+        .select("id, name, description, tone, style_guidelines, vocabulary_preferences, example_content, is_default")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      setBrandVoices(data || []);
+      
+      // Set default brand voice if exists
+      const defaultVoice = data?.find(v => v.is_default);
+      if (defaultVoice) {
+        setSelectedBrandVoice(defaultVoice.id);
+      }
+    } catch (error: any) {
+      console.error("Error fetching brand voices:", error);
+    }
+  };
+
+  const fetchSitemaps = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("sitemap_collections")
+        .select("id, name, sitemap_url, discovered_urls")
+        .eq("user_id", userId)
+        .eq("status", "crawled")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      
+      // Parse discovered_urls from JSON with proper type casting
+      const collections: SitemapCollection[] = (data || []).map(s => ({
+        id: s.id,
+        name: s.name,
+        sitemap_url: s.sitemap_url,
+        discovered_urls: Array.isArray(s.discovered_urls) 
+          ? (s.discovered_urls as unknown[]).filter((url): url is string => typeof url === 'string')
+          : []
+      }));
+      
+      setSitemapCollections(collections);
+      
+      // Auto-select first sitemap if available
+      if (collections.length > 0) {
+        setSelectedSitemap(collections[0].id);
+      }
+    } catch (error: any) {
+      console.error("Error fetching sitemaps:", error);
+    }
+  };
+
   const getSelectedFrameworkData = () => {
     return frameworks.find(f => f.id === selectedFramework);
+  };
+
+  const getSelectedBrandVoiceData = () => {
+    return brandVoices.find(v => v.id === selectedBrandVoice);
+  };
+
+  const getSelectedSitemapUrls = () => {
+    const sitemap = sitemapCollections.find(s => s.id === selectedSitemap);
+    return sitemap?.discovered_urls || [];
   };
 
   // Run competitor analysis
@@ -256,6 +345,9 @@ export function ContentGenerator({
     try {
       const frameworkData = getSelectedFrameworkData();
       
+      const brandVoiceData = getSelectedBrandVoiceData();
+      const internalLinkUrls = includeInternalLinks ? getSelectedSitemapUrls() : [];
+      
       const { data, error } = await supabase.functions.invoke("generate-content", {
         body: { 
           keywords, 
@@ -280,6 +372,14 @@ export function ContentGenerator({
             includeCitations,
             includeInternalLinks,
           },
+          brandVoice: brandVoiceData ? {
+            name: brandVoiceData.name,
+            tone: brandVoiceData.tone,
+            styleGuidelines: brandVoiceData.style_guidelines,
+            vocabularyPreferences: brandVoiceData.vocabulary_preferences,
+            exampleContent: brandVoiceData.example_content,
+          } : undefined,
+          internalLinkUrls: internalLinkUrls.slice(0, 20), // Limit to 20 URLs
         },
       });
 
@@ -754,6 +854,33 @@ export function ContentGenerator({
               )}
             </div>
 
+            {/* Brand Voice Selection */}
+            <div className="space-y-2">
+              <Label>Brand Voice</Label>
+              <select
+                value={selectedBrandVoice}
+                onChange={(e) => setSelectedBrandVoice(e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              >
+                <option value="">No Brand Voice (Default)</option>
+                {brandVoices.map((voice) => (
+                  <option key={voice.id} value={voice.id}>
+                    {voice.name} {voice.tone ? `(${voice.tone})` : ''}
+                  </option>
+                ))}
+              </select>
+              {getSelectedBrandVoiceData()?.description && (
+                <p className="text-xs text-muted-foreground">
+                  {getSelectedBrandVoiceData()?.description}
+                </p>
+              )}
+              {brandVoices.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No brand voices configured. Add them in Settings → Content.
+                </p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label>Location Intent</Label>
               <input
@@ -955,6 +1082,43 @@ export function ContentGenerator({
                   />
                 </div>
               </div>
+
+              {/* Sitemap Selector for Internal Links */}
+              {includeInternalLinks && (
+                <div className="space-y-2 mt-4">
+                  <Label>Internal Links Source (Sitemap)</Label>
+                  <select
+                    value={selectedSitemap}
+                    onChange={(e) => setSelectedSitemap(e.target.value)}
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                  >
+                    <option value="">Use placeholder links</option>
+                    {sitemapCollections.map((sitemap) => (
+                      <option key={sitemap.id} value={sitemap.id}>
+                        {sitemap.name} ({sitemap.discovered_urls.length} URLs)
+                      </option>
+                    ))}
+                  </select>
+                  {selectedSitemap && getSelectedSitemapUrls().length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      <p className="font-medium mb-1">Sample URLs from sitemap:</p>
+                      <ul className="list-disc list-inside space-y-0.5">
+                        {getSelectedSitemapUrls().slice(0, 3).map((url, i) => (
+                          <li key={i} className="truncate">{url}</li>
+                        ))}
+                        {getSelectedSitemapUrls().length > 3 && (
+                          <li>...and {getSelectedSitemapUrls().length - 3} more</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {sitemapCollections.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      No sitemaps configured. Add them in Settings → Integrations.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
