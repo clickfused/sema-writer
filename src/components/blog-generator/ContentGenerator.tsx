@@ -17,6 +17,7 @@ import { AIDetectionChecker } from "./AIDetectionChecker";
 import { ContentSuggestions } from "./ContentSuggestions";
 import { KeywordHighlighter } from "./KeywordHighlighter";
 import { SectionRegenerator } from "./SectionRegenerator";
+import { ContentLadderMetrics } from "./ContentLadderMetrics";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface BrandVoice {
@@ -1489,6 +1490,12 @@ export function ContentGenerator({
           aiScore={qualityMetrics?.aiDetectionScore}
           onOptimize={() => optimizeContent('ai')}
           isOptimizing={optimizing}
+        />
+
+        {/* Content Ladder Metrics - LLMO Optimization */}
+        <ContentLadderMetrics 
+          content={fullContent}
+          keywords={keywords}
         />
       </div>
 
