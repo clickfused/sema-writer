@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_api_keys: {
+        Row: {
+          created_at: string
+          encrypted_key: string
+          id: string
+          is_active: boolean
+          is_valid: boolean | null
+          last_validated_at: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_key: string
+          id?: string
+          is_active?: boolean
+          is_valid?: boolean | null
+          last_validated_at?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_key?: string
+          id?: string
+          is_active?: boolean
+          is_valid?: boolean | null
+          last_validated_at?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_drafts: {
         Row: {
           content: string | null
