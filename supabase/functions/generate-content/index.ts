@@ -197,16 +197,22 @@ serve(async (req) => {
         throw new Error("OpenRouter API key not configured. Please add your API key in Settings or contact admin.");
       }
     } else if (model === 'gemini-free') {
-      // Use Google's Gemini API directly
-      apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-      modelId = "gemini-2.0-flash";
-      
+      // Try user's Gemini API key first, then admin, then fallback to Lovable gateway
       const keyResult = await getApiKeyWithFallback(supabase, userId, 'gemini');
-      apiKey = keyResult.key;
-      keySource = keyResult.source;
       
-      if (!apiKey) {
-        throw new Error("Gemini API key not configured. Please add your API key in Settings or contact admin.");
+      if (keyResult.key) {
+        // Use Google's Gemini API directly with user/admin key
+        apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+        modelId = "gemini-2.0-flash";
+        apiKey = keyResult.key;
+        keySource = keyResult.source;
+      } else {
+        // Fallback to Lovable AI Gateway
+        console.log("No Gemini key found, falling back to Lovable AI Gateway");
+        apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+        apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
+        modelId = "google/gemini-2.5-flash";
+        keySource = 'admin';
       }
     } else {
       // Default to Lovable AI Gateway
@@ -223,7 +229,7 @@ serve(async (req) => {
     console.log(`API key source: ${keySource}, model: ${modelId}`);
     
     // Check if using Google's direct API (different format)
-    const isGoogleDirectApi = model === 'gemini-free';
+    const isGoogleDirectApi = apiUrl.includes('generativelanguage.googleapis.com');
 
     const h2List = headings.h2s.map((h2: string, index: number) => {
       const h3s = headings.h3s
@@ -245,18 +251,8 @@ serve(async (req) => {
     // Generate Content Ladder optimization prompt
     const contentLadderPrompt = generateContentLadderPrompt(keywords, metaTags);
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: modelId,
-        messages: [
-          {
-            role: "system",
-            content: `Act like an expert SEO content strategist, senior NLP prompt engineer, and professional blog writer with deep expertise in LLMO (Large Language Model Optimization).
+    // Build the system and user prompts
+    const systemPrompt = `Act like an expert SEO content strategist, senior NLP prompt engineer, and professional blog writer with deep expertise in LLMO (Large Language Model Optimization).
 
 Your goal is to generate a full long-form blog using a Content Generation Framework with strong SEO, LLM-optimized structure, location-intent focus, and maximum user readability.
 
@@ -449,11 +445,9 @@ ${articleElements.includeStories ? '✓ Stories/examples included?' : ''}
 ${articleElements.includeHook ? '✓ Engaging hook in introduction?' : ''}
 ${articleElements.includeCitations ? '✓ Citations/references added?' : ''}
 
-**OUTPUT: HTML CONTENT ONLY. NO EXPLANATIONS, NO META COMMENTARY.**`
-          },
-          {
-            role: "user",
-            content: `Generate a ${selectedFramework.name}-optimized blog post with Content Ladder LLMO optimization.
+**OUTPUT: HTML CONTENT ONLY. NO EXPLANATIONS, NO META COMMENTARY.**`;
+
+    const userPrompt = `Generate a ${selectedFramework.name}-optimized blog post with Content Ladder LLMO optimization.
 
 **Request ID:** ${Date.now()} (for unique content generation)
 
@@ -503,11 +497,74 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
 ☑ Flesch Reading Ease 60+
 ☑ AI detection target <20%
 
-**THINK STEP-BY-STEP. THEN OUTPUT HTML ONLY.**`
-          }
-        ],
-      }),
-    });
+**THINK STEP-BY-STEP. THEN OUTPUT HTML ONLY.**`;
+
+    // Function to make API request
+    async function makeApiRequest(
+      url: string, 
+      key: string, 
+      model: string, 
+      isGoogleDirect: boolean
+    ): Promise<Response> {
+      if (isGoogleDirect) {
+        // Google Gemini API format
+        return fetch(`${url}?key=${key}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: systemPrompt + "\n\n" + userPrompt }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 8192,
+            }
+          }),
+        });
+      } else {
+        // OpenAI-compatible format (Lovable Gateway, OpenRouter)
+        return fetch(url, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${key}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+          }),
+        });
+      }
+    }
+
+    // Make the API request with fallback logic
+    let response = await makeApiRequest(apiUrl, apiKey, modelId, isGoogleDirectApi);
+    let usedFallback = false;
+
+    // If Google direct API fails with 401, fallback to Lovable gateway
+    if (!response.ok && isGoogleDirectApi && (response.status === 401 || response.status === 403)) {
+      console.log("Google Gemini API failed, falling back to Lovable AI Gateway");
+      
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (lovableKey) {
+        apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+        apiKey = lovableKey;
+        modelId = "google/gemini-2.5-flash";
+        keySource = 'admin';
+        usedFallback = true;
+        
+        response = await makeApiRequest(apiUrl, apiKey, modelId, false);
+      }
+    }
 
     if (!response.ok) {
       const errorBody = await response.text();
@@ -516,6 +573,7 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
         statusText: response.statusText,
         body: errorBody,
         keySource,
+        usedFallback,
         timestamp: new Date().toISOString()
       });
       throw new Error(`AI gateway returned ${response.status}: ${response.statusText}`);
@@ -523,18 +581,35 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
 
     const data = await response.json();
     
-    if (!data?.choices?.[0]?.message?.content) {
-      console.error("Invalid AI response structure:", {
-        hasData: !!data,
-        hasChoices: !!data?.choices,
-        choicesLength: data?.choices?.length,
-        fullResponse: JSON.stringify(data).substring(0, 500),
-        timestamp: new Date().toISOString()
-      });
-      throw new Error("Invalid response structure from AI gateway");
-    }
+    // Extract content based on API format
+    let content: string;
     
-    let content = data.choices[0].message.content;
+    if (isGoogleDirectApi && !usedFallback) {
+      // Google Gemini response format
+      if (!data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        console.error("Invalid Gemini response structure:", {
+          hasData: !!data,
+          hasCandidates: !!data?.candidates,
+          fullResponse: JSON.stringify(data).substring(0, 500),
+          timestamp: new Date().toISOString()
+        });
+        throw new Error("Invalid response structure from Gemini API");
+      }
+      content = data.candidates[0].content.parts[0].text;
+    } else {
+      // OpenAI-compatible response format
+      if (!data?.choices?.[0]?.message?.content) {
+        console.error("Invalid AI response structure:", {
+          hasData: !!data,
+          hasChoices: !!data?.choices,
+          choicesLength: data?.choices?.length,
+          fullResponse: JSON.stringify(data).substring(0, 500),
+          timestamp: new Date().toISOString()
+        });
+        throw new Error("Invalid response structure from AI gateway");
+      }
+      content = data.choices[0].message.content;
+    }
 
     // Calculate SEO score
     const wordCount = content.split(/\s+/).length;
@@ -557,6 +632,7 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       seoScore,
       contentLadderMetrics,
       keySource,
+      usedFallback,
       timestamp: new Date().toISOString()
     });
 
@@ -565,7 +641,7 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
         content, 
         seoScore,
         contentLadderMetrics,
-        keySource 
+        keySource: usedFallback ? 'admin (fallback)' : keySource
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
