@@ -5,6 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { BlogAnalyzer } from "@/components/admin/BlogAnalyzer";
+import { AdminApiKeyManager } from "@/components/admin/AdminApiKeyManager";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +14,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, Shield, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, Shield, Sparkles, Key } from "lucide-react";
 
 interface Framework {
   id: string;
@@ -274,184 +276,207 @@ export default function AdminDashboard() {
                   Admin Dashboard
                 </h1>
                 <p className="text-muted-foreground">
-                  Manage content generation frameworks
+                  Manage frameworks, API keys, and system settings
                 </p>
               </div>
-              <Button onClick={openCreateDialog}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Manually
-              </Button>
             </div>
 
-            {/* Blog Analyzer Section */}
-            <BlogAnalyzer onFrameworkSaved={fetchFrameworks} />
+            <Tabs defaultValue="frameworks" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 max-w-md">
+                <TabsTrigger value="frameworks" className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Frameworks
+                </TabsTrigger>
+                <TabsTrigger value="api-keys" className="flex items-center gap-2">
+                  <Key className="h-4 w-4" />
+                  API Keys
+                </TabsTrigger>
+              </TabsList>
 
-            <Separator className="my-6" />
+              <TabsContent value="frameworks" className="space-y-6 mt-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">Content Frameworks</h2>
+                  <Button onClick={openCreateDialog}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Manually
+                  </Button>
+                </div>
 
-            <h2 className="text-xl font-semibold">Existing Frameworks</h2>
+                {/* Blog Analyzer Section */}
+                <BlogAnalyzer onFrameworkSaved={fetchFrameworks} />
 
-            <div className="grid gap-4">
-              {frameworks.map((framework) => (
-                <Card key={framework.id} className={!framework.is_active ? "opacity-60" : ""}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4" />
-                          {framework.name}
-                          {!framework.is_active && (
-                            <Badge variant="secondary">Inactive</Badge>
-                          )}
-                        </CardTitle>
-                        <CardDescription>{framework.description}</CardDescription>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={framework.is_active}
-                          onCheckedChange={() => toggleActive(framework)}
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => openEditDialog(framework)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="text-destructive">
-                              <Trash2 className="h-4 w-4" />
+                <Separator className="my-6" />
+
+                <h3 className="text-lg font-semibold">Existing Frameworks</h3>
+
+                <div className="grid gap-4">
+                  {frameworks.map((framework) => (
+                    <Card key={framework.id} className={!framework.is_active ? "opacity-60" : ""}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <CardTitle className="flex items-center gap-2">
+                              <Sparkles className="h-4 w-4" />
+                              {framework.name}
+                              {!framework.is_active && (
+                                <Badge variant="secondary">Inactive</Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription>{framework.description}</CardDescription>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={framework.is_active}
+                              onCheckedChange={() => toggleActive(framework)}
+                            />
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => openEditDialog(framework)}
+                            >
+                              <Pencil className="h-4 w-4" />
                             </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Framework</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete "{framework.name}"? This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(framework.id)}
-                                className="bg-destructive text-destructive-foreground"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="icon" className="text-destructive">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Framework</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{framework.name}"? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDelete(framework.id)}
+                                    className="bg-destructive text-destructive-foreground"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {framework.formula && (
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Formula</Label>
+                            <code className="block mt-1 p-2 bg-muted rounded text-xs">
+                              {framework.formula}
+                            </code>
+                          </div>
+                        )}
+                        {framework.system_prompt && (
+                          <div>
+                            <Label className="text-xs text-muted-foreground">System Prompt</Label>
+                            <p className="mt-1 p-2 bg-muted rounded text-xs text-muted-foreground line-clamp-3">
+                              {framework.system_prompt}
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+
+                  {frameworks.length === 0 && (
+                    <Card>
+                      <CardContent className="py-12 text-center">
+                        <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                        <h3 className="font-semibold mb-2">No Frameworks</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Create your first content generation framework
+                        </p>
+                        <Button onClick={openCreateDialog}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Framework
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* Create/Edit Dialog */}
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingFramework ? "Edit Framework" : "Create Framework"}
+                      </DialogTitle>
+                      <DialogDescription>
+                        {editingFramework
+                          ? "Update the framework details below"
+                          : "Add a new content generation framework"}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Name *</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="e.g., SAGE, READ, CRAFT"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Input
+                          id="description"
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          placeholder="Brief description of the framework"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="formula">Formula</Label>
+                        <Input
+                          id="formula"
+                          value={formData.formula}
+                          onChange={(e) => setFormData({ ...formData, formula: e.target.value })}
+                          placeholder="e.g., (Structure × 0.3) + (Authority × 0.25)"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="system_prompt">System Prompt</Label>
+                        <Textarea
+                          id="system_prompt"
+                          value={formData.system_prompt}
+                          onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
+                          placeholder="AI instructions for this framework..."
+                          rows={6}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="is_active">Active</Label>
+                        <Switch
+                          id="is_active"
+                          checked={formData.is_active}
+                          onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                        />
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {framework.formula && (
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Formula</Label>
-                        <code className="block mt-1 p-2 bg-muted rounded text-xs">
-                          {framework.formula}
-                        </code>
-                      </div>
-                    )}
-                    {framework.system_prompt && (
-                      <div>
-                        <Label className="text-xs text-muted-foreground">System Prompt</Label>
-                        <p className="mt-1 p-2 bg-muted rounded text-xs text-muted-foreground line-clamp-3">
-                          {framework.system_prompt}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSave} disabled={saving}>
+                        {saving ? "Saving..." : editingFramework ? "Update" : "Create"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </TabsContent>
 
-              {frameworks.length === 0 && (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="font-semibold mb-2">No Frameworks</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Create your first content generation framework
-                    </p>
-                    <Button onClick={openCreateDialog}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Framework
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Create/Edit Dialog */}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingFramework ? "Edit Framework" : "Create Framework"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {editingFramework
-                      ? "Update the framework details below"
-                      : "Add a new content generation framework"}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name *</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g., SAGE, READ, CRAFT"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Input
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Brief description of the framework"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="formula">Formula</Label>
-                    <Input
-                      id="formula"
-                      value={formData.formula}
-                      onChange={(e) => setFormData({ ...formData, formula: e.target.value })}
-                      placeholder="e.g., (Structure × 0.3) + (Authority × 0.25)"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="system_prompt">System Prompt</Label>
-                    <Textarea
-                      id="system_prompt"
-                      value={formData.system_prompt}
-                      onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
-                      placeholder="AI instructions for this framework..."
-                      rows={6}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="is_active">Active</Label>
-                    <Switch
-                      id="is_active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave} disabled={saving}>
-                    {saving ? "Saving..." : editingFramework ? "Update" : "Create"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+              <TabsContent value="api-keys" className="mt-6">
+                <AdminApiKeyManager />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>

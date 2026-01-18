@@ -15,11 +15,11 @@ interface WorkflowProgressProps {
 }
 
 const steps: WorkflowStep[] = [
-  { id: 'keywords', title: 'Keywords', description: 'Research & target', icon: <Sparkles className="h-4 w-4" /> },
-  { id: 'headings', title: 'Headings', description: 'Structure outline', icon: <Type className="h-4 w-4" /> },
-  { id: 'content', title: 'Content', description: 'Generate article', icon: <FileText className="h-4 w-4" /> },
-  { id: 'faq', title: 'FAQ', description: 'Questions & answers', icon: <HelpCircle className="h-4 w-4" /> },
-  { id: 'meta', title: 'Meta Tags', description: 'SEO metadata', icon: <Tag className="h-4 w-4" /> },
+  { id: 'keywords', title: 'Keywords', description: 'SEO + LLMO research', icon: <Sparkles className="h-4 w-4" /> },
+  { id: 'headings', title: 'Headings', description: 'Query ladder structure', icon: <Type className="h-4 w-4" /> },
+  { id: 'content', title: 'Content', description: '2000+ words SEO/LLMO', icon: <FileText className="h-4 w-4" /> },
+  { id: 'faq', title: 'FAQ', description: 'Semantic Q&A', icon: <HelpCircle className="h-4 w-4" /> },
+  { id: 'meta', title: 'Meta Tags', description: 'Schema + meta', icon: <Tag className="h-4 w-4" /> },
 ];
 
 export function WorkflowProgress({ currentStep, completedSteps, onStepClick }: WorkflowProgressProps) {
