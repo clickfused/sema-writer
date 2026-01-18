@@ -1,1 +1,46 @@
 project_id = "idpeyrrzztrskpqqkqcf"
+
+[functions.analyze-blog]
+verify_jwt = false
+
+[functions.publish-to-wordpress]
+verify_jwt = false
+
+[functions.test-wordpress-connection]
+verify_jwt = false
+
+[functions.generate-content]
+verify_jwt = false
+
+[functions.generate-keywords]
+verify_jwt = false
+
+[functions.generate-headings]
+verify_jwt = false
+
+[functions.generate-faq]
+verify_jwt = false
+
+[functions.generate-meta]
+verify_jwt = false
+
+[functions.generate-intro]
+verify_jwt = false
+
+[functions.humanize-content]
+verify_jwt = false
+
+[functions.check-content-quality]
+verify_jwt = false
+
+[functions.generate-links]
+verify_jwt = false
+
+[functions.generate-images]
+verify_jwt = false
+
+[functions.analyze-competitors]
+verify_jwt = false
+
+[functions.upload-wordpress-image]
+verify_jwt = false
