@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe, Image, Search, Loader2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
+import { Sparkles, Download, Save, FileText, CheckCircle2, Wand2, Globe, Image, Search, Loader2, ChevronDown, ChevronUp, Settings2, Coins, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,7 @@ import { KeywordHighlighter } from "./KeywordHighlighter";
 import { SectionRegenerator } from "./SectionRegenerator";
 import { ContentLadderMetrics } from "./ContentLadderMetrics";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface BrandVoice {
   id: string;
@@ -114,6 +115,12 @@ export function ContentGenerator({
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [apiKeySource, setApiKeySource] = useState<string | null>(null);
+  const [tokenUsage, setTokenUsage] = useState<{
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  } | null>(null);
+  const [estimatedCost, setEstimatedCost] = useState<number | null>(null);
   const [qualityMetrics, setQualityMetrics] = useState<{
     grammarScore: number;
     aiDetectionScore: number;
@@ -400,13 +407,15 @@ export function ContentGenerator({
       setFullContent(data.content);
       setSeoScore(data.seoScore);
       setApiKeySource(data.keySource || null);
+      setTokenUsage(data.tokenUsage || null);
+      setEstimatedCost(data.estimatedCost || null);
 
       // Automatically check content quality after generation
       await checkContentQuality(data.content);
 
       toast({
         title: "Success",
-        description: "Full blog post generated successfully",
+        description: `Content generated! ${data.tokenUsage?.totalTokens ? `(${data.tokenUsage.totalTokens.toLocaleString()} tokens)` : ''}`,
       });
     } catch (error: any) {
       toast({
@@ -1355,7 +1364,7 @@ export function ContentGenerator({
               <CardTitle>Full Blog Content</CardTitle>
               <CardDescription>AI-generated 2000+ word SEO-optimized content</CardDescription>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {generating && (
                 <Badge variant="outline" className="animate-pulse flex items-center gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -1364,40 +1373,105 @@ export function ContentGenerator({
                 </Badge>
               )}
               {!generating && apiKeySource && (
-                <Badge 
-                  variant="outline" 
-                  className={`flex items-center gap-1.5 ${
-                    apiKeySource === 'lovable-gateway' ? 'border-primary/50 bg-primary/10 text-primary' :
-                    apiKeySource === 'admin (fallback)' ? 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                    apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini' ? 'border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400' :
-                    'border-muted-foreground/30'
-                  }`}
-                >
-                  {apiKeySource === 'lovable-gateway' && (
-                    <>
-                      <Sparkles className="h-3 w-3" />
-                      Lovable AI
-                    </>
-                  )}
-                  {apiKeySource === 'admin (fallback)' && (
-                    <>
-                      <CheckCircle2 className="h-3 w-3" />
-                      Admin Fallback
-                    </>
-                  )}
-                  {(apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini') && (
-                    <>
-                      <CheckCircle2 className="h-3 w-3" />
-                      Your API Key
-                    </>
-                  )}
-                  {!['lovable-gateway', 'admin (fallback)', 'user-openrouter', 'user-gemini'].includes(apiKeySource) && (
-                    <>
-                      <CheckCircle2 className="h-3 w-3" />
-                      {apiKeySource}
-                    </>
-                  )}
-                </Badge>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge 
+                        variant="outline" 
+                        className={`flex items-center gap-1.5 cursor-help ${
+                          apiKeySource === 'lovable-gateway' ? 'border-primary/50 bg-primary/10 text-primary' :
+                          apiKeySource === 'admin (fallback)' ? 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                          apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini' ? 'border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400' :
+                          'border-muted-foreground/30'
+                        }`}
+                      >
+                        {apiKeySource === 'lovable-gateway' && (
+                          <>
+                            <Sparkles className="h-3 w-3" />
+                            Lovable AI
+                          </>
+                        )}
+                        {apiKeySource === 'admin (fallback)' && (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" />
+                            Admin Fallback
+                          </>
+                        )}
+                        {(apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini') && (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" />
+                            Your API Key
+                          </>
+                        )}
+                        {!['lovable-gateway', 'admin (fallback)', 'user-openrouter', 'user-gemini'].includes(apiKeySource) && (
+                          <>
+                            <CheckCircle2 className="h-3 w-3" />
+                            {apiKeySource}
+                          </>
+                        )}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      {apiKeySource === 'lovable-gateway' && (
+                        <p className="text-sm">
+                          <strong>Lovable AI Gateway</strong> — Free, built-in AI service. No API key required. Uses Gemini 2.5 Flash.
+                        </p>
+                      )}
+                      {apiKeySource === 'admin (fallback)' && (
+                        <p className="text-sm">
+                          <strong>Admin Fallback</strong> — Your API key was invalid or missing. Using backup system key to ensure service continuity.
+                        </p>
+                      )}
+                      {apiKeySource === 'user-openrouter' && (
+                        <p className="text-sm">
+                          <strong>Your OpenRouter Key</strong> — Using your personal API key configured in Settings. Charges apply to your account.
+                        </p>
+                      )}
+                      {apiKeySource === 'user-gemini' && (
+                        <p className="text-sm">
+                          <strong>Your Gemini Key</strong> — Using your personal Google AI Studio API key. Free tier or charges apply to your account.
+                        </p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {!generating && tokenUsage && tokenUsage.totalTokens > 0 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="flex items-center gap-1.5 cursor-help">
+                        <Zap className="h-3 w-3" />
+                        {tokenUsage.totalTokens.toLocaleString()} tokens
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <div className="text-sm space-y-1">
+                        <p><strong>Token Usage</strong></p>
+                        <p>Prompt: {tokenUsage.promptTokens.toLocaleString()}</p>
+                        <p>Completion: {tokenUsage.completionTokens.toLocaleString()}</p>
+                        <p>Total: {tokenUsage.totalTokens.toLocaleString()}</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {!generating && estimatedCost !== null && estimatedCost > 0 && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge variant="outline" className="flex items-center gap-1.5 cursor-help border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <Coins className="h-3 w-3" />
+                        ~${estimatedCost.toFixed(4)}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs">
+                      <p className="text-sm">
+                        <strong>Estimated Cost</strong> — Approximate cost based on token usage and model pricing. Actual charges may vary.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
               <Button onClick={generateFullContent} disabled={generating}>
                 <Sparkles className="h-4 w-4 mr-2" />

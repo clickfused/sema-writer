@@ -581,8 +581,13 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
 
     const data = await response.json();
     
-    // Extract content based on API format
+    // Extract content and token usage based on API format
     let content: string;
+    let tokenUsage = {
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0
+    };
     
     if (isGoogleDirectApi && !usedFallback) {
       // Google Gemini response format
@@ -596,6 +601,15 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
         throw new Error("Invalid response structure from Gemini API");
       }
       content = data.candidates[0].content.parts[0].text;
+      
+      // Extract token usage from Gemini response
+      if (data.usageMetadata) {
+        tokenUsage = {
+          promptTokens: data.usageMetadata.promptTokenCount || 0,
+          completionTokens: data.usageMetadata.candidatesTokenCount || 0,
+          totalTokens: data.usageMetadata.totalTokenCount || 0
+        };
+      }
     } else {
       // OpenAI-compatible response format
       if (!data?.choices?.[0]?.message?.content) {
@@ -609,6 +623,15 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
         throw new Error("Invalid response structure from AI gateway");
       }
       content = data.choices[0].message.content;
+      
+      // Extract token usage from OpenAI-compatible response
+      if (data.usage) {
+        tokenUsage = {
+          promptTokens: data.usage.prompt_tokens || 0,
+          completionTokens: data.usage.completion_tokens || 0,
+          totalTokens: data.usage.total_tokens || 0
+        };
+      }
     }
 
     // Calculate SEO score
@@ -636,12 +659,32 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       timestamp: new Date().toISOString()
     });
 
+    // Calculate estimated cost based on model
+    let estimatedCost = 0;
+    const totalTokens = tokenUsage.totalTokens;
+    
+    // Pricing per 1M tokens (approximate)
+    const pricing: Record<string, { input: number; output: number }> = {
+      'claude-sonnet-4': { input: 3, output: 15 },
+      'claude-sonnet-4.5': { input: 3, output: 15 },
+      'gemini-free': { input: 0, output: 0 }, // Free tier
+      'gemini-flash': { input: 0, output: 0 }, // Lovable AI - included
+    };
+    
+    const modelPricing = pricing[model] || { input: 0, output: 0 };
+    estimatedCost = (
+      (tokenUsage.promptTokens / 1000000) * modelPricing.input +
+      (tokenUsage.completionTokens / 1000000) * modelPricing.output
+    );
+
     return new Response(
       JSON.stringify({ 
         content, 
         seoScore,
         contentLadderMetrics,
-        keySource: usedFallback ? 'admin (fallback)' : keySource
+        keySource: usedFallback ? 'admin (fallback)' : keySource,
+        tokenUsage,
+        estimatedCost: Math.round(estimatedCost * 10000) / 10000 // Round to 4 decimal places
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
