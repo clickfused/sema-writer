@@ -133,23 +133,18 @@ export function ContentGenerator({
   const [publishing, setPublishing] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
   
-  const [frameworks, setFrameworks] = useState<Framework[]>([]);
-  const [selectedFramework, setSelectedFramework] = useState<string>("");
+  // ToFu/MoFu/BoFu Funnel Stage
+  const [funnelStage, setFunnelStage] = useState<'tofu' | 'mofu' | 'bofu'>('tofu');
   const [selectedModel, setSelectedModel] = useState<string>("gemini-flash");
   const [location, setLocation] = useState('United States');
   const [brandName, setBrandName] = useState('');
-  const [targetWordCount, setTargetWordCount] = useState(1500);
+  const [targetWordCount, setTargetWordCount] = useState(2000);
   const [keywordDensity, setKeywordDensity] = useState(1.5);
-  const [includeCtaTypes, setIncludeCtaTypes] = useState([
-    'course',
-    'alsoRead', 
-    'related',
-    'industry',
-    'usp',
-    'humanIntent',
-    'seoIntent',
-    'llmoIntent'
-  ]);
+  const [generateFaqs, setGenerateFaqs] = useState(true);
+  const [faqCount, setFaqCount] = useState(20);
+  const [includeBulletPoints, setIncludeBulletPoints] = useState(true);
+  const [includeExamples, setIncludeExamples] = useState(true);
+  const [includeComparisonTablesOption, setIncludeComparisonTablesOption] = useState(true);
 
   // Image generation settings
   const [generateImages, setGenerateImages] = useState(false);
@@ -186,35 +181,11 @@ export function ContentGenerator({
   // Settings panel state
   const [settingsOpen, setSettingsOpen] = useState(true);
 
-  // Fetch frameworks, brand voices, and sitemaps on mount
+  // Fetch brand voices and sitemaps on mount
   useEffect(() => {
-    fetchFrameworks();
     fetchBrandVoices();
     fetchSitemaps();
   }, [userId]);
-
-  const fetchFrameworks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("frameworks")
-        .select("id, name, description, formula, system_prompt")
-        .eq("is_active", true)
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-      setFrameworks(data || []);
-      
-      // Set default to HYBRID if exists
-      const hybrid = data?.find(f => f.name === "HYBRID");
-      if (hybrid) {
-        setSelectedFramework(hybrid.id);
-      } else if (data && data.length > 0) {
-        setSelectedFramework(data[0].id);
-      }
-    } catch (error: any) {
-      console.error("Error fetching frameworks:", error);
-    }
-  };
 
   const fetchBrandVoices = async () => {
     try {
@@ -267,10 +238,6 @@ export function ContentGenerator({
     } catch (error: any) {
       console.error("Error fetching sitemaps:", error);
     }
-  };
-
-  const getSelectedFrameworkData = () => {
-    return frameworks.find(f => f.id === selectedFramework);
   };
 
   const getSelectedBrandVoiceData = () => {
@@ -362,8 +329,6 @@ export function ContentGenerator({
   const generateFullContent = async () => {
     setGenerating(true);
     try {
-      const frameworkData = getSelectedFrameworkData();
-      
       const brandVoiceData = getSelectedBrandVoiceData();
       const internalLinkUrls = includeInternalLinks ? getSelectedSitemapUrls() : [];
       
@@ -373,16 +338,16 @@ export function ContentGenerator({
           metaTags, 
           headings, 
           faqContent: [],
-          framework: frameworkData?.name || 'HYBRID',
-          frameworkPrompt: frameworkData?.system_prompt || undefined,
+          funnelStage,
           location,
           brandName,
           targetWordCount,
           keywordDensity,
-          includeCtaTypes,
           contextContent: contextContent || undefined,
           userIntent: userIntent || undefined,
           model: selectedModel,
+          generateFaqs,
+          faqCount,
           articleElements: {
             useFirstPerson,
             includeStories,
@@ -390,6 +355,9 @@ export function ContentGenerator({
             includeHtmlElement,
             includeCitations,
             includeInternalLinks,
+            includeBulletPoints,
+            includeExamples,
+            includeComparisonTables: includeComparisonTablesOption,
           },
           brandVoice: brandVoiceData ? {
             name: brandVoiceData.name,
@@ -398,7 +366,7 @@ export function ContentGenerator({
             vocabularyPreferences: brandVoiceData.vocabulary_preferences,
             exampleContent: brandVoiceData.example_content,
           } : undefined,
-          internalLinkUrls: internalLinkUrls.slice(0, 20), // Limit to 20 URLs
+          internalLinkUrls: internalLinkUrls.slice(0, 20),
         },
       });
 
@@ -750,11 +718,6 @@ export function ContentGenerator({
     });
   };
 
-  const toggleCtaType = (type: string) => {
-    setIncludeCtaTypes(prev => 
-      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
-    );
-  };
 
   const publishToWordPress = async () => {
     if (!fullContent || !metaTags.title) {
@@ -879,25 +842,27 @@ export function ContentGenerator({
               </div>
             </div>
             
-            {/* Framework Selection */}
+            {/* Funnel Stage Selection */}
             <div className="space-y-2">
-              <Label>Content Framework</Label>
+              <Label className="flex items-center gap-2">
+                📊 Funnel Stage (ToFu/MoFu/BoFu)
+              </Label>
               <select
-                value={selectedFramework}
-                onChange={(e) => setSelectedFramework(e.target.value)}
+                value={funnelStage}
+                onChange={(e) => setFunnelStage(e.target.value as 'tofu' | 'mofu' | 'bofu')}
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
               >
-                {frameworks.map((framework) => (
-                  <option key={framework.id} value={framework.id}>
-                    {framework.name} {framework.name === 'HYBRID' ? '⭐' : ''}
-                  </option>
-                ))}
+                <option value="tofu">🔝 ToFu - Top of Funnel (Awareness)</option>
+                <option value="mofu">🎯 MoFu - Middle of Funnel (Consideration)</option>
+                <option value="bofu">💰 BoFu - Bottom of Funnel (Decision)</option>
               </select>
-              {getSelectedFrameworkData()?.description && (
+              <div className="p-2 rounded-lg bg-muted/50 border border-border">
                 <p className="text-xs text-muted-foreground">
-                  {getSelectedFrameworkData()?.description}
+                  {funnelStage === 'tofu' && '🔝 Educational content for users discovering the topic. Focus on "What is..." and "Why..." queries.'}
+                  {funnelStage === 'mofu' && '🎯 Solution-oriented content for users evaluating options. Focus on comparisons and how-to guides.'}
+                  {funnelStage === 'bofu' && '💰 Action-oriented content for users ready to decide. Focus on pricing, reviews, and CTAs.'}
                 </p>
-              )}
+              </div>
             </div>
 
             {/* Brand Voice Selection */}
@@ -937,7 +902,7 @@ export function ContentGenerator({
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
               />
               <p className="text-xs text-muted-foreground">
-                US location keywords integrated naturally (e.g., "in {location}")
+                Location keywords integrated naturally
               </p>
             </div>
 
@@ -951,7 +916,7 @@ export function ContentGenerator({
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
               />
               <p className="text-xs text-muted-foreground">
-                Mentioned 2–4 times per section naturally
+                Integrated naturally 3-5 times when contextually appropriate
               </p>
             </div>
 
@@ -987,77 +952,37 @@ export function ContentGenerator({
               </p>
             </div>
 
-            <div className="space-y-2 col-span-full">
-              <Label>Call-to-Action Types</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Select multiple CTA types to naturally integrate throughout content
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('course') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('course')}
-                >
-                  📚 Course CTA
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('alsoRead') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('alsoRead')}
-                >
-                  📖 Also Read
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('related') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('related')}
-                >
-                  🔗 Related Content
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('industry') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('industry')}
-                >
-                  🏢 Industry Solutions
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('usp') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('usp')}
-                >
-                  ⭐ USP/Benefits
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('humanIntent') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('humanIntent')}
-                >
-                  💬 Human Intent
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('seoIntent') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('seoIntent')}
-                >
-                  🔍 SEO Intent
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={includeCtaTypes.includes('llmoIntent') ? 'default' : 'outline'}
-                  onClick={() => toggleCtaType('llmoIntent')}
-                >
-                  🤖 LLMO Intent
-                </Button>
+            {/* FAQ Generation Settings */}
+            <div className="space-y-3 col-span-full border-t pt-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Generate FAQs</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Auto-generate FAQ section at the end of content
+                  </p>
+                </div>
+                <Switch
+                  checked={generateFaqs}
+                  onCheckedChange={setGenerateFaqs}
+                />
               </div>
+              
+              {generateFaqs && (
+                <div className="space-y-2">
+                  <Label>Number of FAQs: {faqCount}</Label>
+                  <Slider
+                    value={[faqCount]}
+                    onValueChange={(value) => setFaqCount(value[0])}
+                    min={5}
+                    max={30}
+                    step={5}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Generate 5-30 FAQs targeting different keyword intents
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Article Elements */}
@@ -1099,12 +1024,32 @@ export function ContentGenerator({
                 </div>
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="space-y-0.5">
-                    <Label className="text-sm">HTML Element</Label>
-                    <p className="text-xs text-muted-foreground">Interactive widget</p>
+                    <Label className="text-sm">Bullet Points</Label>
+                    <p className="text-xs text-muted-foreground">Natural lists</p>
                   </div>
                   <Switch
-                    checked={includeHtmlElement}
-                    onCheckedChange={setIncludeHtmlElement}
+                    checked={includeBulletPoints}
+                    onCheckedChange={setIncludeBulletPoints}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Examples</Label>
+                    <p className="text-xs text-muted-foreground">Real-world cases</p>
+                  </div>
+                  <Switch
+                    checked={includeExamples}
+                    onCheckedChange={setIncludeExamples}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">Comparison Tables</Label>
+                    <p className="text-xs text-muted-foreground">Feature tables</p>
+                  </div>
+                  <Switch
+                    checked={includeComparisonTablesOption}
+                    onCheckedChange={setIncludeComparisonTablesOption}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -1125,6 +1070,16 @@ export function ContentGenerator({
                   <Switch
                     checked={includeInternalLinks}
                     onCheckedChange={setIncludeInternalLinks}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-0.5">
+                    <Label className="text-sm">HTML Element</Label>
+                    <p className="text-xs text-muted-foreground">Interactive widget</p>
+                  </div>
+                  <Switch
+                    checked={includeHtmlElement}
+                    onCheckedChange={setIncludeHtmlElement}
                   />
                 </div>
               </div>
