@@ -113,6 +113,7 @@ export function ContentGenerator({
   const [seoScore, setSeoScore] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [apiKeySource, setApiKeySource] = useState<string | null>(null);
   const [qualityMetrics, setQualityMetrics] = useState<{
     grammarScore: number;
     aiDetectionScore: number;
@@ -398,6 +399,7 @@ export function ContentGenerator({
       
       setFullContent(data.content);
       setSeoScore(data.seoScore);
+      setApiKeySource(data.keySource || null);
 
       // Automatically check content quality after generation
       await checkContentQuality(data.content);
@@ -1353,10 +1355,55 @@ export function ContentGenerator({
               <CardTitle>Full Blog Content</CardTitle>
               <CardDescription>AI-generated 2000+ word SEO-optimized content</CardDescription>
             </div>
-            <Button onClick={generateFullContent} disabled={generating}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              {generating ? "Generating..." : "Generate Full Content"}
-            </Button>
+            <div className="flex items-center gap-3">
+              {generating && (
+                <Badge variant="outline" className="animate-pulse flex items-center gap-1.5">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Generating with {selectedModel === 'gemini-flash' ? 'Lovable AI' : 
+                    selectedModel === 'claude-sonnet-4' || selectedModel === 'claude-sonnet-4.5' ? 'OpenRouter' : 'Gemini API'}...
+                </Badge>
+              )}
+              {!generating && apiKeySource && (
+                <Badge 
+                  variant="outline" 
+                  className={`flex items-center gap-1.5 ${
+                    apiKeySource === 'lovable-gateway' ? 'border-primary/50 bg-primary/10 text-primary' :
+                    apiKeySource === 'admin (fallback)' ? 'border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                    apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini' ? 'border-green-500/50 bg-green-500/10 text-green-600 dark:text-green-400' :
+                    'border-muted-foreground/30'
+                  }`}
+                >
+                  {apiKeySource === 'lovable-gateway' && (
+                    <>
+                      <Sparkles className="h-3 w-3" />
+                      Lovable AI
+                    </>
+                  )}
+                  {apiKeySource === 'admin (fallback)' && (
+                    <>
+                      <CheckCircle2 className="h-3 w-3" />
+                      Admin Fallback
+                    </>
+                  )}
+                  {(apiKeySource === 'user-openrouter' || apiKeySource === 'user-gemini') && (
+                    <>
+                      <CheckCircle2 className="h-3 w-3" />
+                      Your API Key
+                    </>
+                  )}
+                  {!['lovable-gateway', 'admin (fallback)', 'user-openrouter', 'user-gemini'].includes(apiKeySource) && (
+                    <>
+                      <CheckCircle2 className="h-3 w-3" />
+                      {apiKeySource}
+                    </>
+                  )}
+                </Badge>
+              )}
+              <Button onClick={generateFullContent} disabled={generating}>
+                <Sparkles className="h-4 w-4 mr-2" />
+                {generating ? "Generating..." : "Generate Full Content"}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
