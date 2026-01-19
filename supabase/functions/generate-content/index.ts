@@ -6,78 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Content Ladder Optimization System
-interface ContentLadderMetrics {
-  distanceScore: number;      // How far content is from generic AI patterns (0-100)
-  realnessScore: number;      // Human-like authenticity (0-100)
-  semanticDepth: number;      // Query variation coverage (0-100)
-  queryLadderScore: number;   // Multi-intent query optimization (0-100)
-  llmoScore: number;          // Overall LLMO optimization (0-100)
-}
-
-function generateContentLadderPrompt(keywords: any, metaTags: any): string {
-  const primaryKw = keywords.primary?.[0] || '';
-  const secondaryKws = keywords.secondary?.join(', ') || '';
-  
-  return `
-## CONTENT LADDER OPTIMIZATION (LLMO RANKING)
-
-### Distance Scoring (Target: 85+)
-Create content that maintains MAXIMUM DISTANCE from typical AI-generated patterns:
-- Avoid: Generic openings ("In today's world...", "In the ever-evolving...")
-- Avoid: Predictable transitions ("Furthermore", "Additionally", "Moreover")
-- Avoid: Hollow superlatives ("incredibly important", "absolutely essential")
-- Instead: Use specific data, unique analogies, industry-insider language
-- Include: Unexpected perspectives, contrarian viewpoints, specific examples
-
-### Realness Metrics (Target: 90+)
-Human authenticity signals to include:
-- Imperfect sentence structures (occasional fragments, varied rhythm)
-- Personal observations with specific details ("I noticed in Q3 2024...")
-- Nuanced opinions ("While most experts agree, I've found...")
-- Micro-details that only practitioners would know
-- Conversational asides and parenthetical thoughts
-- Occasional informal language ("Here's the deal:", "Let me break this down")
-
-### Query Ladder Structure (Multi-Intent Coverage)
-For "${primaryKw}", generate content addressing ALL query types:
-
-**Level 1 - Core SEO Query (Google/Bing)**
-"What is ${primaryKw}?" / "How does ${primaryKw} work?"
-→ Direct, factual answer in first 100 words
-
-**Level 2 - Conversational Query (ChatGPT/Gemini)**
-"Explain ${primaryKw} like I'm a beginner" / "Help me understand ${primaryKw}"
-→ Analogies, step-by-step breakdowns, relatable examples
-
-**Level 3 - Long-tail Query (Perplexity/Claude)**
-"${primaryKw} best practices for ${secondaryKws}" / "Common mistakes with ${primaryKw}"
-→ Deep-dive sections, expert insights, edge cases
-
-**Level 4 - Comparison Query (All Engines)**
-"${primaryKw} vs alternatives" / "When to use ${primaryKw}"
-→ Comparative analysis, use-case scenarios
-
-### Semantic Distance Markers
-Include content at varying semantic distances from primary topic:
-- **Close (0-20% distance):** Direct explanations of ${primaryKw}
-- **Medium (20-50% distance):** Related concepts, prerequisites, dependencies
-- **Far (50-80% distance):** Tangential applications, industry context, future trends
-- **Edge (80-100% distance):** Unexpected connections, cross-domain analogies
-
-### LLMO Cite-Worthy Statements
-Include 3-5 statements designed for LLM citation:
-- Start with the topic name: "${primaryKw} is defined as..."
-- Include specific data: "According to 2024 data, ${primaryKw}..."
-- Provide clear frameworks: "The three pillars of ${primaryKw} are..."
-- Make bold claims with backing: "Unlike common belief, ${primaryKw}..."
-
-### Content Freshness Signals
-- Reference current year (2024-2025)
-- Mention recent developments, updates, changes
-- Include forward-looking predictions
-- Reference current tools, platforms, technologies
-`;
+// ToFu/MoFu/BoFu Content Framework Metrics
+interface ContentMetrics {
+  funnelAlignment: number;      // How well content matches funnel stage (0-100)
+  entityDensity: number;        // Named entity coverage (0-100)
+  semanticRelatedness: number;  // Keyword-content semantic distance (0-100)
+  freshness: number;            // Current/updated content signals (0-100)
+  llmoScore: number;            // Overall LLMO optimization (0-100)
 }
 
 // Helper function to get API key with admin fallback
@@ -86,7 +21,6 @@ async function getApiKeyWithFallback(
   userId: string | null,
   provider: string
 ): Promise<{ key: string | null; source: 'user' | 'admin' | 'none' }> {
-  // First try user's own API key
   if (userId) {
     const { data: userKeyData } = await supabase
       .from('user_api_keys')
@@ -101,7 +35,6 @@ async function getApiKeyWithFallback(
     }
   }
   
-  // Fallback to admin API key
   const { data: adminKeyData } = await supabase
     .from('admin_api_keys')
     .select('encrypted_key, is_valid')
@@ -117,6 +50,138 @@ async function getApiKeyWithFallback(
   return { key: null, source: 'none' };
 }
 
+function generateTofuMofuBofuPrompt(
+  keywords: any, 
+  funnelStage: string,
+  brandName: string
+): string {
+  const primaryKw = keywords.primary?.[0] || '';
+  const allKeywords = [
+    ...(keywords.primary || []),
+    ...(keywords.secondary || []),
+    ...(keywords.semantic || []),
+    ...(keywords.lsi || [])
+  ].join(', ');
+
+  const funnelGuidance: Record<string, string> = {
+    tofu: `
+## ToFu (Top of Funnel) - AWARENESS STAGE
+Target: Users discovering the problem/topic for the first time
+
+**Content Goals:**
+- Educational, informative, problem-aware content
+- Answer "What is...", "Why...", "Understanding..." queries
+- Build trust through expertise demonstration
+- NO hard sells, NO product pushing
+
+**Intent Alignment:**
+- Informational intent (80%)
+- Discovery-focused questions
+- Broad topic exploration
+- Beginner-friendly explanations
+
+**Content Style:**
+- Explainer articles, ultimate guides, "101" content
+- Definitions, concepts, fundamentals
+- Industry trends, statistics, research
+- Problem identification and validation`,
+
+    mofu: `
+## MoFu (Middle of Funnel) - CONSIDERATION STAGE  
+Target: Users evaluating solutions and comparing options
+
+**Content Goals:**
+- Solution-oriented, comparison-focused content
+- Answer "How to...", "Best...", "vs...", "Comparison" queries
+- Demonstrate expertise with specific solutions
+- Soft CTAs, value demonstrations
+
+**Intent Alignment:**
+- Commercial investigation intent (70%)
+- Comparison and evaluation queries
+- Feature/benefit analysis
+- Use case scenarios
+
+**Content Style:**
+- Comparison guides, "Best X for Y" articles
+- How-to tutorials with tool recommendations
+- Case studies, success stories
+- Pros/cons analysis, feature breakdowns`,
+
+    bofu: `
+## BoFu (Bottom of Funnel) - DECISION STAGE
+Target: Users ready to make a purchase/action decision
+
+**Content Goals:**
+- Action-oriented, conversion-focused content
+- Answer "Buy...", "Get...", "Sign up...", "Pricing" queries
+- Remove final objections, build urgency
+- Strong CTAs, clear next steps
+
+**Intent Alignment:**
+- Transactional intent (80%)
+- Purchase-ready queries
+- Specific product/service queries
+- Implementation and getting started
+
+**Content Style:**
+- Product reviews, pricing guides
+- Implementation guides, quick-start tutorials
+- ROI calculators, testimonials
+- Limited-time offers, guarantees`
+  };
+
+  return `
+## ToFu/MoFu/BoFu CONTENT FRAMEWORK
+
+${funnelGuidance[funnelStage] || funnelGuidance.tofu}
+
+### Entity-Based Optimization
+Include these entity types naturally throughout:
+- **Named Entities:** People, companies, products, locations, dates
+- **Conceptual Entities:** Processes, methodologies, frameworks
+- **Quantitative Entities:** Statistics, percentages, metrics, years
+- **Authority Entities:** Studies, reports, expert quotes
+
+${brandName ? `### Brand Integration (NATURAL ONLY)
+Integrate "${brandName}" naturally 3-5 times where contextually appropriate:
+- In solution contexts: "${brandName} offers/provides..."
+- In examples: "Tools like ${brandName}..."
+- In recommendations: "Consider ${brandName} for..."
+DO NOT force brand mentions - only where natural.` : ''}
+
+### Content & Keyword Distance Optimization
+**Semantic Relatedness Tiers:**
+- **Core (0-20%):** Direct ${primaryKw} explanations
+- **Close (20-40%):** Closely related concepts and synonyms
+- **Related (40-60%):** Tangential topics and applications
+- **Extended (60-80%):** Industry context and trends
+- **Edge (80-100%):** Cross-domain connections
+
+### Freshness Signals (2025)
+- Reference current year data and trends
+- Mention recent developments and updates
+- Include forward-looking predictions
+- Use current tools, platforms, technologies
+
+### SEO + LLMO Query Types
+**Traditional SEO Queries:**
+- "What is ${primaryKw}"
+- "How to ${primaryKw}"
+- "${primaryKw} best practices"
+
+**LLM-Optimized Queries:**
+- "Explain ${primaryKw} simply"
+- "Compare ${primaryKw} options"
+- "Step-by-step ${primaryKw} guide"
+- "Common ${primaryKw} mistakes"
+- "${primaryKw} for beginners"
+
+### Keywords to integrate naturally:
+${allKeywords}
+`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -128,12 +193,11 @@ serve(async (req) => {
       metaTags, 
       headings, 
       faqContent,
-      framework = 'HYBRID',
+      funnelStage = 'tofu',
       location = 'United States',
       brandName = '',
-      targetWordCount = 1500,
+      targetWordCount = 2000,
       keywordDensity = 1.5,
-      includeCtaTypes = ['course', 'alsoRead', 'related'],
       contextContent = '',
       userIntent = null,
       model = 'gemini-flash',
@@ -144,21 +208,26 @@ serve(async (req) => {
         includeHtmlElement: false,
         includeCitations: true,
         includeInternalLinks: true,
+        includeBulletPoints: true,
+        includeExamples: true,
+        includeComparisonTables: true,
       },
       brandVoice = null,
-      internalLinkUrls = []
+      internalLinkUrls = [],
+      generateFaqs = true,
+      faqCount = 20
     } = await req.json();
     
     console.log("Content generation started:", {
       model,
-      framework,
+      funnelStage,
       targetWordCount,
+      faqCount,
       hasKeywords: !!keywords,
       hasHeadings: !!headings,
       timestamp: new Date().toISOString()
     });
     
-    // Get user ID from auth header for API key lookup
     const authHeader = req.headers.get('authorization');
     let userId: string | null = null;
     
@@ -172,20 +241,17 @@ serve(async (req) => {
       userId = user?.id || null;
     }
     
-    // Determine API endpoint and key based on model
     let apiUrl: string;
     let apiKey: string | null = null;
     let modelId: string;
     let keySource: 'user' | 'admin' | 'none' = 'none';
     
     if (model === 'gemini-flash') {
-      // Use Lovable AI Gateway
       apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
       apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
       modelId = "google/gemini-2.5-flash";
       keySource = 'admin';
     } else if (model === 'claude-sonnet-4' || model === 'claude-sonnet-4.5') {
-      // Use OpenRouter - try user's key first, then admin fallback
       apiUrl = "https://openrouter.ai/api/v1/chat/completions";
       modelId = model === 'claude-sonnet-4' ? 'anthropic/claude-sonnet-4' : 'anthropic/claude-sonnet-4-5';
       
@@ -197,17 +263,14 @@ serve(async (req) => {
         throw new Error("OpenRouter API key not configured. Please add your API key in Settings or contact admin.");
       }
     } else if (model === 'gemini-free') {
-      // Try user's Gemini API key first, then admin, then fallback to Lovable gateway
       const keyResult = await getApiKeyWithFallback(supabase, userId, 'gemini');
       
       if (keyResult.key) {
-        // Use Google's Gemini API directly with user/admin key
         apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
         modelId = "gemini-2.0-flash";
         apiKey = keyResult.key;
         keySource = keyResult.source;
       } else {
-        // Fallback to Lovable AI Gateway
         console.log("No Gemini key found, falling back to Lovable AI Gateway");
         apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
         apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
@@ -215,7 +278,6 @@ serve(async (req) => {
         keySource = 'admin';
       }
     } else {
-      // Default to Lovable AI Gateway
       apiUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
       apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
       modelId = "google/gemini-2.5-flash";
@@ -228,7 +290,6 @@ serve(async (req) => {
     
     console.log(`API key source: ${keySource}, model: ${modelId}`);
     
-    // Check if using Google's direct API (different format)
     const isGoogleDirectApi = apiUrl.includes('generativelanguage.googleapis.com');
 
     const h2List = headings.h2s.map((h2: string, index: number) => {
@@ -239,267 +300,173 @@ serve(async (req) => {
       return `${h2}${h3s ? "\n" + h3s : ""}`;
     }).join("\n\n");
 
-    const frameworks = {
-      SAGE: { name: 'SAGE Framework', formula: '(Structure × 0.3) + (Authority × 0.25) + (Guidance × 0.25) + (Engagement × 0.2)' },
-      READ: { name: 'READ Framework', formula: '(Rhythm × 0.25) + (Engagement × 0.3) + (Accessibility × 0.25) + (Direction × 0.2)' },
-      CRAFT: { name: 'C.R.A.F.T Framework', formula: '(Clarity × 0.25) + (Relevance × 0.25) + (Accuracy × 0.2) + (Factual × 0.2) + (Terseness × 0.1)' },
-      HUMAIZE: { name: 'HUMAIZE Framework', formula: '(Human-tone × 0.35) + (Natural-flow × 0.35) + (Context × 0.3)' },
-      HYBRID: { name: 'Hybrid Multi-Framework', formula: '(SAGE × 0.3) + (READ × 0.25) + (CRAFT × 0.25) + (HUMAIZE × 0.2)' }
-    };
-    const selectedFramework = frameworks[framework as keyof typeof frameworks] || frameworks.HYBRID;
+    const tofuMofuBofuPrompt = generateTofuMofuBofuPrompt(keywords, funnelStage, brandName);
 
-    // Generate Content Ladder optimization prompt
-    const contentLadderPrompt = generateContentLadderPrompt(keywords, metaTags);
+    const systemPrompt = `You are an expert SEO content strategist and professional blog writer specializing in ToFu/MoFu/BoFu content optimization for both traditional search engines and Large Language Models (LLMO).
 
-    // Build the system and user prompts
-    const systemPrompt = `Act like an expert SEO content strategist, senior NLP prompt engineer, and professional blog writer with deep expertise in LLMO (Large Language Model Optimization).
+${tofuMofuBofuPrompt}
 
-Your goal is to generate a full long-form blog using a Content Generation Framework with strong SEO, LLM-optimized structure, location-intent focus, and maximum user readability.
+## CRITICAL FORMATTING RULES
 
-${contentLadderPrompt}
+### PARAGRAPH STRUCTURE (30-40 WORDS STRICT)
+Every paragraph MUST be 30-40 words maximum.
+- Split longer ideas into multiple short paragraphs
+- Each paragraph = 2-3 sentences MAX
+- Create visual breathing room
+- Use <p></p> tags around every paragraph
 
-## STEP-BY-STEP REASONING PROCESS (Internal - Do Not Output)
+### NATURAL BULLET POINTS
+Insert bullet points where they improve readability:
+- Feature lists
+- Step-by-step processes
+- Benefits/advantages
+- Tips and best practices
+- Key takeaways
+Use <ul><li> for unordered, <ol><li> for ordered lists.
 
-Before generating, mentally:
-1. Analyze the topic and keywords for search intent
-2. Map location-intent signals throughout content
-3. Plan paragraph distribution (~30 words each)
-4. Identify natural H3 breakpoints
-5. Mark bullet point opportunities
-6. Ensure zero content repetition
-7. Apply Content Ladder at each section
-8. Insert LLMO cite-worthy statements
+### REAL-WORLD EXAMPLES
+Include concrete examples throughout:
+- Industry-specific scenarios
+- Before/after comparisons
+- Case study snippets
+- Practical applications
+- Tool/product examples
 
-## CONTENT GENERATION FRAMEWORK: ${selectedFramework.name}
-Formula: ${selectedFramework.formula}
+### COMPARISON TABLES
+${articleElements.includeComparisonTables ? `Include 1-2 HTML comparison tables where appropriate:
+<table>
+  <thead><tr><th>Feature</th><th>Option A</th><th>Option B</th></tr></thead>
+  <tbody>
+    <tr><td>...</td><td>...</td><td>...</td></tr>
+  </tbody>
+</table>
+Use for: features comparison, pricing tiers, pros/cons, tool comparisons.` : 'Skip comparison tables.'}
 
-## USER INTENT OPTIMIZATION (CRITICAL)
+### KEYWORD INTENT OPTIMIZATION
+Map keywords to user intent:
+- **Informational:** "what is", "how to", "guide", "tutorial"
+- **Commercial:** "best", "review", "comparison", "vs"
+- **Transactional:** "buy", "price", "discount", "sign up"
+- **Navigational:** brand names, specific products
+
+Current keyword density target: ${keywordDensity}%
+
+## USER INTENT ALIGNMENT
 ${userIntent ? `
 **Detected Intent:** ${userIntent.primaryIntent}
-**Searcher Goal:** ${userIntent.searcherGoal}  
+**Searcher Goal:** ${userIntent.searcherGoal}
 **Content Angle:** ${userIntent.contentAngle}
 **Intent Signals:** ${userIntent.intentSignals?.join(', ') || 'N/A'}
 
-ALIGN EVERY SECTION with this intent:
-- Informational → Education, explanations, guides, how-tos
-- Commercial Investigation → Comparisons, reviews, pros/cons, recommendations
-- Transactional → Benefits, CTAs, pricing, getting started
-- Navigational → Help find specific resources/pages
-` : 'Analyze topic to determine user intent and align content accordingly.'}
+Align ALL content sections with this detected intent.
+` : 'Analyze topic to determine and align with user intent.'}
 
-## MANDATORY FORMATTING RULES
+## LOCATION FOCUS: ${location}
+- Use ${location} English spelling and conventions
+- Reference ${location} companies, brands, regulations
+- Include ${location} market data and statistics
+- Mention "${location}" naturally 2-4 times
 
-### RULE 1: PARAGRAPH SPLITTING (STRICT ~30 WORDS)
-- EVERY paragraph MUST be approximately 30 words (28-35 word range)
-- If content requires 90 words → Split into THREE 30-word paragraphs
-- If content requires 60 words → Split into TWO 30-word paragraphs
-- Each paragraph = 2-3 sentences MAXIMUM
-- Add <p></p> tags around EVERY paragraph
-- Visual breathing room between paragraphs
+## ARTICLE ELEMENTS
+${articleElements.useFirstPerson ? '- Use first person ("I", "we") for personal, relatable tone' : '- Use third person for objective, authoritative tone'}
+${articleElements.includeStories ? '- Include personal anecdotes and mini case studies' : ''}
+${articleElements.includeHook ? '- Start with compelling hook: surprising fact, question, or bold statement' : ''}
+${articleElements.includeCitations ? '- Include [Source: ...] citations for statistics and claims' : ''}
+${articleElements.includeInternalLinks && internalLinkUrls?.length > 0 ? `- Include 2-4 internal links from: ${internalLinkUrls.slice(0, 10).join(', ')}` : ''}
 
-### RULE 2: NATURAL H3 SUBHEADINGS
-- Add <h3> tags ONLY where content benefits from subdivision
-- H3s break complex topics into digestible chunks
-- NOT every H2 needs H3s - use judgment
-- H3s should feel organic, not forced or mechanical
+${brandVoice ? `## BRAND VOICE
+**Voice:** ${brandVoice.name}
+**Tone:** ${brandVoice.tone || 'Professional'}
+${brandVoice.styleGuidelines ? `**Style:** ${brandVoice.styleGuidelines}` : ''}
+` : ''}
 
-### RULE 3: NATURAL BULLET POINTS
-- Use <ul><li> where lists improve clarity
-- Bullets for: features, benefits, steps, tips, examples, comparisons
-- Mix bullets with regular paragraphs for variety
-- NOT every section needs bullets
+## HTML OUTPUT FORMAT
+Use semantic HTML only:
+- <h2>, <h3> for headings
+- <p> for paragraphs (30-40 words each)
+- <ul>/<ol> with <li> for lists
+- <strong> for emphasis (not <b>)
+- <em> for italics (not <i>)
+- <table> for comparisons
+- <blockquote> for quotes/callouts
 
-### RULE 4: ZERO CONTENT REPETITION (CRITICAL)
-- NEVER repeat the same information twice
-- Each section provides NEW, UNIQUE insights
-- Vary vocabulary and phrasing throughout
-- No duplicate examples, statistics, or explanations
-
-### RULE 5: SEO + LLM READABILITY BALANCE
-- Write for HUMANS first, search engines second
-- Natural keyword integration (${keywordDensity}% density target)
-- Conversational authority tone
-- Active voice 80%+
+## HUMANIZATION TECHNIQUES
+Apply 10+ of these:
+- Contractions (it's, you'll, don't, can't)
 - Varied sentence lengths (5-25 words)
-- Flesch Reading Ease: 60-70
+- Natural transitions ("Here's the thing...", "That said...")
+- Specific numbers and data
+- Rhetorical questions
+- Metaphors and analogies
+- Direct "you" address
+- Occasional informal language
 
-## LOCATION-INTENT FOCUS: ${location}
+## FAQ SECTION (${generateFaqs ? `Generate ${faqCount} FAQs` : 'Skip FAQs'})
+${generateFaqs ? `
+Generate exactly ${faqCount} FAQs at the end of the article.
+Format each FAQ as:
+<div class="faq-item">
+  <h3>Q: [Question targeting specific keyword intent]</h3>
+  <p>[Comprehensive 50-80 word answer with entity references]</p>
+</div>
 
-### ${location}-Specific Requirements:
-- US English spelling (color, optimize, center)
-- US companies/brands (Google, Amazon, Microsoft, Apple)
-- US market data, statistics, trends (2024-2025)
-- USD currency ($) for any pricing
-- Mention "${location}" naturally 3-5 times throughout
-- Reference US regulations, standards where relevant
+FAQ Types to include:
+- Definition questions (What is...)
+- How-to questions (How do I...)
+- Comparison questions (What's the difference...)
+- Best practice questions (What's the best way...)
+- Troubleshooting questions (Why isn't... working)
+- Cost/pricing questions (How much does... cost)
+- Time questions (How long does... take)
+- Recommendation questions (Which... should I choose)
+` : ''}
 
-## FRAMEWORK APPLICATION
+## OUTPUT
+Generate complete HTML blog content following ALL guidelines above.
+Do NOT include any meta-commentary, explanations, or markdown - HTML only.`;
 
-${framework === 'SAGE' ? `**SAGE Framework:**
-- **S**tructure: Semantic HTML (h2, h3, p, ul). Clear information flow.
-- **A**uthority: Industry data, expert insights, credible 2025 sources.
-- **G**uidance: Step-by-step instructions, actionable tips.
-- **E**ngagement: Real-world examples, analogies, relatable scenarios.` : ''}
-
-${framework === 'READ' ? `**READ Framework:**
-- **R**hythm: Mix short (5-10 word) + longer (20-25 word) sentences.
-- **E**ngagement: Active voice, conversational "you" tone.
-- **A**ccessibility: Simple language, ~30 word paragraphs.
-- **D**irection: Clear transitions, logical flow between ideas.` : ''}
-
-${framework === 'CRAFT' ? `**C.R.A.F.T Framework:**
-- **C**lear: Simple, direct language. No jargon without explanation.
-- **R**elevant: Stay on-topic, answer user intent directly.
-- **A**ccurate: 2025-updated data and statistics.
-- **F**actual: Evidence-based claims with authority.
-- **T**erse: No fluff, every sentence adds value.` : ''}
-
-${framework === 'HUMAIZE' ? `**HUMAIZE Framework:**
-- **H**uman-like: Conversational, warm, relatable tone.
-- **U**nique: Varied sentence structures and vocabulary.
-- **M**eaningful: Real-world examples and applications.
-- **A**uthentic: Knowledgeable friend explaining concepts.
-- **I**ntuitive: Natural transitions between topics.
-- **Z**ero AI: Target <20% AI detection score.
-- **E**motion: Connect with reader pain points and goals.` : ''}
-
-${framework === 'HYBRID' ? `**HYBRID Multi-Framework:**
-Combine: SAGE (structure 30%) + READ (readability 25%) + CRAFT (clarity 25%) + HUMAIZE (human tone 20%)
-Apply all framework principles simultaneously for maximum optimization.` : ''}
-
-## CONTENT STRUCTURE
-
-### Word Count: ${targetWordCount}+ words total
-- **Introduction:** 100-150 words (4-5 short paragraphs)
-- **Body Sections:** 150-250 words each (5-8 paragraphs per section)
-- **Conclusion:** 80-120 words (3-4 paragraphs) + CTA
-
-### Keyword Integration
-- **Primary Keywords:** ${keywordDensity}% density, in H1, first 100 words, H2s, conclusion
-- **Secondary/Semantic/LSI:** Distribute naturally throughout
-- **NO keyword stuffing** - prioritize readability
-
-### Brand Integration: ${brandName || 'N/A'}
-${brandName ? `Mention "${brandName}" 2-4 times per major section naturally.` : 'No specific brand to integrate.'}
-
-### CTA Integration
-${includeCtaTypes.includes('course') ? '- Course CTA: Subtle enrollment/learning opportunities' : ''}
-${includeCtaTypes.includes('alsoRead') ? '- Also Read: 1-2 internal link suggestions' : ''}
-${includeCtaTypes.includes('related') ? '- Related Content: Suggest relevant topics' : ''}
-${includeCtaTypes.includes('industry') ? '- Industry Solutions: US industry applications' : ''}
-${includeCtaTypes.includes('usp') ? '- USP/Benefits: Unique value propositions' : ''}
-${includeCtaTypes.includes('humanIntent') ? '- Human Intent: Emotional triggers, pain points' : ''}
-${includeCtaTypes.includes('seoIntent') ? '- SEO Intent: Natural keyword CTAs' : ''}
-${includeCtaTypes.includes('llmoIntent') ? '- LLMO Intent: LLM-friendly cite-worthy statements' : ''}
-
-## HTML FORMATTING (MANDATORY)
-- Use: <p>, <h2>, <h3>, <strong>, <em>, <ul>, <ol>, <li>
-- Use <strong> NOT <b>
-- Use <em> NOT <i>
-- No inline styles
-- Clean semantic HTML only
-
-## HUMANIZATION TECHNIQUES (Apply 10-15)
-- Contractions: it's, you'll, don't, can't, won't
-- Sentence length variety (5-25 words)
-- Natural transitions: "Here's the thing...", "That said...", "The truth is..."
-- Specific examples with numbers
-- Industry terminology (explained naturally)
-- Rhetorical questions to engage reader
-- Metaphors and analogies for complex concepts
-- Direct address ("you", "your")
-
-## ARTICLE ELEMENT SETTINGS (Apply Based on Selection)
-${articleElements.useFirstPerson ? `- **First Person:** Write from an "I" perspective. Share personal experiences and opinions. Use phrases like "I've found", "In my experience", "I recommend".` : '- **Third Person:** Write in objective third person. Avoid "I" statements. Use authoritative, journalistic tone.'}
-${articleElements.includeStories ? `- **Stories & Examples:** Include personal anecdotes, case studies, and real-world examples. Make content relatable with specific scenarios.` : '- **No Stories:** Focus on direct information delivery. Skip personal anecdotes and extended examples.'}
-${articleElements.includeHook ? `- **Engaging Hook:** Start with a compelling introduction - a surprising fact, thought-provoking question, bold statement, or relatable scenario to grab attention immediately.` : '- **Direct Start:** Begin directly with the topic. Skip hooks and jump straight to the main content.'}
-${articleElements.includeHtmlElement ? `- **HTML Interactive Element:** Include ONE interactive HTML element (calculator, quiz, comparison table, checklist, or FAQ accordion) relevant to the topic.` : ''}
-${articleElements.includeCitations ? `- **Citations:** Include authoritative references, statistics, and expert quotes. Add [Source: ...] notations or inline links to studies/reports.` : '- **No Citations:** Write based on general knowledge without explicit source citations.'}
-${articleElements.includeInternalLinks ? `- **Internal Links:** ${internalLinkUrls && internalLinkUrls.length > 0 ? `Include 2-4 internal links from this list of available URLs:
-${internalLinkUrls.slice(0, 15).map((url: string) => `  - ${url}`).join('\n')}
-Choose the most contextually relevant URLs and insert them as proper anchor tags: <a href="URL">descriptive anchor text</a>` : 'Include 2-4 placeholder internal link suggestions like [Internal Link: Related Topic Here] where relevant content could be linked.'}` : ''}
-
-${brandVoice ? `## BRAND VOICE (Apply Throughout)
-**Voice Name:** ${brandVoice.name}
-**Tone:** ${brandVoice.tone || 'Not specified'}
-${brandVoice.styleGuidelines ? `**Style Guidelines:** ${brandVoice.styleGuidelines}` : ''}
-${brandVoice.vocabularyPreferences ? `**Vocabulary Preferences:** ${brandVoice.vocabularyPreferences}` : ''}
-${brandVoice.exampleContent ? `**Example of Brand Voice:**
-${brandVoice.exampleContent.substring(0, 500)}` : ''}
-
-Apply this brand voice consistently throughout all content - match the tone, vocabulary, and style.` : ''}
-
-## SELF-CHECK BEFORE OUTPUT
-✓ All paragraphs ~30 words?
-✓ H3s added naturally where beneficial?
-✓ Bullet points where lists help?
-✓ Zero repeated content?
-✓ SEO optimized but human-readable?
-✓ Framework applied correctly?
-✓ Location-intent present?
-✓ LLM-friendly structure?
-✓ Content Ladder applied (distance, realness, query variations)?
-✓ LLMO cite-worthy statements included?
-${articleElements.useFirstPerson ? '✓ First person perspective used?' : '✓ Third person perspective maintained?'}
-${articleElements.includeStories ? '✓ Stories/examples included?' : ''}
-${articleElements.includeHook ? '✓ Engaging hook in introduction?' : ''}
-${articleElements.includeCitations ? '✓ Citations/references added?' : ''}
-
-**OUTPUT: HTML CONTENT ONLY. NO EXPLANATIONS, NO META COMMENTARY.**`;
-
-    const userPrompt = `Generate a ${selectedFramework.name}-optimized blog post with Content Ladder LLMO optimization.
-
-**Request ID:** ${Date.now()} (for unique content generation)
+    const userPrompt = `Generate a comprehensive ${funnelStage.toUpperCase()} blog post with LLMO optimization.
 
 **TOPIC:** ${metaTags.title}
-**LOCATION INTENT:** ${location}
-**BRAND:** ${brandName || 'N/A'}
+**FUNNEL STAGE:** ${funnelStage.toUpperCase()} (${funnelStage === 'tofu' ? 'Awareness' : funnelStage === 'mofu' ? 'Consideration' : 'Decision'})
 **TARGET WORD COUNT:** ${targetWordCount}+ words
-**KEYWORD DENSITY:** ${keywordDensity}%
+**FAQ COUNT:** ${generateFaqs ? faqCount : 0}
+**LOCATION:** ${location}
+${brandName ? `**BRAND:** ${brandName} (integrate naturally)` : ''}
 
-${contextContent ? `## PRIMARY CONTEXT DOCUMENT (USE AS FOUNDATION)
-Transform this context into the blog post - do not add external information:
---- CONTEXT START ---
+${contextContent ? `## CONTEXT DOCUMENT
+Use this as primary content foundation:
+---
 ${contextContent.substring(0, 8000)}
---- CONTEXT END ---
+---
+` : ''}
 
-` : ''}## KEYWORDS TO INTEGRATE
+## KEYWORDS (Integrate at ${keywordDensity}% density)
 **Primary:** ${keywords.primary.join(", ")}
 **Secondary:** ${keywords.secondary.join(", ")}
 **Semantic:** ${keywords.semantic.join(", ")}
 **LSI:** ${keywords.lsi.join(", ")}
+${keywords.conversational?.length ? `**Conversational:** ${keywords.conversational.join(", ")}` : ''}
+${keywords.longTail?.length ? `**Long-tail:** ${keywords.longTail.join(", ")}` : ''}
 
-## HEADING STRUCTURE TO FOLLOW
+## HEADING STRUCTURE
 ${h2List}
 
-${faqContent && faqContent.length > 0 ? `## FAQ SECTION (Add at end)
-${faqContent.map((faq: any) => `<h3>${faq.question}</h3>\n<p>${faq.answer}</p>`).join("\n")}` : ""}
-
-## CONTENT LADDER REQUIREMENTS
-☑ Distance Score: 85+ (avoid AI patterns)
-☑ Realness Score: 90+ (human authenticity)
-☑ Query Ladder: All 4 levels covered
-☑ Semantic Distance: Close/Medium/Far/Edge content
-☑ 3-5 LLMO cite-worthy statements
-
-## MANDATORY VALIDATION CHECKLIST
-☑ ≥${targetWordCount} words total
-☑ Every paragraph ~30 words (28-35 range)
-☑ H3 subheadings added naturally
-☑ Bullet points where appropriate
-☑ ZERO content repetition
-☑ ${keywordDensity}% keyword density
-☑ "${location}" mentioned 3-5 times
+## VALIDATION CHECKLIST
+☑ ${targetWordCount}+ words total
+☑ Every paragraph 30-40 words
+☑ Natural bullet points included
+☑ Real-world examples throughout
+${articleElements.includeComparisonTables ? '☑ 1-2 comparison tables' : ''}
+☑ Keywords at ${keywordDensity}% density
+☑ ${funnelStage.toUpperCase()} intent alignment
+☑ Entity-rich content (names, data, sources)
+☑ 2025 freshness signals
+${generateFaqs ? `☑ ${faqCount} FAQs at end` : ''}
 ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
-☑ All provided H2 headings used
-☑ Clean semantic HTML
-☑ 2025 content references
-☑ Flesch Reading Ease 60+
-☑ AI detection target <20%
 
-**THINK STEP-BY-STEP. THEN OUTPUT HTML ONLY.**`;
+**OUTPUT HTML ONLY. NO EXPLANATIONS.**`;
 
-    // Function to make API request
     async function makeApiRequest(
       url: string, 
       key: string, 
@@ -507,28 +474,15 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       isGoogleDirect: boolean
     ): Promise<Response> {
       if (isGoogleDirect) {
-        // Google Gemini API format
         return fetch(`${url}?key=${key}`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: systemPrompt + "\n\n" + userPrompt }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 8192,
-            }
+            contents: [{ parts: [{ text: systemPrompt + "\n\n" + userPrompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 16384 }
           }),
         });
       } else {
-        // OpenAI-compatible format (Lovable Gateway, OpenRouter)
         return fetch(url, {
           method: "POST",
           headers: {
@@ -546,11 +500,9 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       }
     }
 
-    // Make the API request with fallback logic
     let response = await makeApiRequest(apiUrl, apiKey, modelId, isGoogleDirectApi);
     let usedFallback = false;
 
-    // If Google direct API fails with 401, fallback to Lovable gateway
     if (!response.ok && isGoogleDirectApi && (response.status === 401 || response.status === 403)) {
       console.log("Google Gemini API failed, falling back to Lovable AI Gateway");
       
@@ -581,28 +533,16 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
 
     const data = await response.json();
     
-    // Extract content and token usage based on API format
     let content: string;
-    let tokenUsage = {
-      promptTokens: 0,
-      completionTokens: 0,
-      totalTokens: 0
-    };
+    let tokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     
     if (isGoogleDirectApi && !usedFallback) {
-      // Google Gemini response format
       if (!data?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        console.error("Invalid Gemini response structure:", {
-          hasData: !!data,
-          hasCandidates: !!data?.candidates,
-          fullResponse: JSON.stringify(data).substring(0, 500),
-          timestamp: new Date().toISOString()
-        });
+        console.error("Invalid Gemini response:", JSON.stringify(data).substring(0, 500));
         throw new Error("Invalid response structure from Gemini API");
       }
       content = data.candidates[0].content.parts[0].text;
       
-      // Extract token usage from Gemini response
       if (data.usageMetadata) {
         tokenUsage = {
           promptTokens: data.usageMetadata.promptTokenCount || 0,
@@ -611,20 +551,12 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
         };
       }
     } else {
-      // OpenAI-compatible response format
       if (!data?.choices?.[0]?.message?.content) {
-        console.error("Invalid AI response structure:", {
-          hasData: !!data,
-          hasChoices: !!data?.choices,
-          choicesLength: data?.choices?.length,
-          fullResponse: JSON.stringify(data).substring(0, 500),
-          timestamp: new Date().toISOString()
-        });
+        console.error("Invalid AI response:", JSON.stringify(data).substring(0, 500));
         throw new Error("Invalid response structure from AI gateway");
       }
       content = data.choices[0].message.content;
       
-      // Extract token usage from OpenAI-compatible response
       if (data.usage) {
         tokenUsage = {
           promptTokens: data.usage.prompt_tokens || 0,
@@ -634,7 +566,7 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       }
     }
 
-    // Calculate SEO score
+    // Calculate metrics
     const wordCount = content.split(/\s+/).length;
     const primaryKeywordCount = (content.match(new RegExp(keywords.primary[0], "gi")) || []).length;
     const hasAllH2s = headings.h2s.every((h2: string) => 
@@ -647,28 +579,24 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
     if (hasAllH2s) seoScore += 25;
     if (content.includes(metaTags.title)) seoScore += 20;
 
-    // Calculate Content Ladder metrics
-    const contentLadderMetrics: ContentLadderMetrics = calculateContentLadderMetrics(content, keywords);
+    const contentMetrics = calculateContentMetrics(content, keywords, funnelStage);
 
     console.log("Content generation completed:", {
       wordCount,
       seoScore,
-      contentLadderMetrics,
+      contentMetrics,
       keySource,
       usedFallback,
       timestamp: new Date().toISOString()
     });
 
-    // Calculate estimated cost based on model
+    // Calculate estimated cost
     let estimatedCost = 0;
-    const totalTokens = tokenUsage.totalTokens;
-    
-    // Pricing per 1M tokens (approximate)
     const pricing: Record<string, { input: number; output: number }> = {
       'claude-sonnet-4': { input: 3, output: 15 },
       'claude-sonnet-4.5': { input: 3, output: 15 },
-      'gemini-free': { input: 0, output: 0 }, // Free tier
-      'gemini-flash': { input: 0, output: 0 }, // Lovable AI - included
+      'gemini-free': { input: 0, output: 0 },
+      'gemini-flash': { input: 0, output: 0 },
     };
     
     const modelPricing = pricing[model] || { input: 0, output: 0 };
@@ -681,10 +609,10 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
       JSON.stringify({ 
         content, 
         seoScore,
-        contentLadderMetrics,
+        contentMetrics,
         keySource: usedFallback ? 'admin (fallback)' : keySource,
         tokenUsage,
-        estimatedCost: Math.round(estimatedCost * 10000) / 10000 // Round to 4 decimal places
+        estimatedCost: Math.round(estimatedCost * 10000) / 10000
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -704,28 +632,34 @@ ${brandName ? `☑ "${brandName}" integrated naturally` : ''}
   }
 });
 
-// Calculate Content Ladder metrics from generated content
-function calculateContentLadderMetrics(content: string, keywords: any): ContentLadderMetrics {
+function calculateContentMetrics(content: string, keywords: any, funnelStage: string): ContentMetrics {
   const text = content.toLowerCase();
   
-  // Distance Score: Check for AI pattern avoidance
-  const aiPatterns = [
-    'in today\'s world', 'in the ever-evolving', 'furthermore', 'moreover',
-    'additionally', 'it is important to note', 'in conclusion',
-    'incredibly important', 'absolutely essential', 'extremely vital'
-  ];
-  const aiPatternMatches = aiPatterns.filter(p => text.includes(p)).length;
-  const distanceScore = Math.max(0, 100 - (aiPatternMatches * 15));
+  // Funnel Alignment: Check for stage-appropriate content patterns
+  const funnelPatterns: Record<string, string[]> = {
+    tofu: ['what is', 'introduction', 'basics', 'understanding', 'guide', 'learn', 'discover'],
+    mofu: ['how to', 'compare', 'best', 'review', 'vs', 'alternative', 'solution'],
+    bofu: ['buy', 'price', 'get started', 'sign up', 'try', 'demo', 'contact']
+  };
+  const patterns = funnelPatterns[funnelStage] || funnelPatterns.tofu;
+  const funnelMatches = patterns.filter(p => text.includes(p)).length;
+  const funnelAlignment = Math.min(100, 40 + (funnelMatches * 12));
   
-  // Realness Score: Check for human-like patterns
-  const humanPatterns = [
-    'i\'ve', 'i\'m', 'you\'ll', 'here\'s', 'that\'s', 'don\'t', 'can\'t',
-    'let me', 'honestly', 'frankly', 'the truth is', 'here\'s the deal'
+  // Entity Density: Check for named entities
+  const entityPatterns = [
+    /\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)+\b/g,  // Proper nouns
+    /\b\d{4}\b/g,  // Years
+    /\b\d+%\b/g,   // Percentages
+    /\$[\d,]+/g,   // Dollar amounts
   ];
-  const humanPatternMatches = humanPatterns.filter(p => text.includes(p)).length;
-  const realnessScore = Math.min(100, 50 + (humanPatternMatches * 8));
+  let entityCount = 0;
+  entityPatterns.forEach(pattern => {
+    const matches = content.match(pattern);
+    if (matches) entityCount += matches.length;
+  });
+  const entityDensity = Math.min(100, 30 + (entityCount * 2));
   
-  // Semantic Depth: Check keyword variations coverage
+  // Semantic Relatedness: Keyword coverage
   const allKeywords = [
     ...(keywords.primary || []),
     ...(keywords.secondary || []),
@@ -735,29 +669,26 @@ function calculateContentLadderMetrics(content: string, keywords: any): ContentL
   const keywordsFound = allKeywords.filter((kw: string) => 
     text.includes(kw.toLowerCase())
   ).length;
-  const semanticDepth = Math.min(100, Math.round((keywordsFound / Math.max(1, allKeywords.length)) * 100));
+  const semanticRelatedness = Math.min(100, Math.round((keywordsFound / Math.max(1, allKeywords.length)) * 100));
   
-  // Query Ladder Score: Check for question patterns
-  const questionPatterns = [
-    'what is', 'how does', 'why', 'when to', 'how to',
-    'best practices', 'common mistakes', 'vs', 'compared to'
-  ];
-  const questionMatches = questionPatterns.filter(p => text.includes(p)).length;
-  const queryLadderScore = Math.min(100, 40 + (questionMatches * 10));
+  // Freshness: Check for current year references
+  const freshnessPatterns = ['2025', '2024', 'recently', 'latest', 'new', 'updated', 'current'];
+  const freshnessMatches = freshnessPatterns.filter(p => text.includes(p)).length;
+  const freshness = Math.min(100, 40 + (freshnessMatches * 12));
   
   // Overall LLMO Score
   const llmoScore = Math.round(
-    (distanceScore * 0.25) + 
-    (realnessScore * 0.25) + 
-    (semanticDepth * 0.25) + 
-    (queryLadderScore * 0.25)
+    (funnelAlignment * 0.25) + 
+    (entityDensity * 0.25) + 
+    (semanticRelatedness * 0.25) + 
+    (freshness * 0.25)
   );
   
   return {
-    distanceScore,
-    realnessScore,
-    semanticDepth,
-    queryLadderScore,
+    funnelAlignment,
+    entityDensity,
+    semanticRelatedness,
+    freshness,
     llmoScore
   };
 }
