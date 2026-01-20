@@ -54,7 +54,16 @@ serve(async (req) => {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json') && responseText.startsWith('<')) {
       console.error("Non-JSON response received:", responseText.substring(0, 200));
-      throw new Error("WordPress REST API returned HTML instead of JSON. Please ensure REST API is enabled and accessible.");
+      
+      // Check for common security challenge patterns
+      if (responseText.includes('aes.js') || responseText.includes('challenge') || responseText.includes('captcha')) {
+        throw new Error("Your WordPress site has bot protection enabled (Sucuri, Wordfence, or CDN security) that's blocking API requests. Please whitelist your site's REST API endpoint or disable the security challenge for API routes.");
+      }
+      if (responseText.includes('cloudflare') || responseText.includes('cf-')) {
+        throw new Error("Cloudflare protection is blocking the API request. Please create a Page Rule to bypass security for /wp-json/* paths, or whitelist API requests.");
+      }
+      
+      throw new Error("WordPress REST API returned HTML instead of JSON. This usually means: 1) A security plugin is blocking requests, 2) The REST API is disabled, or 3) A CDN/WAF is intercepting requests. Check your security plugins and hosting configuration.");
     }
 
     let userData;
